@@ -55,21 +55,25 @@ public class StageManager : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             Move_SMino(sMinos[0]);
+            sMinos[0].Spawn_SMino(false);
         }
 
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             Move_SMino(sMinos[1]);
+            sMinos[1].Spawn_SMino(false);
         }
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             Move_SMino(sMinos[2]);
+            sMinos[2].Spawn_SMino(false);
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             Move_SMino(sMinos[3]);
+            sMinos[3].Spawn_SMino(false);
         }
 
 
@@ -149,7 +153,6 @@ public class StageManager : MonoBehaviour {
 
         m.Set_MinoType(MinoTypes.Empty);
     }
-
     public void Move_SMino(Slamino s)
     {
         int minMove = 0; // means null
@@ -201,13 +204,12 @@ public class StageManager : MonoBehaviour {
             
             Move_Mino(s.minos[i], xMove, yMove);
         }
-
-
-        Remove_MovedChains();
+        
+        Remove_CMinos();
     }
 
 
-    public void Remove_MovedChains()
+    public void Remove_CMinos()
     {
         for(int i =0; i<MMinos.Count; i++)
         {
@@ -269,6 +271,11 @@ public class StageManager : MonoBehaviour {
             while (board[m.Xpos + 1 + xDif, m.Ypos].MinoType == MinoTypes.Empty)
             {
                 xDif++;
+                if(m.Xpos+xDif > verLine)
+                {
+                    xDif--;
+                    break;
+                }
             }
         }
         else if (xDir == -1)
@@ -276,6 +283,11 @@ public class StageManager : MonoBehaviour {
             while (board[m.Xpos - 1 + xDif, m.Ypos].MinoType == MinoTypes.Empty)
             {
                 xDif--;
+                if (m.Xpos + xDif < verLine)
+                {
+                    xDif++;
+                    break;
+                }
             }
         }
         else if (yDir == 1)
@@ -283,6 +295,11 @@ public class StageManager : MonoBehaviour {
             while (board[m.Xpos, m.Ypos + 1 + yDif].MinoType == MinoTypes.Empty)
             {
                 yDif++;
+                if (m.Ypos + yDif > horLine)
+                {
+                    yDif--;
+                    break;
+                }
             }
         }
         else if(yDir == -1)
@@ -290,6 +307,11 @@ public class StageManager : MonoBehaviour {
             while (board[m.Xpos, m.Ypos - 1 + yDif].MinoType == MinoTypes.Empty)
             {
                 yDif--;
+                if (m.Ypos + yDif < horLine)
+                {
+                    yDif++;
+                    break;
+                }
             }
         }
         
