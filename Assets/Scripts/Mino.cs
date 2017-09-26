@@ -15,8 +15,7 @@ public class Mino : MonoBehaviour {
 
     #region Field 
     // Mechanism Data
-    int x;
-    int y; 
+    int x, y;
     private MinoTypes minoType;
     public List<Mino> CMinos;
   
