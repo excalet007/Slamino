@@ -84,6 +84,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\ChainMino.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\Mino.cs" />
     <Compile Include="Assets\Scripts\Slamino.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="Assets\Scripts\enums.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\ReadMe.txt" />
     <None Include="Assets\Resources\Graphics\Breakout-C\About.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />

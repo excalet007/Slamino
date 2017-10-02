@@ -14,3 +14,10 @@ public enum SMinoPos
     Left,
     Right
 }
+
+public enum MoveTypes
+{
+    None,
+    Push,
+    SlaminoPush
+}

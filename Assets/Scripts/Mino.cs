@@ -9,7 +9,6 @@ public class Mino : MonoBehaviour {
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         coordinate = GetComponentInChildren<TextMesh>();
-        CMinos = new List<Mino>();
     }
     #endregion
 
@@ -17,14 +16,15 @@ public class Mino : MonoBehaviour {
     // Mechanism Data
     int x, y;
     private MinoTypes minoType;
-    public List<Mino> CMinos;
+    private MoveTypes moveType;
   
     // Graphical Data
     private SpriteRenderer spriteRenderer;
     public List<Sprite> sprites;
 
     // Debugging Tool
-    private TextMesh coordinate;
+    private TextMesh coordinate;    
+
 
     #endregion
 
@@ -34,7 +34,10 @@ public class Mino : MonoBehaviour {
         minoType = type;
         spriteRenderer.sprite = sprites[(int)type];
     }
-
+    public void Set_MoveType(MoveTypes type)
+    {
+        moveType = type;
+    }
     public void Set_Pos(int x, int y)
     {
         this.x = x;
@@ -45,5 +48,6 @@ public class Mino : MonoBehaviour {
     public int Xpos { get { return x; } }
     public int Ypos { get { return y; } }
     public MinoTypes MinoType { get { return minoType; } }
+    public MoveTypes MoveType { get { return moveType; } }
     #endregion
 }
