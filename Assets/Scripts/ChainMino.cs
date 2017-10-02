@@ -5,6 +5,7 @@ using UnityEngine;
 /// <summary>
 /// connected-sameType-minos
 /// </summary>
+[System.Serializable]
 public class ChainMino {
 
     MinoTypes minotype;

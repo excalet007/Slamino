@@ -15,10 +15,10 @@ public class StageManager : MonoBehaviour {
         // ------------------------------Settings from game Manager------------------------------
         // This values will be loaded from gameManager (not yet)
         // map Size factor
-        mapX = 16;
-        mapY = 12;
-        zoneX = mapX -1*2;
-        zoneY = mapY -1*2;
+        mapX = 20;
+        mapY = 14;
+        zoneX = mapX -2*2;
+        zoneY = mapY -2*2;
         gapX = (mapX - zoneX) / 2;
         gapY = (mapY - zoneY) / 2;
 
@@ -28,6 +28,7 @@ public class StageManager : MonoBehaviour {
         // -----------------------------------Initialize Variables----------------------------------------
 
         cMinos = new List<ChainMino>();
+        onCycle = false;
 
         // ------------------------------------------MapGenarating-----------------------------------
 
@@ -43,24 +44,27 @@ public class StageManager : MonoBehaviour {
         // Scene Reset
         if (Input.GetKeyDown(KeyCode.R))
             SceneManager.LoadScene(0);
-
+        
         // Movement
-        if (Input.GetKeyDown(KeyCode.UpArrow))
-            Run_AlgoCycle(0);
+        if(onCycle == false)
+        {
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+                StartCoroutine(Run_AlgoCycle_Corutine(0));
 
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-            Run_AlgoCycle(1);
+            if (Input.GetKeyDown(KeyCode.DownArrow))
+                StartCoroutine(Run_AlgoCycle_Corutine(1));
 
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-            Run_AlgoCycle(2);
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+                StartCoroutine(Run_AlgoCycle_Corutine(2));
 
-        if (Input.GetKeyDown(KeyCode.RightArrow))
-            Run_AlgoCycle(3);
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+                StartCoroutine(Run_AlgoCycle_Corutine(3));
+        }
+
 
         // Debugging
         if (Input.GetKeyDown(KeyCode.T))
-            print(cMinos);
-
+            print("Test to Toast");
         #endif
     }
     #endregion
@@ -100,29 +104,40 @@ public class StageManager : MonoBehaviour {
     int xPush, yPush;
     int gapX, gapY;
     public Slamino[] sMinos;
+    [SerializeField]
     List<ChainMino> cMinos;
+
+    // handle Action
+    bool onCycle;
+
     #endregion
 
     #region Main Algorithm Cycle
-    void Run_AlgoCycle(int SMinoIndex)
+    IEnumerator Run_AlgoCycle_Corutine(int SMinoIndex)
     {
+        //Action Handle
+        onCycle = true;
+
         //Push Setting
         Set_PushDirectioin(SMinoIndex);
 
-        //Reset Global Variables
-        
-
         //Push Slamino
         Push_SMino(sMinos[SMinoIndex]);
+        yield return new WaitForSeconds(0.1f);
 
-        //Check IsConnected
+        //Check & Pop Connect
         Search_ChainMinos();
-
-        //Pop Connect
         Pop_ChainMinos(MoveTypes.Push);
-        
-        //Push Floating
+        yield return new WaitForSeconds(0.1f);
 
+        //Push Floating
+        Push_FloatingSMino();
+        yield return new WaitForSeconds(0.1f);
+        
+        //Make it as Refeatable
+        Search_ChainMinos();
+        Pop_ChainMinos(MoveTypes.Push);
+        yield return new WaitForSeconds(0.1f);
 
         //Check IsEmpty
 
@@ -130,10 +145,17 @@ public class StageManager : MonoBehaviour {
         //Push whole Minos
 
 
+        //Reset_Variables
+        Reset_Minos_Movement();
+
         //Respawn Slamino
         sMinos[SMinoIndex].Spawn_SMino(false);
-    }
+        yield return new WaitForSeconds(0.1f);
 
+        //End cycle
+        onCycle = false;
+    }
+    
     #endregion
     
     #region Basic Function(Use no custom function)
@@ -292,19 +314,26 @@ public class StageManager : MonoBehaviour {
         }
         return false;
     }
-    bool Get_IsConnected(Mino m)
+    bool Get_IsFloating_Cross(Mino m)
     {
         if (m.MinoType != MinoTypes.Empty)
         {
             if (((m.Ypos + 1) <= (mapY - 1 - gapY)) && board[m.Xpos, m.Ypos + 1].MinoType != MinoTypes.Empty)
-                return true;
+                return false;
             else if (((m.Ypos - 1) >= gapY) && board[m.Xpos, m.Ypos - 1].MinoType != MinoTypes.Empty)
-                return true;
+                return false;
             else if (((m.Xpos - 1) >= gapX) && board[m.Xpos - 1, m.Ypos].MinoType != MinoTypes.Empty)
-                return true;
+                return false;
             else if (((m.Xpos + 1) <= (mapX - 1 - gapX)) && board[m.Xpos + 1, m.Ypos].MinoType != MinoTypes.Empty)
-                return true;
+                return false;
         }
+        return true;
+    }
+    bool Get_IsFloating_Axial(Mino m)
+    {
+        Mino mino = Get_ContactPos_ToZone(m, xPush, yPush);
+        if (m.Xpos != mino.Xpos || m.Ypos != mino.Ypos)
+            return true;
         return false;
     }
 
@@ -341,8 +370,27 @@ public class StageManager : MonoBehaviour {
         return ms;
     }
 
+    List<Mino> Get_Minos_ByMoveType(MoveTypes mType)
+    {
+        List<Mino> mList = new List<Mino>();
+
+        for (int x = gapX; x <= mapX - 1 - gapX; x++)
+        {
+            for (int y = gapY; y <= mapY - 1 - gapY; y++)
+            {
+                if (board[x, y].MoveType == mType)
+                    mList.Add(board[x, y]);
+            }
+        }
+
+        return mList;
+    }
+
     void Search_ChainMinos()
     {
+        //Reset
+        cMinos.Clear();
+
         for(int x = gapX; x <= mapX -1 -gapX; x++)
         {
             for(int y = gapY; y <= mapY -1 - gapY; y++)
@@ -405,6 +453,20 @@ public class StageManager : MonoBehaviour {
         cMinos.Clear();
     }
 
+    void Push_FloatingSMino()
+    {
+        List<Mino> FMino = Get_Minos_ByMoveType(MoveTypes.Push);
+        for(int i = 0; i<FMino.Count; i++)
+        {
+            if(Get_IsFloating_Cross(FMino[i]))
+            {
+                Mino to = Get_ContactPos_ToZone(FMino[i], xPush, yPush);
+                Move_Mino(FMino[i], to.Xpos, to.Ypos, MoveTypes.Push);
+            }
+        }
+
+    }
+
     void Set_PushDirectioin(int SMinoIndex)
     {
         xPush = 0;
@@ -429,8 +491,17 @@ public class StageManager : MonoBehaviour {
                 break;
         }
     }
-    
 
+    void Reset_Minos_Movement()
+    {
+        for (int x = gapX; x <= mapX - 1 - gapX; x++)
+        {
+            for (int y = gapY; y <= mapY - 1 - gapY; y++)
+            {
+                board[x, y].Set_MoveType(MoveTypes.None);
+            }
+        }
+    }
     #endregion
 
     #region Mixed Function(Use basic function)
@@ -493,7 +564,7 @@ public class StageManager : MonoBehaviour {
         }
         #endregion
     }
-    
+
     void Clear_Calculation()
     {
         cMinos.Clear();
@@ -516,11 +587,11 @@ public class StageManager : MonoBehaviour {
             }
         }
     }
-    
+
 
 
     #endregion
-
+    
     #region Initial Map Generation Fuction
     void Initialize_Board(int width, int height)
     {
