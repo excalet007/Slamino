@@ -143,15 +143,15 @@ public class StageManager : MonoBehaviour {
 
 
         //Push whole Minos
-
+        Push_AllMinos(SMinoIndex);
+        yield return new WaitForSeconds(0.1f);
 
         //Reset_Variables
         Reset_Minos_Movement();
 
         //Respawn Slamino
         sMinos[SMinoIndex].Spawn_SMino(false);
-        yield return new WaitForSeconds(0.1f);
-
+        
         //End cycle
         onCycle = false;
     }
@@ -329,13 +329,7 @@ public class StageManager : MonoBehaviour {
         }
         return true;
     }
-    bool Get_IsFloating_Axial(Mino m)
-    {
-        Mino mino = Get_ContactPos_ToZone(m, xPush, yPush);
-        if (m.Xpos != mino.Xpos || m.Ypos != mino.Ypos)
-            return true;
-        return false;
-    }
+
 
     List<Mino> Get_ConnectedMinos(Mino m)
     {
@@ -466,6 +460,59 @@ public class StageManager : MonoBehaviour {
         }
 
     }
+    void Push_AllMinos(int SMinoIndex)
+    {
+        switch(SMinoIndex)
+        {
+            case 0:
+                for (int x = gapY; x <= mapX - 1 - gapX; x++)
+                {
+                    for (int y = gapY; y <= mapY - 1 - gapY; y++)
+                    {
+                        if (board[x, y].MinoType != MinoTypes.Empty)
+                            Move_Mino(board[x, y], x , (y - 1), MoveTypes.Push);
+                    }
+                }
+                break;
+
+            case 1:
+                for (int x = gapX; x <= mapX - 1 - gapX; x++)
+                {
+                    for (int y = mapY-1-gapY; y >= gapY; y--)
+                    {
+                        if (board[x, y].MinoType != MinoTypes.Empty)
+                            Move_Mino(board[x, y], x, (y + 1), MoveTypes.Push);
+                    }
+                }
+                break;
+
+            case 2:
+                for (int x = mapX -1 - gapY; x >= gapX; x--)
+                {
+                    for (int y = gapY; y <= mapY -1 - gapY; y++)
+                    {
+                        if (board[x, y].MinoType != MinoTypes.Empty)
+                            Move_Mino(board[x, y], (x+1), y, MoveTypes.Push);
+                    }
+                }
+                break;
+
+            case 3:
+                for (int x = gapY; x <= mapX - 1 -gapX; x++)
+                {
+                    for (int y = gapY; y <= mapY - 1 - gapY; y++)
+                    {
+                        if (board[x, y].MinoType != MinoTypes.Empty)
+                            Move_Mino(board[x, y], (x -1), y, MoveTypes.Push);
+                    }
+                }
+                break;
+
+            default:
+                Debug.LogError("you Input wrong SMinoIndex");
+                break;
+        }
+    }
 
     void Set_PushDirectioin(int SMinoIndex)
     {
@@ -505,7 +552,7 @@ public class StageManager : MonoBehaviour {
     #endregion
 
     #region Mixed Function(Use basic function)
-    public void Move_Mino(Mino m, int xPos, int yPos, MoveTypes moveType)
+    void Move_Mino(Mino m, int xPos, int yPos, MoveTypes moveType)
     {
         if (board[xPos, yPos].MinoType == MinoTypes.Empty)
         {
@@ -520,13 +567,13 @@ public class StageManager : MonoBehaviour {
         Clear_Mino(m);
     }
 
-    public void Clear_Mino(Mino m)
+    void Clear_Mino(Mino m)
     {
         m.Set_MinoType(MinoTypes.Empty);
         m.Set_MoveType(MoveTypes.None);
     }
 
-    public void Push_SMino(Slamino s)
+    void Push_SMino(Slamino s)
     {
         #region Get minimum movement for Slamino
         int minMove = (int)Mathf.Max((int)mapX, (int)mapY);
@@ -564,31 +611,6 @@ public class StageManager : MonoBehaviour {
         }
         #endregion
     }
-
-    void Clear_Calculation()
-    {
-        cMinos.Clear();
-        for (int x = gapX; x <= (mapX - 1 - gapX); x++)
-        {
-            for (int y = gapY; y <= (mapY - 1 - gapY); y++)
-            {
-                board[x,y].Set_MoveType(MoveTypes.None);
-            }
-        }
-    }
-
-    void Check_CMino(Mino m)
-    {
-        for(int x=gapX; x<= (mapX - 1 - gapX); x++)
-        {
-            for(int y=gapY; y<= (mapY -1 - gapY); y++)
-            {
-                ;
-            }
-        }
-    }
-
-
 
     #endregion
     
