@@ -24,8 +24,8 @@ public class ChainMino {
     {
         minotype = mType;
         minos = mList;
-
     }
+
     public ChainMino()
     {
         minotype = MinoTypes.Empty;

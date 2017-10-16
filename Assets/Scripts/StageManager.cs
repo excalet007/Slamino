@@ -17,8 +17,8 @@ public class StageManager : MonoBehaviour {
         // map Size factor
         mapX = 20;
         mapY = 14;
-        zoneX = mapX -2*2;
-        zoneY = mapY -2*2;
+        zoneX = mapX -1*2;
+        zoneY = mapY -1*2;
         gapX = (mapX - zoneX) / 2;
         gapY = (mapY - zoneY) / 2;
 
@@ -26,7 +26,7 @@ public class StageManager : MonoBehaviour {
         minoVariety = 3;
 
         // -----------------------------------Initialize Variables----------------------------------------
-
+ 
         cMinos = new List<ChainMino>();
         onCycle = false;
         isHookHor = false;
@@ -37,6 +37,13 @@ public class StageManager : MonoBehaviour {
 
         poppedMino_Total = 0;
         poppedChain_Total = 0;
+
+        curSMinoInex = -1;
+
+        swipe_UpLimit = mapY - 2;
+        swipe_DownLimit = 1;
+        swipe_LeftLimit = 1;
+        swipe_RightLimit = mapX - 2;
 
         // ------------------------------------------MapGenarating-----------------------------------
 
@@ -52,27 +59,189 @@ public class StageManager : MonoBehaviour {
         // Scene Reset
         if (Input.GetKeyDown(KeyCode.R))
             SceneManager.LoadScene(0);
-        
-        // Movement
-        if(onCycle == false)
+
+        // SMino Selection
+        if (Input.GetKeyDown(KeyCode.W))
+            curSMinoInex = 0;
+        if (Input.GetKeyDown(KeyCode.S))
+            curSMinoInex = 1;
+        if (Input.GetKeyDown(KeyCode.A))
+            curSMinoInex = 2;
+        if (Input.GetKeyDown(KeyCode.D))
+            curSMinoInex = 3;
+
+
+        // SMino Movement
+        if (Input.GetKeyDown(KeyCode.UpArrow) && onCycle == false)
         {
-            if (Input.GetKeyDown(KeyCode.UpArrow))
-                StartCoroutine(Run_AlgoCycle_Corutine(0));
+            switch (curSMinoInex)
+            {
+                case 0:
+                case 1:
+                    break;
 
-            if (Input.GetKeyDown(KeyCode.DownArrow))
-                StartCoroutine(Run_AlgoCycle_Corutine(1));
+                case 2:
+                case 3:
+                    if (sMinos[curSMinoInex].minos[0].Ypos < swipe_UpLimit)
+                    {
+                        int x0 = sMinos[curSMinoInex].minos[0].Xpos;
+                        int y0 = sMinos[curSMinoInex].minos[0].Ypos;
 
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
-                StartCoroutine(Run_AlgoCycle_Corutine(2));
+                        int x1 = sMinos[curSMinoInex].minos[1].Xpos;
+                        int y1 = sMinos[curSMinoInex].minos[1].Ypos;
 
-            if (Input.GetKeyDown(KeyCode.RightArrow))
-                StartCoroutine(Run_AlgoCycle_Corutine(3));
+                        Mino m0 = board[x0, y0 + 1];
+                        Mino m1 = board[x1, y1 + 1];
+                        Mino m2 = board[x1, y1];
+
+                        m0.Set_MinoType(sMinos[curSMinoInex].minos[0].MinoType);
+                        m1.Set_MinoType(sMinos[curSMinoInex].minos[1].MinoType);
+                        m2.Set_MinoType(MinoTypes.Empty);
+
+                        sMinos[curSMinoInex].minos[0] = m0;
+                        sMinos[curSMinoInex].minos[1] = m1;
+                    }
+                    break;
+
+                default:
+                    Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
+                    break;
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.DownArrow) && onCycle == false)
+        {
+            switch (curSMinoInex)
+            {
+                case 0:
+                case 1:
+                    break;
+
+                case 2:
+                case 3:
+                    if (sMinos[curSMinoInex].minos[1].Ypos > swipe_DownLimit)
+                    {
+                        int x0 = sMinos[curSMinoInex].minos[0].Xpos;
+                        int y0 = sMinos[curSMinoInex].minos[0].Ypos;
+
+                        int x1 = sMinos[curSMinoInex].minos[1].Xpos;
+                        int y1 = sMinos[curSMinoInex].minos[1].Ypos;
+
+                        Mino m0 = board[x0, y0 - 1];
+                        Mino m1 = board[x1, y1 - 1];
+                        Mino m2 = board[x0, y0];
+
+                        m1.Set_MinoType(sMinos[curSMinoInex].minos[1].MinoType);
+                        m0.Set_MinoType(sMinos[curSMinoInex].minos[0].MinoType);
+                        m2.Set_MinoType(MinoTypes.Empty);
+
+                        sMinos[curSMinoInex].minos[0] = m0;
+                        sMinos[curSMinoInex].minos[1] = m1;
+                    }
+                    break;
+
+                default:
+                    Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
+                    break;
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow) && onCycle == false)
+        {
+            switch (curSMinoInex)
+            {
+                case 0:
+                case 1:
+                    if (sMinos[curSMinoInex].minos[0].Xpos > swipe_LeftLimit )
+                    {
+                        int x0 = sMinos[curSMinoInex].minos[0].Xpos;
+                        int y0 = sMinos[curSMinoInex].minos[0].Ypos;
+
+                        int x1 = sMinos[curSMinoInex].minos[1].Xpos;
+                        int y1 = sMinos[curSMinoInex].minos[1].Ypos;
+
+                        Mino m0 = board[x0-1, y0];
+                        Mino m1 = board[x1-1, y1];
+                        Mino m2 = board[x1, y1];
+
+                        m0.Set_MinoType(sMinos[curSMinoInex].minos[0].MinoType);
+                        m1.Set_MinoType(sMinos[curSMinoInex].minos[1].MinoType);
+                        m2.Set_MinoType(MinoTypes.Empty);
+
+                        sMinos[curSMinoInex].minos[0] = m0;
+                        sMinos[curSMinoInex].minos[1] = m1;
+                    }
+                    break;
+
+                case 2:
+                case 3:
+                    break;
+
+                default:
+                    Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
+                    break;
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.RightArrow) && onCycle == false)
+        {
+            switch (curSMinoInex)
+            {
+                case 0:
+                case 1:
+                    if (sMinos[curSMinoInex].minos[1].Xpos < swipe_RightLimit)
+                    {
+                        int x0 = sMinos[curSMinoInex].minos[0].Xpos;
+                        int y0 = sMinos[curSMinoInex].minos[0].Ypos;
+
+                        int x1 = sMinos[curSMinoInex].minos[1].Xpos;
+                        int y1 = sMinos[curSMinoInex].minos[1].Ypos;
+
+                        Mino m0 = board[x0 +1, y0];
+                        Mino m1 = board[x1 +1, y1];
+                        Mino m2 = board[x0, y0];
+
+                        m1.Set_MinoType(sMinos[curSMinoInex].minos[1].MinoType);
+                        m0.Set_MinoType(sMinos[curSMinoInex].minos[0].MinoType);
+                        m2.Set_MinoType(MinoTypes.Empty);
+
+                        sMinos[curSMinoInex].minos[0] = m0;
+                        sMinos[curSMinoInex].minos[1] = m1;
+                    }
+                    break;
+
+                case 2:
+                case 3:
+                    break;
+
+                default:
+                    Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
+                    break;
+            }
         }
 
 
-        // Debugging
-        if (Input.GetKeyDown(KeyCode.T))
-            print("Test to Toast");
+        // Movement
+        if (onCycle == false)
+        {
+            if(Input.GetKeyDown(KeyCode.Space))
+            {
+                switch(curSMinoInex)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                        StartCoroutine(Run_AlgoCycle_Corutine(curSMinoInex));
+                        break;
+
+                    default:
+                        Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
+                        break;
+                }
+            }
+        }
+        
         #endif
     }
     #endregion
@@ -136,6 +305,13 @@ public class StageManager : MonoBehaviour {
     int poppedChain_CurBoard;
     int poppedChain_Total;
 
+    int curSMinoInex;
+
+    int swipe_UpLimit;
+    int swipe_DownLimit;
+    int swipe_LeftLimit;
+    int swipe_RightLimit;
+
     bool isHookHor;
     bool isHookVer;
 
@@ -178,69 +354,69 @@ public class StageManager : MonoBehaviour {
         Reset_Minos_Movement();
 
         //Push & Pop Floating-NormalMinos
-        isHookHor = true;
-        isHookVer = true;
-        int chainLimit = 0;
-        switch (SMinoIndex)
-        {
-            case 0:
-            case 1:
-                while((isHookHor==true || isHookVer == true) && chainLimit <= 5)
-                {
-                    HookHorizontal();
-                    yield return new WaitForSeconds(0.05f);
+        //isHookHor = true;
+        //isHookVer = true;
+        //int chainLimit = 0;
+        //switch (SMinoIndex)
+        //{
+        //    case 0:
+        //    case 1:
+        //        while((isHookHor==true || isHookVer == true) && chainLimit <= 5)
+        //        {
+        //            HookHorizontal();
+        //            yield return new WaitForSeconds(0.05f);
 
-                    Search_ChainMinos();
-                    if(isHookHor)
-                    {
-                        Pop_ChainMinos(MoveTypes.Push);
-                    }
-                    Reset_Minos_Movement();
+        //            Search_ChainMinos();
+        //            if(isHookHor)
+        //            {
+        //                Pop_ChainMinos(MoveTypes.Push);
+        //            }
+        //            Reset_Minos_Movement();
 
-                    HookVertical();
-                    yield return new WaitForSeconds(0.05f);
+        //            HookVertical();
+        //            yield return new WaitForSeconds(0.05f);
 
-                    Search_ChainMinos();
-                    if (isHookVer)
-                    {
-                        Pop_ChainMinos(MoveTypes.Push);
-                    }
-                    Reset_Minos_Movement();
-                    chainLimit++;
-                }
-                break;
+        //            Search_ChainMinos();
+        //            if (isHookVer)
+        //            {
+        //                Pop_ChainMinos(MoveTypes.Push);
+        //            }
+        //            Reset_Minos_Movement();
+        //            chainLimit++;
+        //        }
+        //        break;
 
-            case 2:
-            case 3:
-                while ((isHookHor == true || isHookVer == true) && chainLimit <= 5)
-                {
-                    HookVertical();
-                    yield return new WaitForSeconds(0.05f);
+        //    case 2:
+        //    case 3:
+        //        while ((isHookHor == true || isHookVer == true) && chainLimit <= 5)
+        //        {
+        //            HookVertical();
+        //            yield return new WaitForSeconds(0.05f);
 
-                    Search_ChainMinos();
-                    if (isHookVer)
-                    {
-                        Pop_ChainMinos(MoveTypes.Push);
-                    }
-                    Reset_Minos_Movement();
+        //            Search_ChainMinos();
+        //            if (isHookVer)
+        //            {
+        //                Pop_ChainMinos(MoveTypes.Push);
+        //            }
+        //            Reset_Minos_Movement();
 
-                    HookHorizontal();
-                    yield return new WaitForSeconds(0.05f);
+        //            HookHorizontal();
+        //            yield return new WaitForSeconds(0.05f);
 
-                    Search_ChainMinos();
-                    if (isHookHor)
-                    {
-                        Pop_ChainMinos(MoveTypes.Push);
-                    }
-                    Reset_Minos_Movement();
-                    chainLimit++;
-                }
-                break;
+        //            Search_ChainMinos();
+        //            if (isHookHor)
+        //            {
+        //                Pop_ChainMinos(MoveTypes.Push);
+        //            }
+        //            Reset_Minos_Movement();
+        //            chainLimit++;
+        //        }
+        //        break;
 
-            default:
-                Debug.LogError("Wrong Index Number");
-                break;
-        }
+        //    default:
+        //        Debug.LogError("Wrong Index Number");
+        //        break;
+        //}
 
         // Push whole Minos  OR   Reset  Boards
         if (poppedChain_CurBoard >= 10)
@@ -261,8 +437,6 @@ public class StageManager : MonoBehaviour {
 
             Initialize_CenterMinos(horLine, verLine, 4, 2, false);
         }
-        else
-            Push_AllMinos(SMinoIndex);
 
         //Reset_Variables
         Reset_Minos_Movement();
