@@ -15,26 +15,34 @@ public class StageManager : MonoBehaviour {
         // ------------------------------Settings from game Manager------------------------------
         // This values will be loaded from gameManager (not yet)
         // map Size factor
-        mapX = 12;
-        mapY = 10;
-        zoneX = mapX -1*2;
-        zoneY = mapY -1*2;
+        mapX = 20;
+        mapY = 14;
+        zoneX = mapX -2*2;
+        zoneY = mapY -2*2;
         gapX = (mapX - zoneX) / 2;
         gapY = (mapY - zoneY) / 2;
 
         // mino variaty (green, red, yellow, blue)
-        minoVariety = 4;
+        minoVariety = 3;
 
         // -----------------------------------Initialize Variables----------------------------------------
 
         cMinos = new List<ChainMino>();
         onCycle = false;
+        isHookHor = false;
+        isHookVer = false;
+
+        poppedMino_CurBoard = 0;
+        poppedChain_CurBoard = 0;
+
+        poppedMino_Total = 0;
+        poppedChain_Total = 0;
 
         // ------------------------------------------MapGenarating-----------------------------------
 
         Initialize_Board(mapX, mapY);
         Initialize_Axis(true, 0, 0);
-        Initialize_CenterMinos(horLine, verLine, 1,1, true);
+        Initialize_CenterMinos(horLine, verLine, 4,2, false);
         Initialize_Slaminos(false);
     }
 
@@ -123,6 +131,14 @@ public class StageManager : MonoBehaviour {
         get { return (int)(verLine + 0.5f); }
     }
 
+    int poppedMino_CurBoard;
+    int poppedMino_Total;
+    int poppedChain_CurBoard;
+    int poppedChain_Total;
+
+    bool isHookHor;
+    bool isHookVer;
+
     // handle Action
     bool onCycle;
 
@@ -162,77 +178,63 @@ public class StageManager : MonoBehaviour {
         Reset_Minos_Movement();
 
         //Push & Pop Floating-NormalMinos
-        switch(SMinoIndex)
+        isHookHor = true;
+        isHookVer = true;
+        int chainLimit = 0;
+        switch (SMinoIndex)
         {
             case 0:
             case 1:
-                HookHorizontal();
-                yield return new WaitForSeconds(0.05f);
+                while((isHookHor==true || isHookVer == true) && chainLimit <= 5)
+                {
+                    HookHorizontal();
+                    yield return new WaitForSeconds(0.05f);
 
-                //Pop Chains
-                Search_ChainMinos();
-                Pop_ChainMinos(MoveTypes.Push);
-                yield return new WaitForSeconds(0.05f);
+                    Search_ChainMinos();
+                    if(isHookHor)
+                    {
+                        Pop_ChainMinos(MoveTypes.Push);
+                    }
+                    Reset_Minos_Movement();
 
-                HookVertical();
-                yield return new WaitForSeconds(0.05f);
+                    HookVertical();
+                    yield return new WaitForSeconds(0.05f);
 
-                //Pop Chains
-                Search_ChainMinos();
-                Pop_ChainMinos(MoveTypes.Push);
-                yield return new WaitForSeconds(0.05f);
-
-                HookHorizontal();
-                yield return new WaitForSeconds(0.05f);
-
-                //Pop Chains
-                Search_ChainMinos();
-                Pop_ChainMinos(MoveTypes.Push);
-                yield return new WaitForSeconds(0.05f);
-
-                HookVertical();
-                yield return new WaitForSeconds(0.05f);
-
-                //Pop Chains
-                Search_ChainMinos();
-                Pop_ChainMinos(MoveTypes.Push);
-                yield return new WaitForSeconds(0.05f);
-
+                    Search_ChainMinos();
+                    if (isHookVer)
+                    {
+                        Pop_ChainMinos(MoveTypes.Push);
+                    }
+                    Reset_Minos_Movement();
+                    chainLimit++;
+                }
                 break;
-                
+
             case 2:
             case 3:
-                HookVertical();
-                yield return new WaitForSeconds(0.05f);
+                while ((isHookHor == true || isHookVer == true) && chainLimit <= 5)
+                {
+                    HookVertical();
+                    yield return new WaitForSeconds(0.05f);
 
-                //Pop Chains
-                Search_ChainMinos();
-                Pop_ChainMinos(MoveTypes.Push);
-                yield return new WaitForSeconds(0.05f);
+                    Search_ChainMinos();
+                    if (isHookVer)
+                    {
+                        Pop_ChainMinos(MoveTypes.Push);
+                    }
+                    Reset_Minos_Movement();
 
-                HookHorizontal();
-                yield return new WaitForSeconds(0.05f);
+                    HookHorizontal();
+                    yield return new WaitForSeconds(0.05f);
 
-                //Pop Chains
-                Search_ChainMinos();
-                Pop_ChainMinos(MoveTypes.Push);
-                yield return new WaitForSeconds(0.05f);
-
-                HookVertical();
-                yield return new WaitForSeconds(0.05f);
-
-                //Pop Chains
-                Search_ChainMinos();
-                Pop_ChainMinos(MoveTypes.Push);
-                yield return new WaitForSeconds(0.05f);
-
-                HookHorizontal();
-                yield return new WaitForSeconds(0.05f);
-
-                //Pop Chains
-                Search_ChainMinos();
-                Pop_ChainMinos(MoveTypes.Push);
-                yield return new WaitForSeconds(0.05f);
+                    Search_ChainMinos();
+                    if (isHookHor)
+                    {
+                        Pop_ChainMinos(MoveTypes.Push);
+                    }
+                    Reset_Minos_Movement();
+                    chainLimit++;
+                }
                 break;
 
             default:
@@ -240,9 +242,27 @@ public class StageManager : MonoBehaviour {
                 break;
         }
 
-        // Push whole Minos
-        Push_AllMinos(SMinoIndex);
-        yield return new WaitForSeconds(0.05f);
+        // Push whole Minos  OR   Reset  Boards
+        if (poppedChain_CurBoard >= 10)
+        {
+            if (minoVariety < 6)
+                minoVariety++;
+
+            poppedChain_CurBoard = 0;
+            poppedMino_CurBoard = 0;
+
+            for (int x = gapY; x <= mapX - 1 - gapX; x++)
+            {
+                for (int y = gapY; y <= mapY - 1 - gapY; y++)
+                {
+                    board[x, y].Set_MinoType(MinoTypes.Empty);
+                }
+            }
+
+            Initialize_CenterMinos(horLine, verLine, 4, 2, false);
+        }
+        else
+            Push_AllMinos(SMinoIndex);
 
         //Reset_Variables
         Reset_Minos_Movement();
@@ -530,9 +550,14 @@ public class StageManager : MonoBehaviour {
             {
                 indexList.Add(i);
 
+                poppedChain_CurBoard++;
+                poppedChain_Total++;
+
                 for (int k = cMinos[i].Minos.Count -1; k > -1; k--)
                 {
                     Clear_Mino(cMinos[i].Minos[k]);
+                    poppedMino_CurBoard++;
+                    poppedMino_Total++;
                 }
             }
         }
@@ -661,6 +686,8 @@ public class StageManager : MonoBehaviour {
 
     void HookHorizontal()
     {
+        isHookHor = false;
+
         for (int x = gapX; x < mapX -1 -gapX; x++)
         {
             for (int y = upHor; y <= mapY -1 -gapY; y++)
@@ -668,6 +695,7 @@ public class StageManager : MonoBehaviour {
                 Mino m = Get_ContactPos_ToAxis(board[x, y], 0, -1);
                 if (m.Ypos != board[x, y].Ypos)
                 {
+                    isHookHor = true;
                     Move_Mino(board[x, y], m.Xpos, m.Ypos, MoveTypes.Push);
                 }
             }
@@ -677,6 +705,7 @@ public class StageManager : MonoBehaviour {
                 Mino m = Get_ContactPos_ToAxis(board[x, y], 0, 1);
                 if (m.Ypos != board[x, y].Ypos)
                 {
+                    isHookHor = true;
                     Move_Mino(board[x, y], m.Xpos, m.Ypos, MoveTypes.Push);
                 }
             }
@@ -685,6 +714,8 @@ public class StageManager : MonoBehaviour {
 
     void HookVertical()
     {
+        isHookVer = false;
+
         for(int y = gapY; y <= mapY -1 - gapY; y++)
         {
             for(int x = leftVer; x>=gapX; x--)
@@ -692,6 +723,7 @@ public class StageManager : MonoBehaviour {
                 Mino m = Get_ContactPos_ToAxis(board[x,y], 1, 0);
                 if (m.Xpos != board[x,y].Xpos)
                 {
+                    isHookVer = true;
                     Move_Mino(board[x, y], m.Xpos, m.Ypos, MoveTypes.Push);
                 }
             }
@@ -701,6 +733,7 @@ public class StageManager : MonoBehaviour {
                 Mino m = Get_ContactPos_ToAxis(board[x, y], -1, 0);
                 if (m.Xpos != board[x, y].Xpos)
                 {
+                    isHookVer = true;
                     Move_Mino(board[x, y], m.Xpos, m.Ypos, MoveTypes.Push);
                 }
             }

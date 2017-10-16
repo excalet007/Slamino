@@ -88,6 +88,7 @@
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\Mino.cs" />
     <Compile Include="Assets\Scripts\Slamino.cs" />
+    <Compile Include="Assets\Scripts\SoundManager.cs" />
     <Compile Include="Assets\Scripts\StageManager.cs" />
     <Compile Include="Assets\Scripts\TestHelper.cs" />
     <Compile Include="Assets\Scripts\enums.cs" />
