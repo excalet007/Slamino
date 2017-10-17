@@ -12,6 +12,11 @@ public class StageManager : MonoBehaviour {
     #region MonoBehaviours
     void Awake()
     {
+        // ------------------------------Set up Components & Link Singleton--------------------
+        mm = MusicManager.Instance;
+        mm.SetUp();
+        
+
         // ------------------------------Settings from game Manager------------------------------
         // This values will be loaded from gameManager (not yet)
         // map Size factor
@@ -23,10 +28,17 @@ public class StageManager : MonoBehaviour {
         gapY = (mapY - zoneY) / 2;
 
         // mino variaty (green, red, yellow, blue)
-        minoVariety = 3;
+        minoVariety = 6;
+        mm.Change_Volume(mm.Bgm, 0.05f);
+        mm.Change_Volume(mm.Sfx_Drop, 0.4f);
+        mm.Change_Volume(mm.Sfx_Pop, 0.5f);
+        mm.Change_PopStartPoint(1);
+
+        // -----------------------------------Algorithm control ---------------------------------------
+        isHookAlgorithmAble = true;
 
         // -----------------------------------Initialize Variables----------------------------------------
- 
+
         cMinos = new List<ChainMino>();
         onCycle = false;
         isHookHor = false;
@@ -37,6 +49,8 @@ public class StageManager : MonoBehaviour {
 
         poppedMino_Total = 0;
         poppedChain_Total = 0;
+
+        poppedChain_Combo = 0;
 
         curSMinoInex = -1;
 
@@ -51,11 +65,14 @@ public class StageManager : MonoBehaviour {
         Initialize_Axis(true, 0, 0);
         Initialize_CenterMinos(horLine, verLine, 4,2, false);
         Initialize_Slaminos(false);
+
+        // ------------------------------------------ Starts Sound --------------------------------------
+        mm.Play_BGM();
     }
 
     void Update()
     {
-        #if UNITY_EDITOR
+        //#if UNITY_EDITOR
         // Scene Reset
         if (Input.GetKeyDown(KeyCode.R))
             SceneManager.LoadScene(0);
@@ -242,7 +259,7 @@ public class StageManager : MonoBehaviour {
             }
         }
         
-        #endif
+        //#endif
     }
     #endregion
 
@@ -267,6 +284,8 @@ public class StageManager : MonoBehaviour {
         }
     }
 
+    MusicManager mm;
+    
     // prefabs for mapGenerating
     public GameObject minoPrefab;
     
@@ -305,6 +324,9 @@ public class StageManager : MonoBehaviour {
     int poppedChain_CurBoard;
     int poppedChain_Total;
 
+    int poppedChain_Combo;
+    bool isPopeed;
+
     int curSMinoInex;
 
     int swipe_UpLimit;
@@ -312,6 +334,7 @@ public class StageManager : MonoBehaviour {
     int swipe_LeftLimit;
     int swipe_RightLimit;
 
+    bool isHookAlgorithmAble;
     bool isHookHor;
     bool isHookVer;
 
@@ -326,16 +349,26 @@ public class StageManager : MonoBehaviour {
         //Action Handle
         onCycle = true;
 
+        //Initialize Variable
+        poppedChain_Combo = 0;
+        isPopeed = false;
+
         //Push Setting
         Set_PushDirectioin(SMinoIndex);
 
         //Push Slamino
         Push_SMino(sMinos[SMinoIndex]);
+        mm.Play_Drop();
         yield return new WaitForSeconds(0.05f);
 
         //Check & Pop Connected-Slamino
         Search_ChainMinos();
         Pop_ChainMinos(MoveTypes.Push);
+        if(isPopeed)
+        {
+            mm.Play_Pop(poppedChain_Combo);
+            isPopeed = false;
+        }
         yield return new WaitForSeconds(0.05f);
 
         //Check & Pop Floating-Slamino
@@ -348,75 +381,104 @@ public class StageManager : MonoBehaviour {
             //Pop Chains
             Search_ChainMinos();
             Pop_ChainMinos(MoveTypes.Push);
+            if (isPopeed)
+            {
+                mm.Play_Pop(poppedChain_Combo);
+                isPopeed = false;
+            }
             yield return new WaitForSeconds(0.05f);
         }
         while (Get_IsCMinos_ContainMovetype(MoveTypes.Push));
         Reset_Minos_Movement();
 
-        //Push & Pop Floating-NormalMinos
-        //isHookHor = true;
-        //isHookVer = true;
-        //int chainLimit = 0;
-        //switch (SMinoIndex)
-        //{
-        //    case 0:
-        //    case 1:
-        //        while((isHookHor==true || isHookVer == true) && chainLimit <= 5)
-        //        {
-        //            HookHorizontal();
-        //            yield return new WaitForSeconds(0.05f);
+        //Push & Pop Floating - NormalMinos
+        if(isHookAlgorithmAble)
+        {
+            isHookHor = true;
+            isHookVer = true;
+            int chainLimit = 0;
+            switch (SMinoIndex)
+            {
+                case 0:
+                case 1:
+                    while ((isHookHor == true || isHookVer == true) && chainLimit <= 5)
+                    {
+                        HookHorizontal();
+                        yield return new WaitForSeconds(0.05f);
 
-        //            Search_ChainMinos();
-        //            if(isHookHor)
-        //            {
-        //                Pop_ChainMinos(MoveTypes.Push);
-        //            }
-        //            Reset_Minos_Movement();
+                        Search_ChainMinos();
+                        if (isHookHor)
+                        {
+                            Pop_ChainMinos(MoveTypes.Push);
+                            if (isPopeed)
+                            {
+                                mm.Play_Pop(poppedChain_Combo);
+                                isPopeed = false;
+                            }
+                        }
+                        Reset_Minos_Movement();
 
-        //            HookVertical();
-        //            yield return new WaitForSeconds(0.05f);
+                        HookVertical();
+                        yield return new WaitForSeconds(0.05f);
 
-        //            Search_ChainMinos();
-        //            if (isHookVer)
-        //            {
-        //                Pop_ChainMinos(MoveTypes.Push);
-        //            }
-        //            Reset_Minos_Movement();
-        //            chainLimit++;
-        //        }
-        //        break;
+                        Search_ChainMinos();
+                        if (isHookVer)
+                        {
+                            Pop_ChainMinos(MoveTypes.Push);
+                            if (isPopeed)
+                            {
+                                mm.Play_Pop(poppedChain_Combo);
+                                isPopeed = false;
+                            }
+                        }
+                        Reset_Minos_Movement();
+                        chainLimit++;
+                    }
+                    break;
 
-        //    case 2:
-        //    case 3:
-        //        while ((isHookHor == true || isHookVer == true) && chainLimit <= 5)
-        //        {
-        //            HookVertical();
-        //            yield return new WaitForSeconds(0.05f);
+                case 2:
+                case 3:
+                    while ((isHookHor == true || isHookVer == true) && chainLimit <= 5)
+                    {
+                        HookVertical();
+                        yield return new WaitForSeconds(0.05f);
 
-        //            Search_ChainMinos();
-        //            if (isHookVer)
-        //            {
-        //                Pop_ChainMinos(MoveTypes.Push);
-        //            }
-        //            Reset_Minos_Movement();
+                        Search_ChainMinos();
+                        if (isHookVer)
+                        {
+                            Pop_ChainMinos(MoveTypes.Push);
+                            if (isPopeed)
+                            {
+                                mm.Play_Pop(poppedChain_Combo);
+                                isPopeed = false;
+                            }
+                        }
+                        Reset_Minos_Movement();
 
-        //            HookHorizontal();
-        //            yield return new WaitForSeconds(0.05f);
+                        HookHorizontal();
+                        yield return new WaitForSeconds(0.05f);
 
-        //            Search_ChainMinos();
-        //            if (isHookHor)
-        //            {
-        //                Pop_ChainMinos(MoveTypes.Push);
-        //            }
-        //            Reset_Minos_Movement();
-        //            chainLimit++;
-        //        }
-        //        break;
+                        Search_ChainMinos();
+                        if (isHookHor)
+                        {
+                            Pop_ChainMinos(MoveTypes.Push);
+                            if (isPopeed)
+                            {
+                                mm.Play_Pop(poppedChain_Combo);
+                                isPopeed = false;
+                            }
+                        }
+                        Reset_Minos_Movement();
+                        chainLimit++;
+                    }
+                    break;
 
-        //    default:
-        //        Debug.LogError("Wrong Index Number");
-        //        break;
-        //}
+                default:
+                    Debug.LogError("Wrong Index Number");
+                    break;
+            }
+        }
+
 
         // Push whole Minos  OR   Reset  Boards
         if (poppedChain_CurBoard >= 10)
@@ -726,6 +788,9 @@ public class StageManager : MonoBehaviour {
 
                 poppedChain_CurBoard++;
                 poppedChain_Total++;
+
+                poppedChain_Combo++;
+                isPopeed = true;
 
                 for (int k = cMinos[i].Minos.Count -1; k > -1; k--)
                 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundManager : MonoBehaviour {
+public class MapInfo : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
