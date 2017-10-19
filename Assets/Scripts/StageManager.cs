@@ -16,7 +16,6 @@ public class StageManager : MonoBehaviour {
         mm = MusicManager.Instance;
         mm.SetUp();
         
-
         // ------------------------------Settings from game Manager------------------------------
         // This values will be loaded from gameManager (not yet)
         // map Size factor
@@ -28,14 +27,14 @@ public class StageManager : MonoBehaviour {
         gapY = (mapY - zoneY) / 2;
 
         // mino variaty (green, red, yellow, blue)
-        minoVariety = 6;
-        mm.Change_Volume(mm.Bgm, 0.05f);
+        minoVariety = 5;
+        mm.Change_Volume(mm.Bgm, 0.3f);
         mm.Change_Volume(mm.Sfx_Drop, 0.4f);
         mm.Change_Volume(mm.Sfx_Pop, 0.5f);
         mm.Change_PopStartPoint(1);
 
         // -----------------------------------Algorithm control ---------------------------------------
-        isHookAlgorithmAble = true;
+        
 
         // -----------------------------------Initialize Variables----------------------------------------
 
@@ -59,12 +58,15 @@ public class StageManager : MonoBehaviour {
         swipe_LeftLimit = 1;
         swipe_RightLimit = mapX - 2;
 
+        timeAfterDrop = 0.1f;
+        timeAfterPop = 0.1f;
+
         // ------------------------------------------MapGenarating-----------------------------------
 
         Initialize_Board(mapX, mapY);
         Initialize_Axis(true, 0, 0);
-        Initialize_CenterMinos(horLine, verLine, 4,2, false);
-        Initialize_Slaminos(false);
+        Initialize_CenterMinos(horLine, verLine, 5,3, false);
+        Initialize_Slaminos(true);
 
         // ------------------------------------------ Starts Sound --------------------------------------
         mm.Play_BGM();
@@ -77,16 +79,31 @@ public class StageManager : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.R))
             SceneManager.LoadScene(0);
 
-        // SMino Selection
+        // SMino Selection & view Change
         if (Input.GetKeyDown(KeyCode.W))
+        {
             curSMinoInex = 0;
+            QuadZone.Chage_View(true, true, false, false, 0.75f);
+            SwipeZone.Chage_View(true, false, false, false, 0.75f);
+        }
         if (Input.GetKeyDown(KeyCode.S))
+        {
             curSMinoInex = 1;
+            QuadZone.Chage_View(false, false, true, true, 0.75f);
+            SwipeZone.Chage_View(false, true, false, false, 0.75f);
+        }
         if (Input.GetKeyDown(KeyCode.A))
+        {
             curSMinoInex = 2;
+            QuadZone.Chage_View(false, true, true, false, 0.75f);
+            SwipeZone.Chage_View(false, false, true, false, 0.75f);
+        }
         if (Input.GetKeyDown(KeyCode.D))
+        {
             curSMinoInex = 3;
-
+            QuadZone.Chage_View(true, false, false, true, 0.75f);
+            SwipeZone.Chage_View(false, false, false, true, 0.75f);
+        }
 
         // SMino Movement
         if (Input.GetKeyDown(KeyCode.UpArrow) && onCycle == false)
@@ -333,10 +350,12 @@ public class StageManager : MonoBehaviour {
     int swipe_DownLimit;
     int swipe_LeftLimit;
     int swipe_RightLimit;
-
-    bool isHookAlgorithmAble;
+    
     bool isHookHor;
     bool isHookVer;
+
+    float timeAfterDrop;
+    float timeAfterPop;
 
     // handle Action
     bool onCycle;
@@ -356,12 +375,34 @@ public class StageManager : MonoBehaviour {
         //Push Setting
         Set_PushDirectioin(SMinoIndex);
 
-        //Push Slamino
-        Push_SMino(sMinos[SMinoIndex]);
-        mm.Play_Drop();
-        yield return new WaitForSeconds(0.05f);
+        //Drop Floating minos
+        switch (SMinoIndex)
+        {
+            case 0:
+                HookUp();
+                break;
+            case 1:
+                HookDown();
+                break;
+            case 2:
+                HookLeft();
+                break;
+            case 3:
+                HookRight();
+                break;
 
-        //Check & Pop Connected-Slamino
+            default:
+                Debug.LogError("You input wrong SMinoIndex, check this out!");
+                break;
+        }
+        yield return new WaitForSeconds(timeAfterDrop);
+
+        //Push Slamino
+        Push_SMino_Separately(sMinos[SMinoIndex]);
+        mm.Play_Drop();
+        yield return new WaitForSeconds(timeAfterDrop);
+        
+        //Check & Pop Connected Minos
         Search_ChainMinos();
         Pop_ChainMinos(MoveTypes.Push);
         if(isPopeed)
@@ -369,119 +410,69 @@ public class StageManager : MonoBehaviour {
             mm.Play_Pop(poppedChain_Combo);
             isPopeed = false;
         }
-        yield return new WaitForSeconds(0.05f);
-
-        //Check & Pop Floating-Slamino
-        do
-        {
-            //Push Floating
-            Push_FloatingSMino();
-            yield return new WaitForSeconds(0.05f);
-
-            //Pop Chains
-            Search_ChainMinos();
-            Pop_ChainMinos(MoveTypes.Push);
-            if (isPopeed)
-            {
-                mm.Play_Pop(poppedChain_Combo);
-                isPopeed = false;
-            }
-            yield return new WaitForSeconds(0.05f);
-        }
-        while (Get_IsCMinos_ContainMovetype(MoveTypes.Push));
+        yield return new WaitForSeconds(timeAfterPop);
         Reset_Minos_Movement();
 
-        //Push & Pop Floating - NormalMinos
-        if(isHookAlgorithmAble)
+        //Hook minos
+        isHookHor = true;
+        isHookVer = true;
+        int chainLimit = 0;
+        QuadZone.Chage_View(true, true, true, true, 0f);
+        switch (SMinoIndex)
         {
-            isHookHor = true;
-            isHookVer = true;
-            int chainLimit = 0;
-            switch (SMinoIndex)
-            {
-                case 0:
-                case 1:
-                    while ((isHookHor == true || isHookVer == true) && chainLimit <= 5)
+            case 0:
+            case 1:
+                while (isHookHor == true&& chainLimit <= 5)
+                {
+                    HookHorizontal();
+                    yield return new WaitForSeconds(timeAfterDrop);
+
+                    Search_ChainMinos();
+                    if (isHookHor)
                     {
-                        HookHorizontal();
-                        yield return new WaitForSeconds(0.05f);
-
-                        Search_ChainMinos();
-                        if (isHookHor)
+                        Pop_ChainMinos(MoveTypes.Push);
+                        if (isPopeed)
                         {
-                            Pop_ChainMinos(MoveTypes.Push);
-                            if (isPopeed)
-                            {
-                                mm.Play_Pop(poppedChain_Combo);
-                                isPopeed = false;
-                            }
+                            mm.Play_Pop(poppedChain_Combo);
+                            isPopeed = false;
+                            yield return new WaitForSeconds(timeAfterPop);
                         }
-                        Reset_Minos_Movement();
-
-                        HookVertical();
-                        yield return new WaitForSeconds(0.05f);
-
-                        Search_ChainMinos();
-                        if (isHookVer)
-                        {
-                            Pop_ChainMinos(MoveTypes.Push);
-                            if (isPopeed)
-                            {
-                                mm.Play_Pop(poppedChain_Combo);
-                                isPopeed = false;
-                            }
-                        }
-                        Reset_Minos_Movement();
-                        chainLimit++;
                     }
-                    break;
+                    Reset_Minos_Movement();
+                    chainLimit++;
+                }
+                break;
 
-                case 2:
-                case 3:
-                    while ((isHookHor == true || isHookVer == true) && chainLimit <= 5)
+            case 2:
+            case 3:
+                while (isHookVer == true && chainLimit <= 5)
+                {
+                    HookVertical();
+                    yield return new WaitForSeconds(timeAfterDrop);
+
+                    Search_ChainMinos();
+                    if (isHookVer)
                     {
-                        HookVertical();
-                        yield return new WaitForSeconds(0.05f);
-
-                        Search_ChainMinos();
-                        if (isHookVer)
+                        Pop_ChainMinos(MoveTypes.Push);
+                        if (isPopeed)
                         {
-                            Pop_ChainMinos(MoveTypes.Push);
-                            if (isPopeed)
-                            {
-                                mm.Play_Pop(poppedChain_Combo);
-                                isPopeed = false;
-                            }
+                            mm.Play_Pop(poppedChain_Combo);
+                            isPopeed = false;
+                            yield return new WaitForSeconds(timeAfterPop);
                         }
-                        Reset_Minos_Movement();
-
-                        HookHorizontal();
-                        yield return new WaitForSeconds(0.05f);
-
-                        Search_ChainMinos();
-                        if (isHookHor)
-                        {
-                            Pop_ChainMinos(MoveTypes.Push);
-                            if (isPopeed)
-                            {
-                                mm.Play_Pop(poppedChain_Combo);
-                                isPopeed = false;
-                            }
-                        }
-                        Reset_Minos_Movement();
-                        chainLimit++;
                     }
-                    break;
+                    Reset_Minos_Movement();
+                    chainLimit++;
+                }
+                break;
 
-                default:
-                    Debug.LogError("Wrong Index Number");
-                    break;
-            }
+            default:
+                Debug.LogError("Wrong Index Number");
+                break;
         }
 
-
         // Push whole Minos  OR   Reset  Boards
-        if (poppedChain_CurBoard >= 10)
+        if (poppedChain_CurBoard >= 15)
         {
             if (minoVariety < 6)
                 minoVariety++;
@@ -497,14 +488,14 @@ public class StageManager : MonoBehaviour {
                 }
             }
 
-            Initialize_CenterMinos(horLine, verLine, 4, 2, false);
+            Initialize_CenterMinos(horLine, verLine, 5, 3, false);
         }
 
         //Reset_Variables
         Reset_Minos_Movement();
 
         //Respawn Slamino
-        sMinos[SMinoIndex].Spawn_SMino(false);
+        sMinos[SMinoIndex].Spawn_SMino(true);
         
         //End cycle
         onCycle = false;
@@ -692,8 +683,7 @@ public class StageManager : MonoBehaviour {
         }
         return true;
     }
-
-
+    
     List<Mino> Get_ConnectedMinos(Mino m)
     {
         List<Mino> ms = new List<Mino>();
@@ -726,7 +716,6 @@ public class StageManager : MonoBehaviour {
         
         return ms;
     }
-
     List<Mino> Get_Minos_ByMoveType(MoveTypes mType)
     {
         List<Mino> mList = new List<Mino>();
@@ -776,6 +765,7 @@ public class StageManager : MonoBehaviour {
             }
         }
     }
+
     void Pop_ChainMinos(MoveTypes mType)
     {
         List<int> indexList = new List<int>();
@@ -884,7 +874,56 @@ public class StageManager : MonoBehaviour {
                 break;
         }
     }
+    void Push_SMino(Slamino s)
+    {
+        #region Get minimum movement for Slamino
+        int minMove = (int)Mathf.Max((int)mapX, (int)mapY);
+        for (int i = 0; i < s.minos.Count; i++)
+        {
+            Mino contact = Get_ContactPos_ToZone(s.minos[i], s.XPush, s.YPush);
 
+            //Xdirection Move
+            if (s.XPush == 1 || s.XPush == -1)
+            {
+                int xDif = s.minos[i].Xpos - contact.Xpos;
+
+                if (Mathf.Abs((float)xDif) < Mathf.Abs((float)minMove))
+                    minMove = (int)Mathf.Abs((float)xDif);
+            }
+
+            // Ydirection Move
+            if (s.YPush == 1 || s.YPush == -1)
+            {
+                int yDif = s.minos[i].Ypos - contact.Ypos;
+
+                if (Mathf.Abs((float)yDif) < Mathf.Abs((float)minMove))
+                    minMove = (int)Mathf.Abs((float)yDif);
+            }
+        }
+        #endregion
+
+        #region push minos using minimum movement
+        for (int i = 0; i < s.minos.Count; i++)
+        {
+            int xPos = s.minos[i].Xpos + s.XPush * minMove;
+            int yPos = s.minos[i].Ypos + s.YPush * minMove;
+
+            Move_Mino(s.minos[i], xPos, yPos, MoveTypes.Push);
+        }
+        #endregion
+    }
+    void Push_SMino_Separately(Slamino s)
+    {
+        for (int i = 0; i < s.minos.Count; i++)
+        {
+            Mino contact = Get_ContactPos_ToAxis(s.minos[i], xPush, yPush);
+
+            int xPos = contact.Xpos;
+            int yPos = contact.Ypos;
+
+            Move_Mino(s.minos[i], xPos, yPos, MoveTypes.Push);
+        }
+    }
     void Set_PushDirectioin(int SMinoIndex)
     {
         xPush = 0;
@@ -922,7 +961,7 @@ public class StageManager : MonoBehaviour {
 
         cMinos.Clear();
     }
-
+    
     void HookHorizontal()
     {
         isHookHor = false;
@@ -950,7 +989,6 @@ public class StageManager : MonoBehaviour {
             }
         }
     }
-
     void HookVertical()
     {
         isHookVer = false;
@@ -978,10 +1016,75 @@ public class StageManager : MonoBehaviour {
             }
         }
     }
+    void HookUp()
+    {
+        isHookHor = false;
 
-    #endregion
+        for (int x = gapX; x < mapX - 1 - gapX; x++)
+        {
+            for (int y = upHor; y <= mapY - 1 - gapY; y++)
+            {
+                Mino m = Get_ContactPos_ToAxis(board[x, y], 0, -1);
+                if (m.Ypos != board[x, y].Ypos)
+                {
+                    isHookHor = true;
+                    Move_Mino(board[x, y], m.Xpos, m.Ypos, MoveTypes.Push);
+                }
+            }
+        }
+    }
+    void HookDown()
+    {
+        isHookHor = false;
 
-    #region Mixed Function(Use basic function)
+        for (int x = gapX; x < mapX - 1 - gapX; x++)
+        {
+            for (int y = downHor; y >= gapY; y--)
+            {
+                Mino m = Get_ContactPos_ToAxis(board[x, y], 0, 1);
+                if (m.Ypos != board[x, y].Ypos)
+                {
+                    isHookHor = true;
+                    Move_Mino(board[x, y], m.Xpos, m.Ypos, MoveTypes.Push);
+                }
+            }
+        }
+    }
+    void HookLeft()
+    {
+        isHookVer = false;
+
+        for (int y = gapY; y <= mapY - 1 - gapY; y++)
+        {
+            for (int x = leftVer; x >= gapX; x--)
+            {
+                Mino m = Get_ContactPos_ToAxis(board[x, y], 1, 0);
+                if (m.Xpos != board[x, y].Xpos)
+                {
+                    isHookVer = true;
+                    Move_Mino(board[x, y], m.Xpos, m.Ypos, MoveTypes.Push);
+                }
+            }
+        }
+    }
+    void HookRight()
+    {
+        isHookVer = false;
+
+        for (int y = gapY; y <= mapY - 1 - gapY; y++)
+        {
+            for (int x = rightVer; x <= mapX - 1 - gapX; x++)
+            {
+                Mino m = Get_ContactPos_ToAxis(board[x, y], -1, 0);
+                if (m.Xpos != board[x, y].Xpos)
+                {
+                    isHookVer = true;
+                    Move_Mino(board[x, y], m.Xpos, m.Ypos, MoveTypes.Push);
+                }
+            }
+        }
+    }
+
     void Move_Mino(Mino m, int xPos, int yPos, MoveTypes moveType)
     {
         if (board[xPos, yPos].MinoType == MinoTypes.Empty)
@@ -996,52 +1099,12 @@ public class StageManager : MonoBehaviour {
         }
         Clear_Mino(m);
     }
-
     void Clear_Mino(Mino m)
     {
         m.Set_MinoType(MinoTypes.Empty);
         m.Set_MoveType(MoveTypes.None);
     }
-
-    void Push_SMino(Slamino s)
-    {
-        #region Get minimum movement for Slamino
-        int minMove = (int)Mathf.Max((int)mapX, (int)mapY);
-        for (int i = 0; i < s.minos.Count; i++)
-        {
-            Mino contact = Get_ContactPos_ToZone(s.minos[i], s.XPush, s.YPush);
-
-            //Xdirection Move
-            if (s.XPush == 1 || s.XPush == -1)
-            {
-                int xDif = s.minos[i].Xpos - contact.Xpos;
-                
-                if (Mathf.Abs((float)xDif) < Mathf.Abs((float)minMove))
-                    minMove = (int)Mathf.Abs((float)xDif);                
-            }
-
-            // Ydirection Move
-            if (s.YPush == 1 || s.YPush == -1)
-            {
-                int yDif = s.minos[i].Ypos - contact.Ypos;
-                
-                if (Mathf.Abs((float)yDif) < Mathf.Abs((float)minMove))
-                    minMove = (int)Mathf.Abs((float)yDif);
-            }
-        }
-        #endregion
-
-        #region push minos using minimum movement
-        for (int i = 0; i < s.minos.Count; i++)
-        {
-            int xPos = s.minos[i].Xpos + s.XPush * minMove;
-            int yPos = s.minos[i].Ypos + s.YPush * minMove;
-
-            Move_Mino(s.minos[i], xPos, yPos, MoveTypes.Push);
-        }
-        #endregion
-    }
-
+    
     #endregion
     
     #region Initial Map Generation Fuction

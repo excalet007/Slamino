@@ -9,14 +9,6 @@
     Pink = 6
 }
 
-public enum SMinoPos
-{
-    Up,   
-    Down,
-    Left,
-    Right
-}
-
 public enum MoveTypes
 {
     None,

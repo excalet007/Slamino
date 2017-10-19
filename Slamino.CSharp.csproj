@@ -89,8 +89,10 @@
     <Compile Include="Assets\Scripts\MapInfo.cs" />
     <Compile Include="Assets\Scripts\Mino.cs" />
     <Compile Include="Assets\Scripts\MusicManager.cs" />
+    <Compile Include="Assets\Scripts\QuadZone.cs" />
     <Compile Include="Assets\Scripts\Slamino.cs" />
     <Compile Include="Assets\Scripts\StageManager.cs" />
+    <Compile Include="Assets\Scripts\SwipeZone.cs" />
     <Compile Include="Assets\Scripts\TestHelper.cs" />
     <Compile Include="Assets\Scripts\enums.cs" />
   </ItemGroup>
