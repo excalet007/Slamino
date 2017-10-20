@@ -27,15 +27,12 @@ public class StageManager : MonoBehaviour {
         gapY = (mapY - zoneY) / 2;
 
         // mino variaty (green, red, yellow, blue)
-        minoVariety = 5;
+        minoVariety = 3;
         mm.Change_Volume(mm.Bgm, 0.3f);
         mm.Change_Volume(mm.Sfx_Drop, 0.4f);
         mm.Change_Volume(mm.Sfx_Pop, 0.5f);
         mm.Change_PopStartPoint(1);
-
-        // -----------------------------------Algorithm control ---------------------------------------
         
-
         // -----------------------------------Initialize Variables----------------------------------------
 
         cMinos = new List<ChainMino>();
@@ -51,27 +48,35 @@ public class StageManager : MonoBehaviour {
 
         poppedChain_Combo = 0;
 
-        curSMinoInex = -1;
+        curTurn = 1;
+        curRound = 1;
+        curSMinoIndex = 0;
 
-        swipe_UpLimit = mapY - 2;
-        swipe_DownLimit = 1;
-        swipe_LeftLimit = 1;
-        swipe_RightLimit = mapX - 2;
+        swipe_UpLimit = mapY - 2 -3;
+        swipe_DownLimit = 1 + 3;
+
+        swipe_LeftLimit = 1 +5;
+        swipe_RightLimit = mapX - 2 -5;
 
         timeAfterDrop = 0.1f;
         timeAfterPop = 0.1f;
+
+
+        QuadZone.Chage_View(true, true, false, false, 0.5f);
+        SwipeZone.Chage_View(true, false, false, false, 0.5f);
+        AxisZone.Chage_View(true, false, 0.8f);
 
         // ------------------------------------------MapGenarating-----------------------------------
 
         Initialize_Board(mapX, mapY);
         Initialize_Axis(true, 0, 0);
-        Initialize_CenterMinos(horLine, verLine, 5,3, false);
+        Initialize_CenterMinos(horLine, verLine, 3,2, true);
         Initialize_Slaminos(true);
 
         // ------------------------------------------ Starts Sound --------------------------------------
         mm.Play_BGM();
     }
-
+    
     void Update()
     {
         //#if UNITY_EDITOR
@@ -79,36 +84,10 @@ public class StageManager : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.R))
             SceneManager.LoadScene(0);
 
-        // SMino Selection & view Change
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            curSMinoInex = 0;
-            QuadZone.Chage_View(true, true, false, false, 0.75f);
-            SwipeZone.Chage_View(true, false, false, false, 0.75f);
-        }
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            curSMinoInex = 1;
-            QuadZone.Chage_View(false, false, true, true, 0.75f);
-            SwipeZone.Chage_View(false, true, false, false, 0.75f);
-        }
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            curSMinoInex = 2;
-            QuadZone.Chage_View(false, true, true, false, 0.75f);
-            SwipeZone.Chage_View(false, false, true, false, 0.75f);
-        }
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            curSMinoInex = 3;
-            QuadZone.Chage_View(true, false, false, true, 0.75f);
-            SwipeZone.Chage_View(false, false, false, true, 0.75f);
-        }
-
         // SMino Movement
         if (Input.GetKeyDown(KeyCode.UpArrow) && onCycle == false)
         {
-            switch (curSMinoInex)
+            switch (curSMinoIndex)
             {
                 case 0:
                 case 1:
@@ -116,24 +95,24 @@ public class StageManager : MonoBehaviour {
 
                 case 2:
                 case 3:
-                    if (sMinos[curSMinoInex].minos[0].Ypos < swipe_UpLimit)
+                    if (sMinos[curSMinoIndex].minos[0].Ypos < swipe_UpLimit)
                     {
-                        int x0 = sMinos[curSMinoInex].minos[0].Xpos;
-                        int y0 = sMinos[curSMinoInex].minos[0].Ypos;
+                        int x0 = sMinos[curSMinoIndex].minos[0].Xpos;
+                        int y0 = sMinos[curSMinoIndex].minos[0].Ypos;
 
-                        int x1 = sMinos[curSMinoInex].minos[1].Xpos;
-                        int y1 = sMinos[curSMinoInex].minos[1].Ypos;
+                        int x1 = sMinos[curSMinoIndex].minos[1].Xpos;
+                        int y1 = sMinos[curSMinoIndex].minos[1].Ypos;
 
                         Mino m0 = board[x0, y0 + 1];
                         Mino m1 = board[x1, y1 + 1];
                         Mino m2 = board[x1, y1];
 
-                        m0.Set_MinoType(sMinos[curSMinoInex].minos[0].MinoType);
-                        m1.Set_MinoType(sMinos[curSMinoInex].minos[1].MinoType);
+                        m0.Set_MinoType(sMinos[curSMinoIndex].minos[0].MinoType);
+                        m1.Set_MinoType(sMinos[curSMinoIndex].minos[1].MinoType);
                         m2.Set_MinoType(MinoTypes.Empty);
 
-                        sMinos[curSMinoInex].minos[0] = m0;
-                        sMinos[curSMinoInex].minos[1] = m1;
+                        sMinos[curSMinoIndex].minos[0] = m0;
+                        sMinos[curSMinoIndex].minos[1] = m1;
                     }
                     break;
 
@@ -145,7 +124,7 @@ public class StageManager : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.DownArrow) && onCycle == false)
         {
-            switch (curSMinoInex)
+            switch (curSMinoIndex)
             {
                 case 0:
                 case 1:
@@ -153,24 +132,24 @@ public class StageManager : MonoBehaviour {
 
                 case 2:
                 case 3:
-                    if (sMinos[curSMinoInex].minos[1].Ypos > swipe_DownLimit)
+                    if (sMinos[curSMinoIndex].minos[1].Ypos > swipe_DownLimit)
                     {
-                        int x0 = sMinos[curSMinoInex].minos[0].Xpos;
-                        int y0 = sMinos[curSMinoInex].minos[0].Ypos;
+                        int x0 = sMinos[curSMinoIndex].minos[0].Xpos;
+                        int y0 = sMinos[curSMinoIndex].minos[0].Ypos;
 
-                        int x1 = sMinos[curSMinoInex].minos[1].Xpos;
-                        int y1 = sMinos[curSMinoInex].minos[1].Ypos;
+                        int x1 = sMinos[curSMinoIndex].minos[1].Xpos;
+                        int y1 = sMinos[curSMinoIndex].minos[1].Ypos;
 
                         Mino m0 = board[x0, y0 - 1];
                         Mino m1 = board[x1, y1 - 1];
                         Mino m2 = board[x0, y0];
 
-                        m1.Set_MinoType(sMinos[curSMinoInex].minos[1].MinoType);
-                        m0.Set_MinoType(sMinos[curSMinoInex].minos[0].MinoType);
+                        m1.Set_MinoType(sMinos[curSMinoIndex].minos[1].MinoType);
+                        m0.Set_MinoType(sMinos[curSMinoIndex].minos[0].MinoType);
                         m2.Set_MinoType(MinoTypes.Empty);
 
-                        sMinos[curSMinoInex].minos[0] = m0;
-                        sMinos[curSMinoInex].minos[1] = m1;
+                        sMinos[curSMinoIndex].minos[0] = m0;
+                        sMinos[curSMinoIndex].minos[1] = m1;
                     }
                     break;
 
@@ -182,28 +161,28 @@ public class StageManager : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.LeftArrow) && onCycle == false)
         {
-            switch (curSMinoInex)
+            switch (curSMinoIndex)
             {
                 case 0:
                 case 1:
-                    if (sMinos[curSMinoInex].minos[0].Xpos > swipe_LeftLimit )
+                    if (sMinos[curSMinoIndex].minos[0].Xpos > swipe_LeftLimit )
                     {
-                        int x0 = sMinos[curSMinoInex].minos[0].Xpos;
-                        int y0 = sMinos[curSMinoInex].minos[0].Ypos;
+                        int x0 = sMinos[curSMinoIndex].minos[0].Xpos;
+                        int y0 = sMinos[curSMinoIndex].minos[0].Ypos;
 
-                        int x1 = sMinos[curSMinoInex].minos[1].Xpos;
-                        int y1 = sMinos[curSMinoInex].minos[1].Ypos;
+                        int x1 = sMinos[curSMinoIndex].minos[1].Xpos;
+                        int y1 = sMinos[curSMinoIndex].minos[1].Ypos;
 
                         Mino m0 = board[x0-1, y0];
                         Mino m1 = board[x1-1, y1];
                         Mino m2 = board[x1, y1];
 
-                        m0.Set_MinoType(sMinos[curSMinoInex].minos[0].MinoType);
-                        m1.Set_MinoType(sMinos[curSMinoInex].minos[1].MinoType);
+                        m0.Set_MinoType(sMinos[curSMinoIndex].minos[0].MinoType);
+                        m1.Set_MinoType(sMinos[curSMinoIndex].minos[1].MinoType);
                         m2.Set_MinoType(MinoTypes.Empty);
 
-                        sMinos[curSMinoInex].minos[0] = m0;
-                        sMinos[curSMinoInex].minos[1] = m1;
+                        sMinos[curSMinoIndex].minos[0] = m0;
+                        sMinos[curSMinoIndex].minos[1] = m1;
                     }
                     break;
 
@@ -219,28 +198,28 @@ public class StageManager : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.RightArrow) && onCycle == false)
         {
-            switch (curSMinoInex)
+            switch (curSMinoIndex)
             {
                 case 0:
                 case 1:
-                    if (sMinos[curSMinoInex].minos[1].Xpos < swipe_RightLimit)
+                    if (sMinos[curSMinoIndex].minos[1].Xpos < swipe_RightLimit)
                     {
-                        int x0 = sMinos[curSMinoInex].minos[0].Xpos;
-                        int y0 = sMinos[curSMinoInex].minos[0].Ypos;
+                        int x0 = sMinos[curSMinoIndex].minos[0].Xpos;
+                        int y0 = sMinos[curSMinoIndex].minos[0].Ypos;
 
-                        int x1 = sMinos[curSMinoInex].minos[1].Xpos;
-                        int y1 = sMinos[curSMinoInex].minos[1].Ypos;
+                        int x1 = sMinos[curSMinoIndex].minos[1].Xpos;
+                        int y1 = sMinos[curSMinoIndex].minos[1].Ypos;
 
                         Mino m0 = board[x0 +1, y0];
                         Mino m1 = board[x1 +1, y1];
                         Mino m2 = board[x0, y0];
 
-                        m1.Set_MinoType(sMinos[curSMinoInex].minos[1].MinoType);
-                        m0.Set_MinoType(sMinos[curSMinoInex].minos[0].MinoType);
+                        m1.Set_MinoType(sMinos[curSMinoIndex].minos[1].MinoType);
+                        m0.Set_MinoType(sMinos[curSMinoIndex].minos[0].MinoType);
                         m2.Set_MinoType(MinoTypes.Empty);
 
-                        sMinos[curSMinoInex].minos[0] = m0;
-                        sMinos[curSMinoInex].minos[1] = m1;
+                        sMinos[curSMinoIndex].minos[0] = m0;
+                        sMinos[curSMinoIndex].minos[1] = m1;
                     }
                     break;
 
@@ -260,13 +239,13 @@ public class StageManager : MonoBehaviour {
         {
             if(Input.GetKeyDown(KeyCode.Space))
             {
-                switch(curSMinoInex)
+                switch(curSMinoIndex)
                 {
                     case 0:
                     case 1:
                     case 2:
                     case 3:
-                        StartCoroutine(Run_AlgoCycle_Corutine(curSMinoInex));
+                        StartCoroutine(Run_AlgoCycle_Corutine(curSMinoIndex));
                         break;
 
                     default:
@@ -336,6 +315,9 @@ public class StageManager : MonoBehaviour {
         get { return (int)(verLine + 0.5f); }
     }
 
+    int curTurn;
+    int curRound;
+
     int poppedMino_CurBoard;
     int poppedMino_Total;
     int poppedChain_CurBoard;
@@ -344,7 +326,7 @@ public class StageManager : MonoBehaviour {
     int poppedChain_Combo;
     bool isPopeed;
 
-    int curSMinoInex;
+    int curSMinoIndex;
 
     int swipe_UpLimit;
     int swipe_DownLimit;
@@ -374,29 +356,7 @@ public class StageManager : MonoBehaviour {
 
         //Push Setting
         Set_PushDirectioin(SMinoIndex);
-
-        //Drop Floating minos
-        switch (SMinoIndex)
-        {
-            case 0:
-                HookUp();
-                break;
-            case 1:
-                HookDown();
-                break;
-            case 2:
-                HookLeft();
-                break;
-            case 3:
-                HookRight();
-                break;
-
-            default:
-                Debug.LogError("You input wrong SMinoIndex, check this out!");
-                break;
-        }
-        yield return new WaitForSeconds(timeAfterDrop);
-
+        
         //Push Slamino
         Push_SMino_Separately(sMinos[SMinoIndex]);
         mm.Play_Drop();
@@ -470,41 +430,116 @@ public class StageManager : MonoBehaviour {
                 Debug.LogError("Wrong Index Number");
                 break;
         }
-
-        // Push whole Minos  OR   Reset  Boards
-        if (poppedChain_CurBoard >= 15)
-        {
-            if (minoVariety < 6)
-                minoVariety++;
-
-            poppedChain_CurBoard = 0;
-            poppedMino_CurBoard = 0;
-
-            for (int x = gapY; x <= mapX - 1 - gapX; x++)
-            {
-                for (int y = gapY; y <= mapY - 1 - gapY; y++)
-                {
-                    board[x, y].Set_MinoType(MinoTypes.Empty);
-                }
-            }
-
-            Initialize_CenterMinos(horLine, verLine, 5, 3, false);
-        }
-
+        
         //Reset_Variables
         Reset_Minos_Movement();
 
-        //Respawn Slamino
+        //Respawn Slamino && Adjust to normal Position
         sMinos[SMinoIndex].Spawn_SMino(true);
+
+
+        //Turn Turn the Table
+        switch (curSMinoIndex)
+        {
+            case 0:
+                curSMinoIndex = 3;
+                break;
+
+            case 1:
+                curSMinoIndex = 2;
+                break;
+
+            case 2:
+                curSMinoIndex = 0;
+                break;
+
+            case 3:
+                curSMinoIndex = 1;
+                break;
+
+            default:
+                Debug.LogError("you input wrong Index!!");
+                break;
+
+        }
+
+        switch (curSMinoIndex)
+        {
+            case 0:
+                QuadZone.Chage_View(true, true, false, false, 0.5f);
+                SwipeZone.Chage_View(true, false, false, false, 0.5f);
+                AxisZone.Chage_View(true, false, 0.8f);
+
+                yield return new WaitForSeconds(timeAfterDrop * 1.5f);
+                HookUp();
+                break;
+
+            case 1:
+                QuadZone.Chage_View(false, false, true, true, 0.5f);
+                SwipeZone.Chage_View(false, true, false, false, 0.5f);
+                AxisZone.Chage_View(true, false, 0.8f);
+
+                yield return new WaitForSeconds(timeAfterDrop * 1.5f);
+                HookDown();
+                break;
+
+            case 2:
+                QuadZone.Chage_View(false, true, true, false, 0.5f);
+                SwipeZone.Chage_View(false, false, true, false, 0.5f);
+                AxisZone.Chage_View(false, true, 0.8f);
+
+                yield return new WaitForSeconds(timeAfterDrop * 1.5f);
+                HookLeft();
+                break;
+
+            case 3:
+                QuadZone.Chage_View(true, false, false, true, 0.5f);
+                SwipeZone.Chage_View(false, false, false, true, 0.5f);
+                AxisZone.Chage_View(false, true, 0.8f);
+
+                yield return new WaitForSeconds(timeAfterDrop*1.5f);
+                HookRight();
+                break;
+
+            default:
+                Debug.LogError("Wrong curSMinoIndex Number. Check!");
+                break;
+        }
+
+
+        yield return new WaitForSeconds(timeAfterDrop * 1.5f);
         
+        curTurn++;
+        if ((curTurn % 4) - 1 == 0)
+            curRound++;
+
+        if(curRound% 2 == 0)
+            switch(curSMinoIndex)
+            {
+                case 0:
+                    Add_Minos(Direction.Up, 1, 4, 4, 0, 0);
+                    break;
+
+                case 1:
+                    Add_Minos(Direction.Down, 1, 4, 4, 0, 0);
+                    break;
+
+                case 2:
+                    Add_Minos(Direction.Left, 1, 0, 0, 3, 3);
+                    break;
+
+                case 3:
+                    Add_Minos(Direction.Right, 1, 0, 0, 3, 3);
+                    break;
+            }
+        yield return new WaitForSeconds(timeAfterDrop * 1.5f);
+
         //End cycle
         onCycle = false;
     }
-    
     #endregion
     
-    #region Basic Function(Use no custom function)
-        
+    #region Utility Functions
     public Mino Get_Board(int xPos, int yPos)
     {
         return board[xPos, yPos];
@@ -1099,12 +1134,89 @@ public class StageManager : MonoBehaviour {
         }
         Clear_Mino(m);
     }
+    
     void Clear_Mino(Mino m)
     {
         m.Set_MinoType(MinoTypes.Empty);
         m.Set_MoveType(MoveTypes.None);
     }
-    
+
+    void Add_Minos(Direction dir, int Refeat, int xLeft, int xRight, int yUp, int yDown)
+    {
+        for(int i =0; i < Refeat; i ++)
+        {
+            switch (dir)
+            {
+                case Direction.Up:
+                    // move up
+                    for (int y = mapY - 1 - gapY; y >= upHor; y--)
+                    {
+                        for (int x = leftVer - xLeft + 1; x <= rightVer + xRight - 1; x++)
+                        {
+                            Mino m = board[x, y];
+                            Move_Mino(m, m.Xpos, m.Ypos + 1, m.MoveType);
+                        }
+                    }
+
+                    for (int x = leftVer - xLeft + 1; x <= rightVer + xRight - 1; x++)
+                    {
+                        board[x, upHor].Set_MinoType(Get_RandMinoType(true));
+                    }
+                    break;
+
+                case Direction.Down:
+                    for (int y = gapY; y <= downHor; y++)
+                    {
+                        for (int x = leftVer - xLeft + 1; x <= rightVer + xRight - 1; x++)
+                        {
+                            Mino m = board[x, y];
+                            Move_Mino(m, m.Xpos, m.Ypos - 1, m.MoveType);
+                        }
+                    }
+
+                    for (int x = leftVer - xLeft + 1; x <= rightVer + xRight - 1; x++)
+                    {
+                        board[x, downHor].Set_MinoType(Get_RandMinoType(true));
+                    }
+                    break;
+
+                case Direction.Left:
+                    for (int x = gapX; x <= leftVer; x++)
+                    {
+                        for (int y = downHor - yDown + 1; y <= upHor + yUp - 1; y++)
+                        {
+                            Mino m = board[x, y];
+                            Move_Mino(m, m.Xpos - 1, m.Ypos, m.MoveType);
+                        }
+                    }
+
+                    for (int y = downHor - yDown + 1; y <= upHor + yUp - 1; y++)
+                    {
+                        board[leftVer, y].Set_MinoType(Get_RandMinoType(true));
+                    }
+                    break;
+
+                case Direction.Right:
+                    for (int x = mapX - 1 - gapX; x >= rightVer; x--)
+                    {
+                        for (int y = downHor - yDown + 1; y <= upHor + yUp - 1; y++)
+                        {
+                            Mino m = board[x, y];
+                            Move_Mino(m, m.Xpos + 1, m.Ypos, m.MoveType);
+                        }
+                    }
+
+                    for (int y = downHor - yDown + 1; y <= upHor + yUp - 1; y++)
+                    {
+                        board[rightVer, y].Set_MinoType(Get_RandMinoType(true));
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
     #endregion
     
     #region Initial Map Generation Fuction

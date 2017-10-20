@@ -91,5 +91,25 @@ public class Slamino : MonoBehaviour {
             }
         }
     }
+    public void Recover_SMino()
+    {
+        if(xPush == 0 && yPush == -1)
+        {
+
+        }
+        else if(XPush == 0 && yPush == 1)
+        {
+
+        }
+        else if(XPush == 1 && yPush == 0)
+        {
+
+        }
+        else if(XPush == -1 && yPush ==0)
+        {
+
+        }
+
+    }
     #endregion
 }

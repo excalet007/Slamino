@@ -15,3 +15,11 @@ public enum MoveTypes
     Push,
     SlaminoPush
 }
+
+public enum Direction
+{
+    Up,
+    Down,
+    Left,
+    Right
+}
