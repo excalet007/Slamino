@@ -27,7 +27,7 @@ public class StageManager : MonoBehaviour {
         gapY = (mapY - zoneY) / 2;
 
         // mino variaty (green, red, yellow, blue)
-        minoVariety = 3;
+        minoVariety = 4;
         mm.Change_Volume(mm.Bgm, 0.3f);
         mm.Change_Volume(mm.Sfx_Drop, 0.4f);
         mm.Change_Volume(mm.Sfx_Pop, 0.5f);
@@ -435,6 +435,7 @@ public class StageManager : MonoBehaviour {
         Reset_Minos_Movement();
 
         //Respawn Slamino && Adjust to normal Position
+        Reset_SMino_Position();
         sMinos[SMinoIndex].Spawn_SMino(true);
 
 
@@ -996,7 +997,76 @@ public class StageManager : MonoBehaviour {
 
         cMinos.Clear();
     }
-    
+    void Reset_SMino_Position()
+    {
+        for(int index=0; index<sMinos.Length; index++)
+        {
+            switch(index)
+            {
+                case 0:
+                case 1:
+                    int xLeft = mapX / 2 - 1;
+                    int xRight = mapX / 2;
+                    int y =  -1;
+                    if (index == 0)
+                        y = mapY - 1;
+                    else if (index == 1)
+                        y = 0;
+                    else
+                        Debug.LogError("Check your index and y value");
+
+
+                    MinoTypes mT0_hor = sMinos[index].minos[0].MinoType;
+                    MinoTypes mT1_hor = sMinos[index].minos[1].MinoType;
+
+                    Clear_Mino(sMinos[index].minos[0]);
+                    Clear_Mino(sMinos[index].minos[1]);
+
+                    Mino m0_hor = board[xLeft, y];
+                    Mino m1_hor = board[xRight, y];
+
+                    m0_hor.Set_MinoType(mT0_hor);
+                    m1_hor.Set_MinoType(mT1_hor);
+
+                    sMinos[index].minos[0] = m0_hor;
+                    sMinos[index].minos[1] = m1_hor;
+                    break;
+
+                case 2:
+                case 3:
+                    int yUp = mapY / 2;
+                    int yDown = mapY /2 - 1;
+                    int x = -1;
+                    if (index == 2)
+                        x = 0;
+                    else if (index == 3)
+                        x = mapX -1;
+                    else
+                        Debug.LogError("Check your index and x value");
+
+                    MinoTypes mT0_ver = sMinos[index].minos[0].MinoType;
+                    MinoTypes mT1_ver = sMinos[index].minos[1].MinoType;
+
+                    Clear_Mino(sMinos[index].minos[0]);
+                    Clear_Mino(sMinos[index].minos[1]);
+
+                    Mino m0_ver = board[x, yUp];
+                    Mino m1_ver = board[x, yDown];
+
+                    m0_ver.Set_MinoType(mT0_ver);
+                    m1_ver.Set_MinoType(mT1_ver);
+
+                    sMinos[index].minos[0] = m0_ver;
+                    sMinos[index].minos[1] = m1_ver;
+                    break;
+
+                default:
+                    Debug.Log("Wrong Index error, it should be no more than 0~3(up down left right), check this out");
+                    break;
+            }
+        }
+    }
+
     void HookHorizontal()
     {
         isHookHor = false;
@@ -1134,7 +1204,6 @@ public class StageManager : MonoBehaviour {
         }
         Clear_Mino(m);
     }
-    
     void Clear_Mino(Mino m)
     {
         m.Set_MinoType(MinoTypes.Empty);
