@@ -363,7 +363,8 @@ public class StageManager : MonoBehaviour {
         yield return new WaitForSeconds(timeAfterDrop);
         
         //Check & Pop Connected Minos
-        Search_ChainMinos();
+        Search_ChainMinos(curSMinoIndex);
+        //Focus nn
         Pop_ChainMinos(MoveTypes.Push);
         if(isPopeed)
         {
@@ -387,7 +388,7 @@ public class StageManager : MonoBehaviour {
                     HookHorizontal();
                     yield return new WaitForSeconds(timeAfterDrop);
 
-                    Search_ChainMinos();
+                    Search_ChainMinos(curSMinoIndex);
                     if (isHookHor)
                     {
                         Pop_ChainMinos(MoveTypes.Push);
@@ -410,7 +411,7 @@ public class StageManager : MonoBehaviour {
                     HookVertical();
                     yield return new WaitForSeconds(timeAfterDrop);
 
-                    Search_ChainMinos();
+                    Search_ChainMinos(curSMinoIndex);
                     if (isHookVer)
                     {
                         Pop_ChainMinos(MoveTypes.Push);
@@ -615,80 +616,7 @@ public class StageManager : MonoBehaviour {
 
         return board[m.Xpos + xDif, m.Ypos + yDif];
     }
-    Mino Get_ContactPos_ToZone(Mino m, int xDir, int yDir)
-    {
-        if (xDir != 0 && yDir != 0)
-        {
-            Debug.LogError(" you input diagonal check! it's unacceptable");
-            return m;
-        }
 
-        int xDif = 0;
-        int yDif = 0;
-        int widthDif = mapX - zoneX;
-        int heightDif = mapY - zoneY;
-
-
-        if (xDir == 1)
-        {
-            while (board[m.Xpos + 1 + xDif, m.Ypos].MinoType == MinoTypes.Empty)
-            {
-                xDif++;
-                if (m.Xpos + xDif >= mapX - widthDif)
-                {
-                    xDif = (int)(verLine - m.Xpos - 0.5f);
-                    break;
-                }
-            }
-        }
-        else if (xDir == -1)
-        {
-            while (board[m.Xpos - 1 + xDif, m.Ypos].MinoType == MinoTypes.Empty)
-            {
-                xDif--;
-                if (m.Xpos + xDif <= widthDif)
-                {
-                    xDif = (int)(verLine - m.Xpos + 0.5f);
-                    break;
-                }
-            }
-        }
-        else if (yDir == 1)
-        {
-            while (board[m.Xpos, m.Ypos + 1 + yDif].MinoType == MinoTypes.Empty)
-            {
-                yDif++;
-                if (m.Ypos + yDif >= mapY - heightDif)
-                {
-                    yDif = (int)(horLine - m.Ypos - 0.5f);
-                    break;
-                }
-            }
-        }
-        else if (yDir == -1)
-        {
-            while (board[m.Xpos, m.Ypos - 1 + yDif].MinoType == MinoTypes.Empty)
-            {
-                yDif--;
-                if (m.Ypos + yDif <= heightDif)
-                {
-                    yDif = (int)(horLine - m.Ypos + 0.5f);
-                    break;
-                }
-            }
-        }
-        return board[m.Xpos + xDif, m.Ypos + yDif];
-    }
-    
-    bool Get_IsCMinos_ContainMovetype(MoveTypes mType)
-    {
-        for(int i =0; i<cMinos.Count; i++)
-        {
-            if (cMinos[i].Get_ContainMoveType(mType))
-                return true;
-        }
-        return false;
-    }
     bool Get_IsConnected(Mino m, MinoTypes targetType)
     {
         if (m.MinoType != MinoTypes.Empty)
@@ -704,22 +632,6 @@ public class StageManager : MonoBehaviour {
         }
         return false;
     }
-    bool Get_IsFloating_Cross(Mino m)
-    {
-        if (m.MinoType != MinoTypes.Empty)
-        {
-            if (((m.Ypos + 1) <= (mapY - 1 - gapY)) && board[m.Xpos, m.Ypos + 1].MinoType != MinoTypes.Empty)
-                return false;
-            else if (((m.Ypos - 1) >= gapY) && board[m.Xpos, m.Ypos - 1].MinoType != MinoTypes.Empty)
-                return false;
-            else if (((m.Xpos - 1) >= gapX) && board[m.Xpos - 1, m.Ypos].MinoType != MinoTypes.Empty)
-                return false;
-            else if (((m.Xpos + 1) <= (mapX - 1 - gapX)) && board[m.Xpos + 1, m.Ypos].MinoType != MinoTypes.Empty)
-                return false;
-        }
-        return true;
-    }
-    
     List<Mino> Get_ConnectedMinos(Mino m)
     {
         List<Mino> ms = new List<Mino>();
@@ -752,22 +664,6 @@ public class StageManager : MonoBehaviour {
         
         return ms;
     }
-    List<Mino> Get_Minos_ByMoveType(MoveTypes mType)
-    {
-        List<Mino> mList = new List<Mino>();
-
-        for (int x = gapX; x <= mapX - 1 - gapX; x++)
-        {
-            for (int y = gapY; y <= mapY - 1 - gapY; y++)
-            {
-                if (board[x, y].MoveType == mType)
-                    mList.Add(board[x, y]);
-            }
-        }
-
-        return mList;
-    }
-
     void Search_ChainMinos()
     {
         //Reset
@@ -801,6 +697,158 @@ public class StageManager : MonoBehaviour {
             }
         }
     }
+    void Search_ChainMinos(int index)
+    {
+        //Reset
+        cMinos.Clear();
+
+        for (int x = gapX; x <= mapX - 1 - gapX; x++)
+        {
+            for (int y = gapY; y <= mapY - 1 - gapY; y++)
+            {
+                Mino m = board[x, y];
+
+                if (Get_IsConnected(m, m.MinoType))
+                {
+                    bool IsAdded = false;
+
+                    for (int i = 0; i < cMinos.Count; i++)
+                    {
+                        if (cMinos[i].Get_ContainMino(m))
+                        {
+                            IsAdded = true;
+                            break;
+                        }
+                    }
+
+                    if (!IsAdded)
+                    {
+                        ChainMino cMino = new ChainMino(m.MinoType, Get_ConnectedMinos(m));
+                        cMinos.Add(cMino);
+                    }
+                }
+            }
+        }
+
+        if(index == 0)
+        {
+            List<int> removeIndex = new List<int>();
+
+            for (int i = 0; i < cMinos.Count; i++)
+            {
+                for (int x = gapX; x <= mapX - 1 - gapX; x++)
+                {
+                    for (int y = gapY; y <= downHor; y++)
+                    {
+                        Mino mino = board[x, y];
+                        if (cMinos[i].Get_ContainMino(mino))
+                        {
+                            cMinos[i].Minos.Remove(mino);
+                        }
+                    }
+                }
+
+                if (cMinos[i].Minos.Count < 2)
+                {
+                    removeIndex.Add(i);
+                }
+            }
+
+            for (int i = removeIndex.Count - 1; i >= 0; i--)
+            {
+                cMinos.Remove(cMinos[i]);
+            }
+        }
+        else if (index == 1)
+        {
+            List<int> removeIndex = new List<int>();
+
+            for (int i = 0; i < cMinos.Count; i++)
+            {
+                for (int x = gapX; x <= mapX - 1 - gapX; x++)
+                {
+                    for (int y = mapY -1 - gapY; y >= upHor; y--)
+                    {
+                        Mino mino = board[x, y];
+                        if (cMinos[i].Get_ContainMino(mino))
+                        {
+                            cMinos[i].Minos.Remove(mino);
+                        }
+                    }
+                }
+
+                if (cMinos[i].Minos.Count < 2)
+                {
+                    removeIndex.Add(i);
+                }
+            }
+
+            for (int i = removeIndex.Count - 1; i >= 0; i--)
+            {
+                cMinos.Remove(cMinos[i]);
+            }
+        }
+        else if (index == 2)
+        {
+            List<int> removeIndex = new List<int>();
+
+            for (int i = 0; i < cMinos.Count; i++)
+            {
+                for (int x = mapX -1 - gapX; x >= rightVer; x--)
+                {
+                    for (int y = mapY -1 - gapY; y >= gapY; y--)
+                    {
+                        Mino mino = board[x, y];
+                        if (cMinos[i].Get_ContainMino(mino))
+                        {
+                            cMinos[i].Minos.Remove(mino);
+                        }
+                    }
+                }
+
+                if (cMinos[i].Minos.Count < 2)
+                {
+                    removeIndex.Add(i);
+                }
+            }
+
+            for (int i = removeIndex.Count - 1; i >= 0; i--)
+            {
+                cMinos.Remove(cMinos[i]);
+            }
+        }
+        else if (index == 3)
+        {
+            List<int> removeIndex = new List<int>();
+
+            for (int i = 0; i < cMinos.Count; i++)
+            {
+                for (int x = gapX; x <= leftVer; x++)
+                {
+                    for (int y = mapY - 1 - gapY; y >= gapY; y--)
+                    {
+                        Mino mino = board[x, y];
+                        if (cMinos[i].Get_ContainMino(mino))
+                        {
+                            cMinos[i].Minos.Remove(mino);
+                        }
+                    }
+                }
+
+                if (cMinos[i].Minos.Count < 2)
+                {
+                    removeIndex.Add(i);
+                }
+            }
+
+            for (int i = removeIndex.Count - 1; i >= 0; i--)
+            {
+                cMinos.Remove(cMinos[i]);
+            }
+        }
+        else
+            Debug.LogError("you intput Wrong Number, It should be between 0~3(inclusive)");
+    }
 
     void Pop_ChainMinos(MoveTypes mType)
     {
@@ -832,134 +880,7 @@ public class StageManager : MonoBehaviour {
             cMinos.Remove(cMinos[j]);
         }
     }
-    void Pop_ChainMinosAll()
-    {
-        for (int i = 0; i < cMinos.Count; i++)
-        {
-            for (int k = cMinos[i].Minos.Count - 1; k > -1; k--)
-            {
-                Clear_Mino(cMinos[i].Minos[k]);
-            }
-        }
-        cMinos.Clear();
-    }
-
-    void Push_FloatingSMino()
-    {
-        List<Mino> FMino = Get_Minos_ByMoveType(MoveTypes.Push);
-        for(int i = 0; i<FMino.Count; i++)
-        {
-            if(Get_IsFloating_Cross(FMino[i]))
-            {
-                Mino to = Get_ContactPos_ToZone(FMino[i], xPush, yPush);
-                Move_Mino(FMino[i], to.Xpos, to.Ypos, MoveTypes.Push);
-            }
-        }
-
-    }
-    void Push_AllMinos(int SMinoIndex)
-    {
-        switch(SMinoIndex)
-        {
-            case 0:
-                for (int x = gapY; x <= mapX - 1 - gapX; x++)
-                {
-                    for (int y = gapY; y <= mapY - 1 - gapY; y++)
-                    {
-                        if (board[x, y].MinoType != MinoTypes.Empty)
-                            Move_Mino(board[x, y], x , (y - 1), MoveTypes.Push);
-                    }
-                }
-                break;
-
-            case 1:
-                for (int x = gapX; x <= mapX - 1 - gapX; x++)
-                {
-                    for (int y = mapY-1-gapY; y >= gapY; y--)
-                    {
-                        if (board[x, y].MinoType != MinoTypes.Empty)
-                            Move_Mino(board[x, y], x, (y + 1), MoveTypes.Push);
-                    }
-                }
-                break;
-
-            case 2:
-                for (int x = mapX -1 - gapY; x >= gapX; x--)
-                {
-                    for (int y = gapY; y <= mapY -1 - gapY; y++)
-                    {
-                        if (board[x, y].MinoType != MinoTypes.Empty)
-                            Move_Mino(board[x, y], (x+1), y, MoveTypes.Push);
-                    }
-                }
-                break;
-
-            case 3:
-                for (int x = gapY; x <= mapX - 1 -gapX; x++)
-                {
-                    for (int y = gapY; y <= mapY - 1 - gapY; y++)
-                    {
-                        if (board[x, y].MinoType != MinoTypes.Empty)
-                            Move_Mino(board[x, y], (x -1), y, MoveTypes.Push);
-                    }
-                }
-                break;
-
-            default:
-                Debug.LogError("you Input wrong SMinoIndex");
-                break;
-        }
-    }
-    void Push_SMino(Slamino s)
-    {
-        #region Get minimum movement for Slamino
-        int minMove = (int)Mathf.Max((int)mapX, (int)mapY);
-        for (int i = 0; i < s.minos.Count; i++)
-        {
-            Mino contact = Get_ContactPos_ToZone(s.minos[i], s.XPush, s.YPush);
-
-            //Xdirection Move
-            if (s.XPush == 1 || s.XPush == -1)
-            {
-                int xDif = s.minos[i].Xpos - contact.Xpos;
-
-                if (Mathf.Abs((float)xDif) < Mathf.Abs((float)minMove))
-                    minMove = (int)Mathf.Abs((float)xDif);
-            }
-
-            // Ydirection Move
-            if (s.YPush == 1 || s.YPush == -1)
-            {
-                int yDif = s.minos[i].Ypos - contact.Ypos;
-
-                if (Mathf.Abs((float)yDif) < Mathf.Abs((float)minMove))
-                    minMove = (int)Mathf.Abs((float)yDif);
-            }
-        }
-        #endregion
-
-        #region push minos using minimum movement
-        for (int i = 0; i < s.minos.Count; i++)
-        {
-            int xPos = s.minos[i].Xpos + s.XPush * minMove;
-            int yPos = s.minos[i].Ypos + s.YPush * minMove;
-
-            Move_Mino(s.minos[i], xPos, yPos, MoveTypes.Push);
-        }
-        #endregion
-    }
-    void Push_SMino_Separately(Slamino s)
-    {
-        for (int i = 0; i < s.minos.Count; i++)
-        {
-            Mino contact = Get_ContactPos_ToAxis(s.minos[i], xPush, yPush);
-
-            int xPos = contact.Xpos;
-            int yPos = contact.Ypos;
-
-            Move_Mino(s.minos[i], xPos, yPos, MoveTypes.Push);
-        }
-    }
+    
     void Set_PushDirectioin(int SMinoIndex)
     {
         xPush = 0;
@@ -982,6 +903,18 @@ public class StageManager : MonoBehaviour {
             default:
                 Debug.LogError("You input wrong Slamino Index");
                 break;
+        }
+    }
+    void Push_SMino_Separately(Slamino s)
+    {
+        for (int i = 0; i < s.minos.Count; i++)
+        {
+            Mino contact = Get_ContactPos_ToAxis(s.minos[i], xPush, yPush);
+
+            int xPos = contact.Xpos;
+            int yPos = contact.Ypos;
+
+            Move_Mino(s.minos[i], xPos, yPos, MoveTypes.Push);
         }
     }
 
@@ -1209,7 +1142,6 @@ public class StageManager : MonoBehaviour {
         m.Set_MinoType(MinoTypes.Empty);
         m.Set_MoveType(MoveTypes.None);
     }
-
     void Add_Minos(Direction dir, int Refeat, int xLeft, int xRight, int yUp, int yDown)
     {
         for(int i =0; i < Refeat; i ++)
@@ -1341,6 +1273,230 @@ public class StageManager : MonoBehaviour {
         {
             sMinos[i].Spawn_SMino(acceptSame);
         }
+    }
+    #endregion
+
+    #region Not In used Fuction & Method
+    void Push_FloatingSMino()
+    {
+        List<Mino> FMino = Get_Minos_ByMoveType(MoveTypes.Push);
+        for (int i = 0; i < FMino.Count; i++)
+        {
+            if (Get_IsFloating_Cross(FMino[i]))
+            {
+                Mino to = Get_ContactPos_ToZone(FMino[i], xPush, yPush);
+                Move_Mino(FMino[i], to.Xpos, to.Ypos, MoveTypes.Push);
+            }
+        }
+
+    }
+    void Push_AllMinos(int SMinoIndex)
+    {
+        switch (SMinoIndex)
+        {
+            case 0:
+                for (int x = gapY; x <= mapX - 1 - gapX; x++)
+                {
+                    for (int y = gapY; y <= mapY - 1 - gapY; y++)
+                    {
+                        if (board[x, y].MinoType != MinoTypes.Empty)
+                            Move_Mino(board[x, y], x, (y - 1), MoveTypes.Push);
+                    }
+                }
+                break;
+
+            case 1:
+                for (int x = gapX; x <= mapX - 1 - gapX; x++)
+                {
+                    for (int y = mapY - 1 - gapY; y >= gapY; y--)
+                    {
+                        if (board[x, y].MinoType != MinoTypes.Empty)
+                            Move_Mino(board[x, y], x, (y + 1), MoveTypes.Push);
+                    }
+                }
+                break;
+
+            case 2:
+                for (int x = mapX - 1 - gapY; x >= gapX; x--)
+                {
+                    for (int y = gapY; y <= mapY - 1 - gapY; y++)
+                    {
+                        if (board[x, y].MinoType != MinoTypes.Empty)
+                            Move_Mino(board[x, y], (x + 1), y, MoveTypes.Push);
+                    }
+                }
+                break;
+
+            case 3:
+                for (int x = gapY; x <= mapX - 1 - gapX; x++)
+                {
+                    for (int y = gapY; y <= mapY - 1 - gapY; y++)
+                    {
+                        if (board[x, y].MinoType != MinoTypes.Empty)
+                            Move_Mino(board[x, y], (x - 1), y, MoveTypes.Push);
+                    }
+                }
+                break;
+
+            default:
+                Debug.LogError("you Input wrong SMinoIndex");
+                break;
+        }
+    }
+    void Push_SMino(Slamino s)
+    {
+        #region Get minimum movement for Slamino
+        int minMove = (int)Mathf.Max((int)mapX, (int)mapY);
+        for (int i = 0; i < s.minos.Count; i++)
+        {
+            Mino contact = Get_ContactPos_ToZone(s.minos[i], s.XPush, s.YPush);
+
+            //Xdirection Move
+            if (s.XPush == 1 || s.XPush == -1)
+            {
+                int xDif = s.minos[i].Xpos - contact.Xpos;
+
+                if (Mathf.Abs((float)xDif) < Mathf.Abs((float)minMove))
+                    minMove = (int)Mathf.Abs((float)xDif);
+            }
+
+            // Ydirection Move
+            if (s.YPush == 1 || s.YPush == -1)
+            {
+                int yDif = s.minos[i].Ypos - contact.Ypos;
+
+                if (Mathf.Abs((float)yDif) < Mathf.Abs((float)minMove))
+                    minMove = (int)Mathf.Abs((float)yDif);
+            }
+        }
+        #endregion
+
+        #region push minos using minimum movement
+        for (int i = 0; i < s.minos.Count; i++)
+        {
+            int xPos = s.minos[i].Xpos + s.XPush * minMove;
+            int yPos = s.minos[i].Ypos + s.YPush * minMove;
+
+            Move_Mino(s.minos[i], xPos, yPos, MoveTypes.Push);
+        }
+        #endregion
+    }
+    
+    void Pop_ChainMinosAll()
+    {
+        for (int i = 0; i < cMinos.Count; i++)
+        {
+            for (int k = cMinos[i].Minos.Count - 1; k > -1; k--)
+            {
+                Clear_Mino(cMinos[i].Minos[k]);
+            }
+        }
+        cMinos.Clear();
+    }
+
+    bool Get_IsCMinos_ContainMovetype(MoveTypes mType)
+    {
+        for (int i = 0; i < cMinos.Count; i++)
+        {
+            if (cMinos[i].Get_ContainMoveType(mType))
+                return true;
+        }
+        return false;
+    }
+    bool Get_IsFloating_Cross(Mino m)
+    {
+        if (m.MinoType != MinoTypes.Empty)
+        {
+            if (((m.Ypos + 1) <= (mapY - 1 - gapY)) && board[m.Xpos, m.Ypos + 1].MinoType != MinoTypes.Empty)
+                return false;
+            else if (((m.Ypos - 1) >= gapY) && board[m.Xpos, m.Ypos - 1].MinoType != MinoTypes.Empty)
+                return false;
+            else if (((m.Xpos - 1) >= gapX) && board[m.Xpos - 1, m.Ypos].MinoType != MinoTypes.Empty)
+                return false;
+            else if (((m.Xpos + 1) <= (mapX - 1 - gapX)) && board[m.Xpos + 1, m.Ypos].MinoType != MinoTypes.Empty)
+                return false;
+        }
+        return true;
+    }
+
+    Mino Get_ContactPos_ToZone(Mino m, int xDir, int yDir)
+    {
+        if (xDir != 0 && yDir != 0)
+        {
+            Debug.LogError(" you input diagonal check! it's unacceptable");
+            return m;
+        }
+
+        int xDif = 0;
+        int yDif = 0;
+        int widthDif = mapX - zoneX;
+        int heightDif = mapY - zoneY;
+
+
+        if (xDir == 1)
+        {
+            while (board[m.Xpos + 1 + xDif, m.Ypos].MinoType == MinoTypes.Empty)
+            {
+                xDif++;
+                if (m.Xpos + xDif >= mapX - widthDif)
+                {
+                    xDif = (int)(verLine - m.Xpos - 0.5f);
+                    break;
+                }
+            }
+        }
+        else if (xDir == -1)
+        {
+            while (board[m.Xpos - 1 + xDif, m.Ypos].MinoType == MinoTypes.Empty)
+            {
+                xDif--;
+                if (m.Xpos + xDif <= widthDif)
+                {
+                    xDif = (int)(verLine - m.Xpos + 0.5f);
+                    break;
+                }
+            }
+        }
+        else if (yDir == 1)
+        {
+            while (board[m.Xpos, m.Ypos + 1 + yDif].MinoType == MinoTypes.Empty)
+            {
+                yDif++;
+                if (m.Ypos + yDif >= mapY - heightDif)
+                {
+                    yDif = (int)(horLine - m.Ypos - 0.5f);
+                    break;
+                }
+            }
+        }
+        else if (yDir == -1)
+        {
+            while (board[m.Xpos, m.Ypos - 1 + yDif].MinoType == MinoTypes.Empty)
+            {
+                yDif--;
+                if (m.Ypos + yDif <= heightDif)
+                {
+                    yDif = (int)(horLine - m.Ypos + 0.5f);
+                    break;
+                }
+            }
+        }
+        return board[m.Xpos + xDif, m.Ypos + yDif];
+    }
+    List<Mino> Get_Minos_ByMoveType(MoveTypes mType)
+    {
+        List<Mino> mList = new List<Mino>();
+
+        for (int x = gapX; x <= mapX - 1 - gapX; x++)
+        {
+            for (int y = gapY; y <= mapY - 1 - gapY; y++)
+            {
+                if (board[x, y].MoveType == mType)
+                    mList.Add(board[x, y]);
+            }
+        }
+
+        return mList;
     }
     #endregion
 }
