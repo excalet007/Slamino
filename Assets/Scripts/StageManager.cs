@@ -756,7 +756,7 @@ public class StageManager : MonoBehaviour {
 
             for (int i = removeIndex.Count - 1; i >= 0; i--)
             {
-                cMinos.Remove(cMinos[i]);
+                cMinos.Remove(cMinos[removeIndex[i]]);
             }
         }
         else if (index == 1)
@@ -785,7 +785,7 @@ public class StageManager : MonoBehaviour {
 
             for (int i = removeIndex.Count - 1; i >= 0; i--)
             {
-                cMinos.Remove(cMinos[i]);
+                cMinos.Remove(cMinos[removeIndex[i]]);
             }
         }
         else if (index == 2)
@@ -814,7 +814,7 @@ public class StageManager : MonoBehaviour {
 
             for (int i = removeIndex.Count - 1; i >= 0; i--)
             {
-                cMinos.Remove(cMinos[i]);
+                cMinos.Remove(cMinos[removeIndex[i]]);
             }
         }
         else if (index == 3)
@@ -843,7 +843,7 @@ public class StageManager : MonoBehaviour {
 
             for (int i = removeIndex.Count - 1; i >= 0; i--)
             {
-                cMinos.Remove(cMinos[i]);
+                cMinos.Remove(cMinos[removeIndex[i]]);
             }
         }
         else
