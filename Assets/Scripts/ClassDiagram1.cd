@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="StageManager" Collapsed="true">
+    <Position X="6.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>RQQIQgIIAIhCgIWoEgkhwBhAZAbAwIAAcDwAijFQEEA=</HashCode>
+      <FileName>Assets\Scripts\Managers\StageManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MusicManager" Collapsed="true">
+    <Position X="8.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAgAAgIAAAIAAAopAAAGAAAEAIBAAAAAQAAAAQAAAAE=</HashCode>
+      <FileName>Assets\Scripts\Managers\MusicManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="MinoTypes" Collapsed="true">
+    <Position X="6.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAhAAAAIABAAAAAAAAAAAAAAAADAAAAA=</HashCode>
+      <FileName>Assets\Scripts\enums.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="MoveTypes" Collapsed="true">
+    <Position X="8.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAEACAA=</HashCode>
+      <FileName>Assets\Scripts\enums.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Direction" Collapsed="true">
+    <Position X="5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAACACAAAAAAAI=</HashCode>
+      <FileName>Assets\Scripts\enums.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Malgun Gothic" Size="9" />
+</ClassDiagram>
