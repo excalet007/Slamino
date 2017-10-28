@@ -74,6 +74,10 @@ public class StageManager : MonoBehaviour {
         SwipeZone.Chage_View(true, false, false, false, transparency_blackLayer);
         AxisZone.Chage_View(true, false, 0.8f);
 
+        ScoreUI.Input(3, curRound);
+        ScoreUI.Input(4, 1 + (int)(curRound / 10));
+        ScoreUI.Input(5, 1 + 0.1f * pop_Turn_Count);
+
         // ------------------------------------------MapGenarating-----------------------------------
 
         Initialize_Board(mapX, mapY);
@@ -373,15 +377,6 @@ public class StageManager : MonoBehaviour {
         //Initialize Variable
         int turnScore = 0;
         pop_Chain_Count = 0;
-        if (isPop_Turn)
-        {
-            pop_Turn_Count++;
-            isPop_Turn = false;
-        }
-
-        ScoreUI.Input(3, curRound);
-        ScoreUI.Input(4, 1 + (int)(curRound / 10));
-        ScoreUI.Input(5, 1 + 0.1f * pop_Turn_Count);
 
         //Push Setting
         Set_PushDirectioin(SMinoIndex);
@@ -571,6 +566,19 @@ public class StageManager : MonoBehaviour {
                 Debug.LogError("Wrong curSMinoIndex Number. Check!");
                 break;
         }
+        
+        //Scoring Initialize
+        if (isPop_Turn)
+        {
+            pop_Turn_Count++;
+            isPop_Turn = false;
+        }
+        else
+            pop_Turn_Count = 0;
+
+        ScoreUI.Input(3, curRound);
+        ScoreUI.Input(4, 1 + (int)(curRound / 10));
+        ScoreUI.Input(5, 1 + 0.1f * pop_Turn_Count);
 
         // TotalScore Line Update
         mm.Play_Score_Enter();
