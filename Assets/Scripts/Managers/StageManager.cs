@@ -46,11 +46,16 @@ public class StageManager : MonoBehaviour {
         poppedMino_Total = 0;
         poppedChain_Total = 0;
 
-        poppedChain_Combo = 0;
+        pop_Chain_Count = 0;
 
         curTurn = 1;
         curRound = 1;
         curSMinoIndex = 0;
+
+        totalScore = 0;
+        pop_Chain_Count = 0;
+        pop_Turn_Count = 0;
+        isPop_Turn = false;
 
         swipe_UpLimit = mapY - 2 -3;
         swipe_DownLimit = 1 + 3;
@@ -61,9 +66,10 @@ public class StageManager : MonoBehaviour {
         timeAfterDrop = 0.1f;
         timeAfterPop = 0.1f;
 
+        transparency_blackLayer = 0.85f;
 
-        QuadZone.Chage_View(true, true, false, false, 0.5f);
-        SwipeZone.Chage_View(true, false, false, false, 0.5f);
+        QuadZone.Chage_View(true, true, false, false, transparency_blackLayer);
+        SwipeZone.Chage_View(true, false, false, false, transparency_blackLayer);
         AxisZone.Chage_View(true, false, 0.8f);
 
         // ------------------------------------------MapGenarating-----------------------------------
@@ -299,6 +305,7 @@ public class StageManager : MonoBehaviour {
     public Slamino[] sMinos;
     [SerializeField]
     List<ChainMino> cMinos;
+
     int upHor
     {
         get { return (int)(horLine + 0.5f); }
@@ -324,8 +331,12 @@ public class StageManager : MonoBehaviour {
     int poppedChain_CurBoard;
     int poppedChain_Total;
 
-    int poppedChain_Combo;
-    bool isPopeed;
+    int totalScore;
+
+    int pop_Turn_Count;
+    int pop_Chain_Count;
+    int pop_Block_Count;
+    bool isPop_Turn;
 
     int curSMinoIndex;
 
@@ -340,6 +351,12 @@ public class StageManager : MonoBehaviour {
     float timeAfterDrop;
     float timeAfterPop;
 
+
+    /// <summary>
+    /// 0 is perfect transparency, 1 is none transparency
+    /// </summary>
+    float transparency_blackLayer;
+
     // handle Action
     bool onCycle;
 
@@ -352,8 +369,13 @@ public class StageManager : MonoBehaviour {
         onCycle = true;
 
         //Initialize Variable
-        poppedChain_Combo = 0;
-        isPopeed = false;
+        int turnScore = 0;
+        pop_Chain_Count = 0;
+        if (isPop_Turn)
+        {
+            pop_Turn_Count++;
+            isPop_Turn = false;
+        }
 
         //Push Setting
         Set_PushDirectioin(SMinoIndex);
@@ -367,10 +389,16 @@ public class StageManager : MonoBehaviour {
         Search_ChainMinos(curSMinoIndex);
         //Focus nn
         Pop_ChainMinos(MoveTypes.Push);
-        if(isPopeed)
+        if(pop_Block_Count != 0)
         {
-            mm.Play_Pop(poppedChain_Combo);
-            isPopeed = false;
+            mm.Play_Pop(pop_Chain_Count);
+
+            turnScore += Calc_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
+
+            ScoreUI.Input(1, turnScore);
+
+            pop_Chain_Count = 0;
+            pop_Block_Count = 0;
         }
         yield return new WaitForSeconds(timeAfterPop);
         Reset_Minos_Movement();
@@ -392,10 +420,13 @@ public class StageManager : MonoBehaviour {
                     if (isHookHor)
                     {
                         Pop_ChainMinos(MoveTypes.Push);
-                        if (isPopeed)
+                        if (pop_Block_Count!= 0)
                         {
-                            mm.Play_Pop(poppedChain_Combo);
-                            isPopeed = false;
+                            mm.Play_Pop(pop_Chain_Count);
+                            turnScore +=Calc_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
+                            ScoreUI.Input(1, turnScore);
+                            pop_Chain_Count = 0;
+                            pop_Block_Count = 0;
                             yield return new WaitForSeconds(timeAfterPop);
                         }
                     }
@@ -415,10 +446,13 @@ public class StageManager : MonoBehaviour {
                     if (isHookVer)
                     {
                         Pop_ChainMinos(MoveTypes.Push);
-                        if (isPopeed)
+                        if (pop_Block_Count != 0)
                         {
-                            mm.Play_Pop(poppedChain_Combo);
-                            isPopeed = false;
+                            mm.Play_Pop(pop_Chain_Count);
+                            turnScore +=Calc_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
+                            ScoreUI.Input(1, turnScore);
+                            pop_Chain_Count = 0;
+                            pop_Block_Count = 0;
                             yield return new WaitForSeconds(timeAfterPop);
                         }
                     }
@@ -431,9 +465,15 @@ public class StageManager : MonoBehaviour {
                 Debug.LogError("Wrong Index Number");
                 break;
         }
-        
+
+        //Total Score Update
+        totalScore += turnScore;
+        ScoreUI.Input(2, totalScore);
+        yield return new WaitForSeconds(timeAfterPop);
+
         //Reset_Variables
         Reset_Minos_Movement();
+
 
         //Respawn Slamino && Adjust to normal Position
         Reset_SMino_Position();
@@ -468,38 +508,38 @@ public class StageManager : MonoBehaviour {
         switch (curSMinoIndex)
         {
             case 0:
-                QuadZone.Chage_View(true, true, false, false, 0.5f);
-                SwipeZone.Chage_View(true, false, false, false, 0.5f);
+                QuadZone.Chage_View(true, true, false, false, transparency_blackLayer);
+                SwipeZone.Chage_View(true, false, false, false, transparency_blackLayer);
                 AxisZone.Chage_View(true, false, 0.8f);
 
-                yield return new WaitForSeconds(timeAfterDrop * 1.5f);
+                yield return new WaitForSeconds(timeAfterDrop * 1f);
                 HookUp();
                 break;
 
             case 1:
-                QuadZone.Chage_View(false, false, true, true, 0.5f);
-                SwipeZone.Chage_View(false, true, false, false, 0.5f);
+                QuadZone.Chage_View(false, false, true, true, transparency_blackLayer);
+                SwipeZone.Chage_View(false, true, false, false, transparency_blackLayer);
                 AxisZone.Chage_View(true, false, 0.8f);
 
-                yield return new WaitForSeconds(timeAfterDrop * 1.5f);
+                yield return new WaitForSeconds(timeAfterDrop * 1f);
                 HookDown();
                 break;
 
             case 2:
-                QuadZone.Chage_View(false, true, true, false, 0.5f);
-                SwipeZone.Chage_View(false, false, true, false, 0.5f);
+                QuadZone.Chage_View(false, true, true, false, transparency_blackLayer);
+                SwipeZone.Chage_View(false, false, true, false, transparency_blackLayer);
                 AxisZone.Chage_View(false, true, 0.8f);
 
-                yield return new WaitForSeconds(timeAfterDrop * 1.5f);
+                yield return new WaitForSeconds(timeAfterDrop * 1f);
                 HookLeft();
                 break;
 
             case 3:
-                QuadZone.Chage_View(true, false, false, true, 0.5f);
-                SwipeZone.Chage_View(false, false, false, true, 0.5f);
+                QuadZone.Chage_View(true, false, false, true, transparency_blackLayer);
+                SwipeZone.Chage_View(false, false, false, true, transparency_blackLayer);
                 AxisZone.Chage_View(false, true, 0.8f);
 
-                yield return new WaitForSeconds(timeAfterDrop*1.5f);
+                yield return new WaitForSeconds(timeAfterDrop*1f);
                 HookRight();
                 break;
 
@@ -508,8 +548,10 @@ public class StageManager : MonoBehaviour {
                 break;
         }
 
+        // TotalScore Line Update
+        ScoreUI.BottomToTop();
 
-        yield return new WaitForSeconds(timeAfterDrop * 1.5f);
+        yield return new WaitForSeconds(timeAfterDrop);
         
         curTurn++;
         if ((curTurn % 4) - 1 == 0)
@@ -863,9 +905,13 @@ public class StageManager : MonoBehaviour {
                 poppedChain_CurBoard++;
                 poppedChain_Total++;
 
-                poppedChain_Combo++;
-                isPopeed = true;
+                if (isPop_Turn == false)
+                    isPop_Turn = true;
 
+                pop_Chain_Count++;
+                pop_Block_Count++;
+
+                
                 for (int k = cMinos[i].Minos.Count -1; k > -1; k--)
                 {
                     Clear_Mino(cMinos[i].Minos[k]);
@@ -998,6 +1044,20 @@ public class StageManager : MonoBehaviour {
                     break;
             }
         }
+    }
+
+    int Calc_TurnScore(int block_Count, int Chain_Count, int Turn_Count)
+    {
+        int score = 0;
+        int block_Value = 100;
+        
+        float mult_Chain = Mathf.Pow(2, Chain_Count - 1);
+        float mult_Turn = 1 + (0.1f * Turn_Count);
+        float mult_Round = 1 + (curRound / 10f);
+
+        score = (int)(block_Value * block_Count *  mult_Chain * mult_Turn * mult_Round);
+
+        return score;
     }
 
     void HookHorizontal()
