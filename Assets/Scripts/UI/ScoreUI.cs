@@ -17,7 +17,11 @@ public class ScoreUI : MonoBehaviour {
     {
         texts[index].text = value.ToString();
     }
-    
+
+    public static void Input(int index, string s)
+    {
+        texts[index].text = s;
+    }
 
     public static void BottomToTop()
     {
@@ -26,5 +30,8 @@ public class ScoreUI : MonoBehaviour {
         texts[2].text = "";
     }
 
-
+    public static void Input_TypeWriter(int index, float value)
+    {
+        ;
+    }
 }

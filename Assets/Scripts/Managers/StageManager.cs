@@ -31,6 +31,8 @@ public class StageManager : MonoBehaviour {
         mm.Change_Volume(mm.Bgm, 0.3f);
         mm.Change_Volume(mm.Sfx_Drop, 0.4f);
         mm.Change_Volume(mm.Sfx_Pop, 0.5f);
+        mm.Change_Volume(mm.Sfx_Score_Tap, 0.5f);
+        mm.Change_Volume(mm.Sfx_Score_Enter, 0.6f);
         mm.Change_PopStartPoint(1);
         
         // -----------------------------------Initialize Variables----------------------------------------
@@ -472,8 +474,26 @@ public class StageManager : MonoBehaviour {
 
         //Total Score Update
         totalScore += turnScore;
-        ScoreUI.Input(2, totalScore);
-        yield return new WaitForSeconds(timeAfterPop);
+        List<string> totalScore_String = Get_Score_InDigit(totalScore);
+
+        if(totalScore != 0)
+        {
+            for(int i = 1; i <= totalScore_String.Count; i++) // 반복횟수
+            {
+                string input = "";
+
+                for(int index = totalScore_String.Count - i; index <= totalScore_String.Count - 1; index++)
+                {
+                    input += totalScore_String[index];
+                }
+
+                mm.Play_Score_Tap();
+                ScoreUI.Input(2, input);
+                yield return new WaitForSeconds(0.12f);
+            }
+        }
+        //ScoreUI.Input(2, totalScore);
+        //yield return new WaitForSeconds(timeAfterPop);
 
         //Reset_Variables
         Reset_Minos_Movement();
@@ -553,6 +573,7 @@ public class StageManager : MonoBehaviour {
         }
 
         // TotalScore Line Update
+        mm.Play_Score_Enter();
         ScoreUI.BottomToTop();
 
         yield return new WaitForSeconds(timeAfterDrop);
@@ -1061,6 +1082,17 @@ public class StageManager : MonoBehaviour {
         score = (int)(block_Value * block_Count *  mult_Chain * mult_Turn * mult_Round);
 
         return score;
+    }
+    List<string> Get_Score_InDigit(int value)
+    {
+        string stringValue  = value.ToString();
+        char[] charArray = stringValue.ToCharArray();
+
+        List<string> stringList = new List<string>();
+        foreach (char c in charArray)
+            stringList.Add(c.ToString());
+        
+        return stringList;
     }
 
     void HookHorizontal()

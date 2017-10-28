@@ -31,6 +31,9 @@ public class MusicManager : MonoBehaviour {
     AudioSource bgm;
     AudioSource sfx_Drop;
     AudioSource sfx_Pop;
+    AudioSource sfx_Score_Tap;
+    AudioSource sfx_Score_Enter;
+
     public AudioSource Bgm
     {
         get { return bgm; }
@@ -43,25 +46,41 @@ public class MusicManager : MonoBehaviour {
     {
         get { return sfx_Pop; }
     }
-            
+    public AudioSource Sfx_Score_Tap
+    {
+        get { return sfx_Score_Tap; }
+    }
+    public AudioSource Sfx_Score_Enter
+    {
+        get { return sfx_Score_Enter; }
+    }
+
     // Music Clip lists
     public List<AudioClip> bgmList;
     public List<AudioClip> sfx_DropList;
     public List<AudioClip> sfx_PopList;
+    public List<AudioClip> sfx_Score_TapList;
+    public List<AudioClip> sfx_Score_EnterList;
     
     public void SetUp()
     {
         bgm = this.gameObject.AddComponent<AudioSource>();
-        sfx_Drop = this.gameObject.AddComponent<AudioSource>(); 
+        sfx_Drop = this.gameObject.AddComponent<AudioSource>();
         sfx_Pop = this.gameObject.AddComponent<AudioSource>();
+        sfx_Score_Tap = this.gameObject.AddComponent<AudioSource>();
+        sfx_Score_Enter = this.gameObject.AddComponent<AudioSource>();
 
         bgm.playOnAwake = false;
         sfx_Drop.playOnAwake = false;
         sfx_Pop.playOnAwake = false;
-
+        sfx_Score_Tap.playOnAwake = false;
+        sfx_Score_Enter.playOnAwake = false;
+       
         bgm.clip = bgmList[0];
         sfx_Drop.clip = sfx_DropList[0];
         sfx_Pop.clip = sfx_PopList[0];
+        sfx_Score_Tap.clip = sfx_Score_TapList[0];
+        sfx_Score_Enter.clip = sfx_Score_EnterList[1];
     }
 
     public void Play_BGM()
@@ -79,8 +98,21 @@ public class MusicManager : MonoBehaviour {
         if (pop_StartPoint + combo < sfx_PopList.Count)
             sfx_Pop.clip = sfx_PopList[pop_StartPoint + combo];
         else
-            Sfx_Pop.clip = sfx_PopList[sfx_PopList.Count-1];
-        Sfx_Pop.Play();
+            sfx_Pop.clip = sfx_PopList[sfx_PopList.Count-1];
+        sfx_Pop.Play();
+    }
+
+    public void Play_Score_Tap()
+    {
+        //int index = (int)UnityEngine.Random.Range(0, sfx_Score_TapList.Count + 1 - Mathf.Epsilon);
+        //sfx_Score_Tap.clip = sfx_Score_TapList[index];
+        
+        sfx_Score_Tap.Play();
+    }
+
+    public void Play_Score_Enter()
+    {
+        sfx_Score_Enter.Play();
     }
 
     public void Change_Volume(AudioSource target, float size)
