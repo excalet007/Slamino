@@ -9,18 +9,15 @@ public class ScoreUI : MonoBehaviour {
         texts = GetComponentsInChildren<TextMesh>();
         for (int i = 0; i < 3; i++)
             texts[i].text = "";
-
-        ScoreUI.Input(0, 2017);
-        ScoreUI.Input(1, 1028);
-
     }
 
     static TextMesh[] texts;
     
-    public static void Input(int index, int value)
+    public static void Input(int index, float value)
     {
         texts[index].text = value.ToString();
     }
+    
 
     public static void BottomToTop()
     {

@@ -377,6 +377,10 @@ public class StageManager : MonoBehaviour {
             isPop_Turn = false;
         }
 
+        ScoreUI.Input(3, curRound);
+        ScoreUI.Input(4, 1 + (int)(curRound / 10));
+        ScoreUI.Input(5, 1 + 0.1f * pop_Turn_Count);
+
         //Push Setting
         Set_PushDirectioin(SMinoIndex);
         
@@ -909,12 +913,11 @@ public class StageManager : MonoBehaviour {
                     isPop_Turn = true;
 
                 pop_Chain_Count++;
-                pop_Block_Count++;
-
                 
                 for (int k = cMinos[i].Minos.Count -1; k > -1; k--)
                 {
                     Clear_Mino(cMinos[i].Minos[k]);
+                    pop_Block_Count++;
                     poppedMino_CurBoard++;
                     poppedMino_Total++;
                 }
@@ -1052,8 +1055,8 @@ public class StageManager : MonoBehaviour {
         int block_Value = 100;
         
         float mult_Chain = Mathf.Pow(2, Chain_Count - 1);
-        float mult_Turn = 1 + (0.1f * Turn_Count);
-        float mult_Round = 1 + (curRound / 10f);
+        float mult_Turn = 1 + 0.1f * Turn_Count;
+        float mult_Round = 1 +  (int)(curRound / 10);
 
         score = (int)(block_Value * block_Count *  mult_Chain * mult_Turn * mult_Round);
 
