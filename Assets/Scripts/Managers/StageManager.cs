@@ -87,6 +87,10 @@ public class StageManager : MonoBehaviour {
 
         // ------------------------------------------ Starts Sound --------------------------------------
         mm.Play_BGM();
+
+        // --------------------------------------------Visual Additional Set ---------------------------
+
+        Set_Preview();
     }
     
     void Update()
@@ -118,7 +122,7 @@ public class StageManager : MonoBehaviour {
                         Mino m0 = board[x0, y0 + 1];
                         Mino m1 = board[x1, y1 + 1];
                         Mino m2 = board[x1, y1];
-
+                       
                         m0.Set_MinoType(sMinos[curSMinoIndex].minos[0].MinoType);
                         m1.Set_MinoType(sMinos[curSMinoIndex].minos[1].MinoType);
                         m2.Set_MinoType(MinoTypes.Empty);
@@ -132,6 +136,8 @@ public class StageManager : MonoBehaviour {
                     Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
                     break;
             }
+
+            Set_Preview();
         }
 
         if (Input.GetKeyDown(KeyCode.DownArrow) && onCycle == false)
@@ -169,6 +175,8 @@ public class StageManager : MonoBehaviour {
                     Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
                     break;
             }
+
+            Set_Preview();
         }
 
         if (Input.GetKeyDown(KeyCode.LeftArrow) && onCycle == false)
@@ -206,6 +214,8 @@ public class StageManager : MonoBehaviour {
                     Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
                     break;
             }
+
+            Set_Preview();
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow) && onCycle == false)
@@ -243,6 +253,8 @@ public class StageManager : MonoBehaviour {
                     Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
                     break;
             }
+
+            Set_Preview();
         }
 
 
@@ -257,6 +269,7 @@ public class StageManager : MonoBehaviour {
                     case 1:
                     case 2:
                     case 3:
+                        Reset_Preview();
                         StartCoroutine(Run_AlgoCycle_Corutine(curSMinoIndex));
                         break;
 
@@ -487,13 +500,10 @@ public class StageManager : MonoBehaviour {
                 yield return new WaitForSeconds(0.12f);
             }
         }
-        //ScoreUI.Input(2, totalScore);
-        //yield return new WaitForSeconds(timeAfterPop);
 
         //Reset_Variables
         Reset_Minos_Movement();
-
-
+        
         //Respawn Slamino && Adjust to normal Position
         Reset_SMino_Position();
         sMinos[SMinoIndex].Spawn_SMino(true);
@@ -523,7 +533,7 @@ public class StageManager : MonoBehaviour {
                 break;
 
         }
-
+        
         switch (curSMinoIndex)
         {
             case 0:
@@ -566,7 +576,7 @@ public class StageManager : MonoBehaviour {
                 Debug.LogError("Wrong curSMinoIndex Number. Check!");
                 break;
         }
-        
+
         //Scoring Initialize
         if (isPop_Turn)
         {
@@ -610,6 +620,9 @@ public class StageManager : MonoBehaviour {
                     break;
             }
         yield return new WaitForSeconds(timeAfterDrop * 1.5f);
+
+        // Visual Change as turn
+        Set_Preview();
 
         //End cycle
         onCycle = false;
@@ -1318,6 +1331,63 @@ public class StageManager : MonoBehaviour {
 
                 default:
                     break;
+            }
+        }
+    }
+
+    void Set_Preview()
+    {
+        for(int x = gapX; x<= mapX - 1 - gapX; x++)
+        {
+            for(int y = gapY; y<= mapY -1 - gapY; y++)
+            {
+                board[x, y].Reset_ShadowType();
+            }
+        }
+
+        int tempX =0;
+        int tempY =0;
+
+        switch (curSMinoIndex)
+        {
+            case 0:
+                tempX = 0;
+                tempY = -1;
+                break;
+
+            case 1:
+                tempX = 0;
+                tempY = 1;
+                break;
+
+            case 2:
+                tempX = 1;
+                tempY = 0;
+                break;
+
+            case 3:
+                tempX = -1;
+                tempY = 0;
+                break;
+
+            default:
+                Debug.Log("Wrong cur Smino index error");
+                break;
+        }
+
+        for (int i = 0; i < sMinos[curSMinoIndex].minos.Count; i++)
+        {
+            Mino m = Get_ContactPos_ToAxis(sMinos[curSMinoIndex].minos[i], tempX, tempY);
+            m.Set_ShadowType(sMinos[curSMinoIndex].minos[i].MinoType);
+        }
+    }
+    void Reset_Preview()
+    {
+        for (int x = gapX; x <= mapX - 1 - gapX; x++)
+        {
+            for (int y = gapY; y <= mapY - 1 - gapY; y++)
+            {
+                board[x, y].Reset_ShadowType();
             }
         }
     }

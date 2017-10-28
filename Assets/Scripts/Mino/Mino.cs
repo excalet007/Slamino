@@ -38,6 +38,28 @@ public class Mino : MonoBehaviour {
     {
         moveType = type;
     }
+
+    public void Set_ShadowType(MinoTypes type)
+    {
+        if (this.minoType != MinoTypes.Empty || type == MinoTypes.Empty)
+        {
+            Debug.Log("Your Shadow Assumption is weird");
+            return;
+        }
+
+        spriteRenderer.sprite = sprites[(int)type];
+        spriteRenderer.color = new Color(1f, 1f, 1f, 0.3f);
+    }
+
+    public void Reset_ShadowType()
+    {
+        if (spriteRenderer.color.a != 1f)
+        {
+            spriteRenderer.sprite = sprites[(int)MinoTypes.Empty];
+            spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
+        }
+    }
+
     public void Set_Pos(int x, int y)
     {
         this.x = x;
