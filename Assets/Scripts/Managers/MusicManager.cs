@@ -76,6 +76,8 @@ public class MusicManager : MonoBehaviour {
         sfx_Pop.playOnAwake = false;
         sfx_Score_Tap.playOnAwake = false;
         sfx_Score_Enter.playOnAwake = false;
+
+        bgm.loop = true;
        
         bgm.clip = bgmList[0];
         sfx_Drop.clip = sfx_DropList[0];

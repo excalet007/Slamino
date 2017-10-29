@@ -58,15 +58,15 @@ public class StageManager : MonoBehaviour {
         pop_Chain_Count = 0;
         pop_Turn_Count = 0;
         isPop_Turn = false;
+        
+        swipe_UpLimit = mapY - 2 ;
+        swipe_DownLimit = 1 ;
 
-        swipe_UpLimit = mapY - 2 -3;
-        swipe_DownLimit = 1 + 3;
-
-        swipe_LeftLimit = 1 +5;
-        swipe_RightLimit = mapX - 2 -5;
+        swipe_LeftLimit = 1 ;
+        swipe_RightLimit = mapX - 2 ;
 
         timeAfterDrop = 0.1f;
-        timeAfterPop = 0.1f;
+        timeAfterPop = 0.02f * 10;
 
         transparency_blackLayer = 0.85f;
 
@@ -424,7 +424,7 @@ public class StageManager : MonoBehaviour {
         {
             case 0:
             case 1:
-                while (isHookHor == true&& chainLimit <= 10)
+                while (isHookHor == true&& chainLimit <= 5)
                 {
                     HookHorizontal();
                     yield return new WaitForSeconds(timeAfterDrop);
@@ -451,7 +451,7 @@ public class StageManager : MonoBehaviour {
 
             case 2:
             case 3:
-                while (isHookVer == true && chainLimit <= 10)
+                while (isHookVer == true && chainLimit <= 5)
                 {
                     HookVertical();
                     yield return new WaitForSeconds(timeAfterDrop);
@@ -498,7 +498,7 @@ public class StageManager : MonoBehaviour {
 
                 mm.Play_Score_Tap();
                 ScoreUI.Input(2, input);
-                yield return new WaitForSeconds(0.12f);
+                yield return new WaitForSeconds(0.06f);
             }
         }
 
@@ -596,7 +596,6 @@ public class StageManager : MonoBehaviour {
         ScoreUI.Input(5, 1 + 0.1f * pop_Turn_Count);
 
         // TotalScore Line Update
-        mm.Play_Score_Enter();
         ScoreUI.BottomToTop();
 
         yield return new WaitForSeconds(timeAfterDrop);
@@ -605,8 +604,22 @@ public class StageManager : MonoBehaviour {
         if ((curTurn % 4) - 1 == 0)
             curRound++;
 
+        // color change
+        switch(curRound)
+        {
+            case 4:
+                minoVariety = 5;
+                break;
+
+            case 8:
+                minoVariety = 6;
+                break;
+        }
+
         if(curRound% 2 == 0)
-            switch(curSMinoIndex)
+        {
+            mm.Play_Score_Enter();
+            switch (curSMinoIndex)
             {
                 case 0:
                     Add_Minos(Direction.Up, 1, 4, 4, 0, 0);
@@ -624,6 +637,8 @@ public class StageManager : MonoBehaviour {
                     Add_Minos(Direction.Right, 1, 0, 0, 3, 3);
                     break;
             }
+        }
+
         yield return new WaitForSeconds(timeAfterDrop);
 
         // Visual Change as turn
