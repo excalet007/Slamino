@@ -405,13 +405,12 @@ public class StageManager : MonoBehaviour {
         Pop_ChainMinos(MoveTypes.Push);
         if(pop_Block_Count != 0)
         {
-            mm.Play_Pop(pop_Chain_Count);
+            mm.Play_Pop_Continuous();
 
             turnScore += Calc_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
 
             ScoreUI.Input(1, turnScore);
 
-            pop_Chain_Count = 0;
             pop_Block_Count = 0;
         }
         yield return new WaitForSeconds(timeAfterPop);
@@ -436,10 +435,11 @@ public class StageManager : MonoBehaviour {
                         Pop_ChainMinos(MoveTypes.Push);
                         if (pop_Block_Count!= 0)
                         {
-                            mm.Play_Pop(pop_Chain_Count);
+                            mm.Play_Pop_Continuous();
+
                             turnScore +=Calc_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
                             ScoreUI.Input(1, turnScore);
-                            pop_Chain_Count = 0;
+
                             pop_Block_Count = 0;
                             yield return new WaitForSeconds(timeAfterPop);
                         }
@@ -462,10 +462,11 @@ public class StageManager : MonoBehaviour {
                         Pop_ChainMinos(MoveTypes.Push);
                         if (pop_Block_Count != 0)
                         {
-                            mm.Play_Pop(pop_Chain_Count);
+                            mm.Play_Pop_Continuous();
+
                             turnScore +=Calc_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
                             ScoreUI.Input(1, turnScore);
-                            pop_Chain_Count = 0;
+
                             pop_Block_Count = 0;
                             yield return new WaitForSeconds(timeAfterPop);
                         }
@@ -500,6 +501,9 @@ public class StageManager : MonoBehaviour {
                 yield return new WaitForSeconds(0.12f);
             }
         }
+
+        //Reset_Sount Value
+        mm.Reset_Pop_Continuous();
 
         //Reset_Variables
         Reset_Minos_Movement();
@@ -541,7 +545,7 @@ public class StageManager : MonoBehaviour {
                 SwipeZone.Chage_View(true, false, false, false, transparency_blackLayer);
                 AxisZone.Chage_View(true, false, 0.8f);
 
-                yield return new WaitForSeconds(timeAfterDrop * 1f);
+                yield return new WaitForSeconds(timeAfterDrop * 0.7f);
                 HookUp();
                 break;
 
@@ -550,7 +554,7 @@ public class StageManager : MonoBehaviour {
                 SwipeZone.Chage_View(false, true, false, false, transparency_blackLayer);
                 AxisZone.Chage_View(true, false, 0.8f);
 
-                yield return new WaitForSeconds(timeAfterDrop * 1f);
+                yield return new WaitForSeconds(timeAfterDrop * 0.7f);
                 HookDown();
                 break;
 
@@ -559,7 +563,7 @@ public class StageManager : MonoBehaviour {
                 SwipeZone.Chage_View(false, false, true, false, transparency_blackLayer);
                 AxisZone.Chage_View(false, true, 0.8f);
 
-                yield return new WaitForSeconds(timeAfterDrop * 1f);
+                yield return new WaitForSeconds(timeAfterDrop * 0.7f);
                 HookLeft();
                 break;
 
@@ -568,7 +572,7 @@ public class StageManager : MonoBehaviour {
                 SwipeZone.Chage_View(false, false, false, true, transparency_blackLayer);
                 AxisZone.Chage_View(false, true, 0.8f);
 
-                yield return new WaitForSeconds(timeAfterDrop*1f);
+                yield return new WaitForSeconds(timeAfterDrop*0.7f);
                 HookRight();
                 break;
 
@@ -585,6 +589,7 @@ public class StageManager : MonoBehaviour {
         }
         else
             pop_Turn_Count = 0;
+        pop_Chain_Count = 0;
 
         ScoreUI.Input(3, curRound);
         ScoreUI.Input(4, 1 + (int)(curRound / 10));
@@ -619,7 +624,7 @@ public class StageManager : MonoBehaviour {
                     Add_Minos(Direction.Right, 1, 0, 0, 3, 3);
                     break;
             }
-        yield return new WaitForSeconds(timeAfterDrop * 1.5f);
+        yield return new WaitForSeconds(timeAfterDrop);
 
         // Visual Change as turn
         Set_Preview();

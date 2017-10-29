@@ -26,6 +26,7 @@ public class MusicManager : MonoBehaviour {
 
     // Setting Variable
     int pop_StartPoint;
+    int pop_CurPoint;
 
     // Speakers
     AudioSource bgm;
@@ -100,6 +101,23 @@ public class MusicManager : MonoBehaviour {
         else
             sfx_Pop.clip = sfx_PopList[sfx_PopList.Count-1];
         sfx_Pop.Play();
+    }
+
+    public void Play_Pop_Continuous()
+    {
+        if ((pop_StartPoint + pop_CurPoint) > sfx_PopList.Count)
+            pop_CurPoint = 0;
+
+        sfx_Pop.clip = sfx_PopList[pop_StartPoint + pop_CurPoint];
+        pop_CurPoint++;
+
+        sfx_Pop.Play();
+
+    }
+
+    public void Reset_Pop_Continuous()
+    {
+        pop_CurPoint = 0;
     }
 
     public void Play_Score_Tap()
