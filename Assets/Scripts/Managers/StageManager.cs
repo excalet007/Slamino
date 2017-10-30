@@ -485,7 +485,7 @@ public class StageManager : MonoBehaviour {
         totalScore += turnScore;
         List<string> totalScore_String = Get_Score_InDigit(totalScore);
 
-        if(totalScore != 0)
+        if(totalScore != 0 && turnScore!= 0)
         {
             for(int i = 1; i <= totalScore_String.Count; i++) // 반복횟수
             {
@@ -596,7 +596,8 @@ public class StageManager : MonoBehaviour {
         ScoreUI.Input(5, 1 + 0.1f * pop_Turn_Count);
 
         // TotalScore Line Update
-        ScoreUI.BottomToTop();
+        if(turnScore != 0)
+            ScoreUI.BottomToTop();
 
         yield return new WaitForSeconds(timeAfterDrop);
         
@@ -1124,6 +1125,15 @@ public class StageManager : MonoBehaviour {
 
         return score;
     }
+    int Calc_ScoreToCredit(int score)
+    {
+        int credit = 0;
+
+        credit = score / 10000;
+
+        return credit;
+    }
+
     List<string> Get_Score_InDigit(int value)
     {
         string stringValue  = value.ToString();
