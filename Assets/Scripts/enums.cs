@@ -23,3 +23,10 @@ public enum Direction
     Left,
     Right
 }
+
+public enum GameState
+{
+    Play, // Play Should be changed -> Swipe, animation, etc ( more detail )
+    Pause,
+    GameOver
+}

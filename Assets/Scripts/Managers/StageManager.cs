@@ -15,6 +15,8 @@ public class StageManager : MonoBehaviour {
         // ------------------------------Set up Components & Link Singleton--------------------
         mm = MusicManager.Instance;
         mm.SetUp();
+
+        um = UIManager.Instance;
         
         // ------------------------------Settings from game Manager------------------------------
         // This values will be loaded from gameManager (not yet)
@@ -98,7 +100,7 @@ public class StageManager : MonoBehaviour {
 //#if UNITY_EDITOR 
         // Scene Reset
         if (Input.GetKeyDown(KeyCode.R))
-            SceneManager.LoadScene(0);
+            SceneManager.LoadScene("Stage");
 
         // SMino Movement
         if (Input.GetKeyDown(KeyCode.UpArrow) && onCycle == false)
@@ -306,6 +308,7 @@ public class StageManager : MonoBehaviour {
     }
 
     MusicManager mm;
+    UIManager um;
     
     // prefabs for mapGenerating
     public GameObject minoPrefab;
@@ -407,7 +410,7 @@ public class StageManager : MonoBehaviour {
         {
             mm.Play_Pop_Continuous();
 
-            turnScore += Calc_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
+            turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
 
             ScoreUI.Input(1, turnScore);
 
@@ -437,7 +440,7 @@ public class StageManager : MonoBehaviour {
                         {
                             mm.Play_Pop_Continuous();
 
-                            turnScore +=Calc_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
+                            turnScore +=Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
                             ScoreUI.Input(1, turnScore);
 
                             pop_Block_Count = 0;
@@ -464,7 +467,7 @@ public class StageManager : MonoBehaviour {
                         {
                             mm.Play_Pop_Continuous();
 
-                            turnScore +=Calc_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
+                            turnScore +=Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
                             ScoreUI.Input(1, turnScore);
 
                             pop_Block_Count = 0;
@@ -501,16 +504,23 @@ public class StageManager : MonoBehaviour {
                 yield return new WaitForSeconds(0.06f);
             }
         }
+        // Check Is Game Over
+        if(!Get_IsDropAble(curSMinoIndex))
+        {
+            um.Open_GameOver();
+        }
 
         //Reset_Sount Value
         mm.Reset_Pop_Continuous();
 
         //Reset_Variables
         Reset_Minos_Movement();
-        
+
         //Respawn Slamino && Adjust to normal Position
-        Reset_SMino_Position();
-        sMinos[SMinoIndex].Spawn_SMino(true);
+        if (Get_IsSwipeLineEmpty(curSMinoIndex))
+            sMinos[SMinoIndex].Spawn_SMino(true);
+        else
+            um.Open_GameOver();
 
 
         //Turn Turn the Table
@@ -619,7 +629,6 @@ public class StageManager : MonoBehaviour {
 
         if(curRound% 2 == 0)
         {
-            mm.Play_Score_Enter();
             switch (curSMinoIndex)
             {
                 case 0:
@@ -638,8 +647,16 @@ public class StageManager : MonoBehaviour {
                     Add_Minos(Direction.Right, 1, 0, 0, 3, 3);
                     break;
             }
-        }
 
+            if(Get_IsDropAble(curSMinoIndex))
+            {
+                mm.Play_Score_Enter();
+            }
+            else
+            {
+                print("Unable");
+            }
+        }
         yield return new WaitForSeconds(timeAfterDrop);
 
         // Visual Change as turn
@@ -1112,7 +1129,7 @@ public class StageManager : MonoBehaviour {
         }
     }
 
-    int Calc_TurnScore(int block_Count, int Chain_Count, int Turn_Count)
+    int Get_TurnScore(int block_Count, int Chain_Count, int Turn_Count)
     {
         int score = 0;
         int block_Value = 100;
@@ -1125,7 +1142,7 @@ public class StageManager : MonoBehaviour {
 
         return score;
     }
-    int Calc_ScoreToCredit(int score)
+    int Get_ScoreToCredit(int score)
     {
         int credit = 0;
 
@@ -1269,6 +1286,106 @@ public class StageManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// hard to test this. how can i check?
+    /// </summary>
+    /// <param name="sIndex"></param>
+    /// <returns></returns>
+    bool Get_IsDropAble(int sIndex)
+    {
+        bool able = false;
+
+        if(sIndex == 0 || sIndex == 1)
+        {
+            for (int x = swipe_LeftLimit; x <= swipe_RightLimit-1; x++)
+            {
+                if(sIndex ==0)
+                {
+                    if(board[x,mapY-1-gapY].MinoType == MinoTypes.Empty && board[x+1, mapY - 1 - gapY].MinoType == MinoTypes.Empty)
+                    {
+                        able = true;
+                        return able;
+                    }
+                }
+                if(sIndex ==1)
+                {
+                    if (board[x, gapY].MinoType == MinoTypes.Empty && board[x + 1, gapY].MinoType == MinoTypes.Empty)
+                    {
+                        able = true;
+                        return able;
+                    }
+                }
+            }
+        }
+
+        if (sIndex == 2 || sIndex == 3)
+        {
+            for (int y = swipe_UpLimit; y >= swipe_DownLimit + 1; y--)
+            {
+                if (sIndex == 2)
+                {
+                    if (board[gapX, y].MinoType == MinoTypes.Empty && board[gapX, y - 1].MinoType == MinoTypes.Empty)
+                    {
+                        able = true;
+                        return able;
+                    }
+                }
+                if (sIndex == 3)
+                {
+                    if (board[mapX -1 - gapX, y].MinoType == MinoTypes.Empty && board[mapX - 1 - gapX, y - 1].MinoType == MinoTypes.Empty)
+                    {
+                        able = true;
+                        return able;
+                    }
+                }
+            }
+        }
+
+        return able;
+    }
+    bool Get_IsSwipeLineEmpty(int sIndex)
+    {
+        bool empty = true;
+
+        switch(sIndex)
+        {
+            case 0:
+                for(int x = swipe_LeftLimit; x <= swipe_RightLimit; x++)
+                {
+                    if (board[x, mapY - 1].MinoType != MinoTypes.Empty)
+                        empty = false;
+                }
+                break;
+
+            case 1:
+                for (int x = swipe_LeftLimit; x <= swipe_RightLimit; x++)
+                {
+                    if (board[x, 0].MinoType != MinoTypes.Empty)
+                        empty = false;
+                }
+                break;
+
+            case 2:
+                for (int y = swipe_UpLimit; y >= swipe_DownLimit; y--)
+                {
+                    if (board[0, y].MinoType != MinoTypes.Empty)
+                        empty = false;
+                }
+                break;
+
+            case 3:
+                for (int y = swipe_UpLimit; y >= swipe_DownLimit; y--)
+                {
+                    if (board[mapX -1, y].MinoType != MinoTypes.Empty)
+                        empty = false;
+                }
+                break;
+
+        }
+
+        return empty;
+    }
+
     void Move_Mino(Mino m, int xPos, int yPos, MoveTypes moveType)
     {
         if (board[xPos, yPos].MinoType == MinoTypes.Empty)
@@ -1278,10 +1395,15 @@ public class StageManager : MonoBehaviour {
         }
         else
         {
-            Debug.LogError("Board[" + xPos + "," + yPos + "] tyep is not Empty it's" + board[xPos, yPos].MinoType);
+            ;
+        }
+
+        if (m.Xpos == xPos && m.Ypos == yPos)
+        {
             return;
         }
-        Clear_Mino(m);
+        else
+            Clear_Mino(m);
     }
     void Clear_Mino(Mino m)
     {
@@ -1295,13 +1417,17 @@ public class StageManager : MonoBehaviour {
             switch (dir)
             {
                 case Direction.Up:
-                    // move up
                     for (int y = mapY - 1 - gapY; y >= upHor; y--)
                     {
                         for (int x = leftVer - xLeft + 1; x <= rightVer + xRight - 1; x++)
                         {
                             Mino m = board[x, y];
-                            Move_Mino(m, m.Xpos, m.Ypos + 1, m.MoveType);
+                            if (y == mapY - 1 - gapY && m.MinoType != MinoTypes.Empty && board[x, y + 1].MinoType != MinoTypes.Empty)
+                            {
+                                um.Open_GameOver();
+                            }
+                            else
+                                Move_Mino(m, m.Xpos, m.Ypos + 1, m.MoveType);
                         }
                     }
 
@@ -1317,7 +1443,12 @@ public class StageManager : MonoBehaviour {
                         for (int x = leftVer - xLeft + 1; x <= rightVer + xRight - 1; x++)
                         {
                             Mino m = board[x, y];
-                            Move_Mino(m, m.Xpos, m.Ypos - 1, m.MoveType);
+                            if (y == gapY && m.MinoType != MinoTypes.Empty && board[x, y - 1].MinoType != MinoTypes.Empty)
+                            {
+                                um.Open_GameOver();
+                            }
+                            else
+                                Move_Mino(m, m.Xpos, m.Ypos - 1, m.MoveType);
                         }
                     }
 
@@ -1333,7 +1464,12 @@ public class StageManager : MonoBehaviour {
                         for (int y = downHor - yDown + 1; y <= upHor + yUp - 1; y++)
                         {
                             Mino m = board[x, y];
-                            Move_Mino(m, m.Xpos - 1, m.Ypos, m.MoveType);
+                            if (x == gapX && m.MinoType != MinoTypes.Empty && board[x-1, y].MinoType != MinoTypes.Empty)
+                            {
+                                um.Open_GameOver();
+                            }
+                            else
+                                Move_Mino(m, m.Xpos - 1, m.Ypos, m.MoveType);
                         }
                     }
 
@@ -1349,7 +1485,12 @@ public class StageManager : MonoBehaviour {
                         for (int y = downHor - yDown + 1; y <= upHor + yUp - 1; y++)
                         {
                             Mino m = board[x, y];
-                            Move_Mino(m, m.Xpos + 1, m.Ypos, m.MoveType);
+                            if (x == mapX -1 - gapX && m.MinoType != MinoTypes.Empty && board[x + 1, y].MinoType != MinoTypes.Empty)
+                            {
+                                um.Open_GameOver();
+                            }
+                            else
+                                Move_Mino(m, m.Xpos + 1, m.Ypos, m.MoveType);
                         }
                     }
 

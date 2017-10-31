@@ -96,6 +96,7 @@
     <Compile Include="Assets\Scripts\Mino\Mino.cs" />
     <Compile Include="Assets\Scripts\Mino\Slamino.cs" />
     <Compile Include="Assets\Scripts\UI\ScoreUI.cs" />
+    <Compile Include="Assets\Scripts\UI\UIManager.cs" />
     <Compile Include="Assets\Scripts\enums.cs" />
   </ItemGroup>
   <ItemGroup>
