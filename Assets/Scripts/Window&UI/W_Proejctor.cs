@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Window_Proejctor : Window {
+public class W_Proejctor : Window {
 
 
     public override void SetUp()

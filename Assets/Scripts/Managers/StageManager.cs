@@ -17,7 +17,10 @@ public class StageManager : MonoBehaviour {
         mm.SetUp();
 
         um = UIManager.Instance;
-        
+
+        w_score = FindObjectOfType<W_Score>();
+        w_score.SetUp();
+
         // ------------------------------Settings from game Manager------------------------------
         // This values will be loaded from gameManager (not yet)
         // map Size factor
@@ -76,9 +79,9 @@ public class StageManager : MonoBehaviour {
         SwipeZone.Chage_View(true, false, false, false, transparency_blackLayer);
         AxisZone.Chage_View(true, false, 0.8f);
 
-        ScoreUI.Input(3, curRound);
-        ScoreUI.Input(4, 1 + (int)(curRound / 10));
-        ScoreUI.Input(5, 1 + 0.1f * pop_Turn_Count);
+        w_score.Input(3, curRound);
+        w_score.Input(4, pop_Turn_Count);
+        w_score.Input(5, 1 + 0.1f * pop_Turn_Count);
 
         // ------------------------------------------MapGenarating-----------------------------------
 
@@ -309,6 +312,7 @@ public class StageManager : MonoBehaviour {
 
     MusicManager mm;
     UIManager um;
+    W_Score w_score;
     
     // prefabs for mapGenerating
     public GameObject minoPrefab;
@@ -410,8 +414,7 @@ public class StageManager : MonoBehaviour {
             mm.Play_Pop_Continuous();
 
             turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
-
-            ScoreUI.Input(1, turnScore);
+            w_score.Input(1, turnScore);
 
             pop_Block_Count = 0;
         }
@@ -440,7 +443,7 @@ public class StageManager : MonoBehaviour {
                             mm.Play_Pop_Continuous();
 
                             turnScore +=Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
-                            ScoreUI.Input(1, turnScore);
+                            w_score.Input(1, turnScore);
 
                             pop_Block_Count = 0;
                             yield return new WaitForSeconds(timeAfterPop);
@@ -467,7 +470,7 @@ public class StageManager : MonoBehaviour {
                             mm.Play_Pop_Continuous();
 
                             turnScore +=Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
-                            ScoreUI.Input(1, turnScore);
+                            w_score.Input(1, turnScore);
 
                             pop_Block_Count = 0;
                             yield return new WaitForSeconds(timeAfterPop);
@@ -499,7 +502,8 @@ public class StageManager : MonoBehaviour {
                 }
 
                 mm.Play_Score_Tap();
-                ScoreUI.Input(2, input);
+                w_score.Input(2, input);
+
                 yield return new WaitForSeconds(0.06f);
             }
         }
@@ -603,14 +607,14 @@ public class StageManager : MonoBehaviour {
             pop_Turn_Count = 0;
         pop_Chain_Count = 0;
 
-        ScoreUI.Input(3, curRound);
-        ScoreUI.Input(4, 1 + (int)(curRound / 10));
-        ScoreUI.Input(5, 1 + 0.1f * pop_Turn_Count);
+        w_score.Input(3, curRound);
+        w_score.Input(4, pop_Turn_Count);
+        w_score.Input(5, 1 + 0.1f * pop_Turn_Count);
 
         // TotalScore Line Update
         if(turnScore != 0)
-            ScoreUI.BottomToTop();
-
+            w_score.Override_BottomToTop();
+           
         yield return new WaitForSeconds(timeAfterDrop);
         
         curTurn++;

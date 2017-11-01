@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Window_Score : MonoBehaviour {
+public class W_Pannel : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
