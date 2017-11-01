@@ -95,8 +95,11 @@
     <Compile Include="Assets\Scripts\Mino\ChainMino.cs" />
     <Compile Include="Assets\Scripts\Mino\Mino.cs" />
     <Compile Include="Assets\Scripts\Mino\Slamino.cs" />
-    <Compile Include="Assets\Scripts\UI\ScoreUI.cs" />
-    <Compile Include="Assets\Scripts\UI\UIManager.cs" />
+    <Compile Include="Assets\Scripts\Window&amp;UI\ScoreUI.cs" />
+    <Compile Include="Assets\Scripts\Window&amp;UI\UIManager.cs" />
+    <Compile Include="Assets\Scripts\Window&amp;UI\Window.cs" />
+    <Compile Include="Assets\Scripts\Window&amp;UI\Window_Proejctor.cs" />
+    <Compile Include="Assets\Scripts\Window&amp;UI\Window_Score.cs" />
     <Compile Include="Assets\Scripts\enums.cs" />
   </ItemGroup>
   <ItemGroup>

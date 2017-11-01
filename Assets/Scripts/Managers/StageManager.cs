@@ -404,7 +404,6 @@ public class StageManager : MonoBehaviour {
         
         //Check & Pop Connected Minos
         Search_ChainMinos(curSMinoIndex);
-        //Focus nn
         Pop_ChainMinos(MoveTypes.Push);
         if(pop_Block_Count != 0)
         {
@@ -518,7 +517,10 @@ public class StageManager : MonoBehaviour {
 
         //Respawn Slamino && Adjust to normal Position
         if (Get_IsSwipeLineEmpty(curSMinoIndex))
+        {
+            Reset_SMino_Position();
             sMinos[SMinoIndex].Spawn_SMino(true);
+        }
         else
             um.Open_GameOver();
 
