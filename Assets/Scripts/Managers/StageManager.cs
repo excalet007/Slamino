@@ -46,28 +46,17 @@ public class StageManager : MonoBehaviour {
         onCycle = false;
         isHookHor = false;
         isHookVer = false;
-        
-        poppedChain_CurBoard = 0;
-
-        poppedMino_Total = 0;
-        poppedChain_Total = 0;
 
         pop_Chain_Count = 0;
 
         curTurn = 1;
         curRound = 1;
-        curSMinoIndex = 0;
+        cur_DirIndex = 0;
 
         totalScore = 0;
         pop_Chain_Count = 0;
         pop_Turn_Count = 0;
         isPop_Turn = false;
-        
-        swipe_UpLimit = mapY - 2 ;
-        swipe_DownLimit = 1 ;
-
-        swipe_LeftLimit = 1 ;
-        swipe_RightLimit = mapX - 2 ;
 
         timeAfterDrop = 0.1f;
         timeAfterPop = 0.02f * 10;
@@ -93,199 +82,9 @@ public class StageManager : MonoBehaviour {
         mm.Play_BGM();
 
         // --------------------------------------------Visual Additional Set ---------------------------
-
         Set_Preview();
     }
-    
-    void Update()
-    {
-//#if UNITY_EDITOR 
-        // Scene Reset
-        if (Input.GetKeyDown(KeyCode.R))
-            SceneManager.LoadScene("Stage");
 
-        // SMino Movement
-        if (Input.GetKeyDown(KeyCode.UpArrow) && onCycle == false)
-        {
-            switch (curSMinoIndex)
-            {
-                case 0:
-                case 1:
-                    break;
-
-                case 2:
-                case 3:
-                    if (sMinos[curSMinoIndex].minos[0].Ypos < swipe_UpLimit)
-                    {
-                        int x0 = sMinos[curSMinoIndex].minos[0].Xpos;
-                        int y0 = sMinos[curSMinoIndex].minos[0].Ypos;
-
-                        int x1 = sMinos[curSMinoIndex].minos[1].Xpos;
-                        int y1 = sMinos[curSMinoIndex].minos[1].Ypos;
-
-                        Mino m0 = board[x0, y0 + 1];
-                        Mino m1 = board[x1, y1 + 1];
-                        Mino m2 = board[x1, y1];
-                       
-                        m0.Set_MinoType(sMinos[curSMinoIndex].minos[0].MinoType);
-                        m1.Set_MinoType(sMinos[curSMinoIndex].minos[1].MinoType);
-                        m2.Set_MinoType(MinoTypes.Empty);
-
-                        sMinos[curSMinoIndex].minos[0] = m0;
-                        sMinos[curSMinoIndex].minos[1] = m1;
-                    }
-                    break;
-
-                default:
-                    Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
-                    break;
-            }
-
-            Set_Preview();
-        }
-
-        if (Input.GetKeyDown(KeyCode.DownArrow) && onCycle == false)
-        {
-            switch (curSMinoIndex)
-            {
-                case 0:
-                case 1:
-                    break;
-
-                case 2:
-                case 3:
-                    if (sMinos[curSMinoIndex].minos[1].Ypos > swipe_DownLimit)
-                    {
-                        int x0 = sMinos[curSMinoIndex].minos[0].Xpos;
-                        int y0 = sMinos[curSMinoIndex].minos[0].Ypos;
-
-                        int x1 = sMinos[curSMinoIndex].minos[1].Xpos;
-                        int y1 = sMinos[curSMinoIndex].minos[1].Ypos;
-
-                        Mino m0 = board[x0, y0 - 1];
-                        Mino m1 = board[x1, y1 - 1];
-                        Mino m2 = board[x0, y0];
-
-                        m1.Set_MinoType(sMinos[curSMinoIndex].minos[1].MinoType);
-                        m0.Set_MinoType(sMinos[curSMinoIndex].minos[0].MinoType);
-                        m2.Set_MinoType(MinoTypes.Empty);
-
-                        sMinos[curSMinoIndex].minos[0] = m0;
-                        sMinos[curSMinoIndex].minos[1] = m1;
-                    }
-                    break;
-
-                default:
-                    Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
-                    break;
-            }
-
-            Set_Preview();
-        }
-
-        if (Input.GetKeyDown(KeyCode.LeftArrow) && onCycle == false)
-        {
-            switch (curSMinoIndex)
-            {
-                case 0:
-                case 1:
-                    if (sMinos[curSMinoIndex].minos[0].Xpos > swipe_LeftLimit )
-                    {
-                        int x0 = sMinos[curSMinoIndex].minos[0].Xpos;
-                        int y0 = sMinos[curSMinoIndex].minos[0].Ypos;
-
-                        int x1 = sMinos[curSMinoIndex].minos[1].Xpos;
-                        int y1 = sMinos[curSMinoIndex].minos[1].Ypos;
-
-                        Mino m0 = board[x0-1, y0];
-                        Mino m1 = board[x1-1, y1];
-                        Mino m2 = board[x1, y1];
-
-                        m0.Set_MinoType(sMinos[curSMinoIndex].minos[0].MinoType);
-                        m1.Set_MinoType(sMinos[curSMinoIndex].minos[1].MinoType);
-                        m2.Set_MinoType(MinoTypes.Empty);
-
-                        sMinos[curSMinoIndex].minos[0] = m0;
-                        sMinos[curSMinoIndex].minos[1] = m1;
-                    }
-                    break;
-
-                case 2:
-                case 3:
-                    break;
-
-                default:
-                    Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
-                    break;
-            }
-
-            Set_Preview();
-        }
-
-        if (Input.GetKeyDown(KeyCode.RightArrow) && onCycle == false)
-        {
-            switch (curSMinoIndex)
-            {
-                case 0:
-                case 1:
-                    if (sMinos[curSMinoIndex].minos[1].Xpos < swipe_RightLimit)
-                    {
-                        int x0 = sMinos[curSMinoIndex].minos[0].Xpos;
-                        int y0 = sMinos[curSMinoIndex].minos[0].Ypos;
-
-                        int x1 = sMinos[curSMinoIndex].minos[1].Xpos;
-                        int y1 = sMinos[curSMinoIndex].minos[1].Ypos;
-
-                        Mino m0 = board[x0 +1, y0];
-                        Mino m1 = board[x1 +1, y1];
-                        Mino m2 = board[x0, y0];
-
-                        m1.Set_MinoType(sMinos[curSMinoIndex].minos[1].MinoType);
-                        m0.Set_MinoType(sMinos[curSMinoIndex].minos[0].MinoType);
-                        m2.Set_MinoType(MinoTypes.Empty);
-
-                        sMinos[curSMinoIndex].minos[0] = m0;
-                        sMinos[curSMinoIndex].minos[1] = m1;
-                    }
-                    break;
-
-                case 2:
-                case 3:
-                    break;
-
-                default:
-                    Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
-                    break;
-            }
-
-            Set_Preview();
-        }
-
-
-        // Movement
-        if (onCycle == false)
-        {
-            if(Input.GetKeyDown(KeyCode.Space))
-            {
-                switch(curSMinoIndex)
-                {
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                        Reset_Preview();
-                        StartCoroutine(Run_AlgoCycle_Corutine(curSMinoIndex));
-                        break;
-
-                    default:
-                        Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
-                        break;
-                }
-            }
-        }
-
-//#endif
-    }
     #endregion
 
     #region Variables & Property
@@ -325,6 +124,19 @@ public class StageManager : MonoBehaviour {
     int zoneX, zoneY;
     int minoVariety;
 
+    public Mino[,] Board
+    {
+        get { return board; }
+    }
+    public int MapX
+    {
+        get { return mapX; }
+    }
+    public int MapY
+    {
+        get { return mapY; }
+    }
+    
     // variables for calculation 
     float horLine, verLine;
     int xPush, yPush;
@@ -353,10 +165,6 @@ public class StageManager : MonoBehaviour {
 
     int curTurn;
     int curRound;
-    
-    int poppedMino_Total;
-    int poppedChain_CurBoard;
-    int poppedChain_Total;
 
     int totalScore;
 
@@ -365,19 +173,18 @@ public class StageManager : MonoBehaviour {
     int pop_Block_Count;
     bool isPop_Turn;
 
-    int curSMinoIndex;
-
-    int swipe_UpLimit;
-    int swipe_DownLimit;
-    int swipe_LeftLimit;
-    int swipe_RightLimit;
+    int cur_DirIndex;
+    public int Cur_DirIndex
+    {
+        get { return cur_DirIndex; }
+    }
     
     bool isHookHor;
     bool isHookVer;
 
     float timeAfterDrop;
     float timeAfterPop;
-
+    
 
     /// <summary>
     /// 0 is perfect transparency, 1 is none transparency
@@ -386,11 +193,15 @@ public class StageManager : MonoBehaviour {
 
     // handle Action
     bool onCycle;
+    public bool OnCycle
+    {
+        get { return onCycle; }
+    }
 
     #endregion
 
     #region Main Algorithm Cycle
-    IEnumerator Run_AlgoCycle_Corutine(int SMinoIndex)
+    public IEnumerator Run_AlgoCycle_Corutine(int SMinoIndex)
     {
         //Action Handle
         onCycle = true;
@@ -408,7 +219,7 @@ public class StageManager : MonoBehaviour {
         yield return new WaitForSeconds(timeAfterDrop);
         
         //Check & Pop Connected Minos
-        Search_ChainMinos(curSMinoIndex);
+        Search_ChainMinos(cur_DirIndex);
         Pop_ChainMinos(MoveTypes.Push);
         if(pop_Block_Count != 0)
         {
@@ -435,7 +246,7 @@ public class StageManager : MonoBehaviour {
                     HookHorizontal();
                     yield return new WaitForSeconds(timeAfterDrop);
 
-                    Search_ChainMinos(curSMinoIndex);
+                    Search_ChainMinos(cur_DirIndex);
                     if (isHookHor)
                     {
                         Pop_ChainMinos(MoveTypes.Push);
@@ -462,7 +273,7 @@ public class StageManager : MonoBehaviour {
                     HookVertical();
                     yield return new WaitForSeconds(timeAfterDrop);
 
-                    Search_ChainMinos(curSMinoIndex);
+                    Search_ChainMinos(cur_DirIndex);
                     if (isHookVer)
                     {
                         Pop_ChainMinos(MoveTypes.Push);
@@ -509,7 +320,7 @@ public class StageManager : MonoBehaviour {
             }
         }
         // Check Is Game Over
-        if(!Get_IsDropAble(curSMinoIndex))
+        if(!Get_IsDropAble(cur_DirIndex))
         {
             ;// um.Open_GameOver();
         }
@@ -521,7 +332,7 @@ public class StageManager : MonoBehaviour {
         Reset_Minos_Movement();
 
         //Respawn Slamino && Adjust to normal Position
-        if (Get_IsSwipeLineEmpty(curSMinoIndex))
+        if (Get_IsSwipeLineEmpty(cur_DirIndex))
         {
             Reset_SMino_Position();
             sMinos[SMinoIndex].Spawn_SMino(true);
@@ -531,22 +342,22 @@ public class StageManager : MonoBehaviour {
 
 
         //Turn Turn the Table
-        switch (curSMinoIndex)
+        switch (cur_DirIndex)
         {
             case 0:
-                curSMinoIndex = 3;
+                cur_DirIndex = 3;
                 break;
 
             case 1:
-                curSMinoIndex = 2;
+                cur_DirIndex = 2;
                 break;
 
             case 2:
-                curSMinoIndex = 0;
+                cur_DirIndex = 0;
                 break;
 
             case 3:
-                curSMinoIndex = 1;
+                cur_DirIndex = 1;
                 break;
 
             default:
@@ -555,46 +366,34 @@ public class StageManager : MonoBehaviour {
 
         }
         
-        switch (curSMinoIndex)
+        switch (cur_DirIndex)
         {
             case 0:
-                QuadZone.Chage_View(true, true, false, false, transparency_blackLayer);
-                SwipeZone.Chage_View(true, false, false, false, transparency_blackLayer);
-                AxisZone.Chage_View(true, false, 0.8f);
-
+                Set_QuadrantView(Direction.Up);
                 yield return new WaitForSeconds(timeAfterDrop * 0.7f);
                 HookUp();
                 break;
 
             case 1:
-                QuadZone.Chage_View(false, false, true, true, transparency_blackLayer);
-                SwipeZone.Chage_View(false, true, false, false, transparency_blackLayer);
-                AxisZone.Chage_View(true, false, 0.8f);
-
+                Set_QuadrantView(Direction.Down);
                 yield return new WaitForSeconds(timeAfterDrop * 0.7f);
                 HookDown();
                 break;
 
             case 2:
-                QuadZone.Chage_View(false, true, true, false, transparency_blackLayer);
-                SwipeZone.Chage_View(false, false, true, false, transparency_blackLayer);
-                AxisZone.Chage_View(false, true, 0.8f);
-
+                Set_QuadrantView(Direction.Left);
                 yield return new WaitForSeconds(timeAfterDrop * 0.7f);
                 HookLeft();
                 break;
 
             case 3:
-                QuadZone.Chage_View(true, false, false, true, transparency_blackLayer);
-                SwipeZone.Chage_View(false, false, false, true, transparency_blackLayer);
-                AxisZone.Chage_View(false, true, 0.8f);
-
+                Set_QuadrantView(Direction.Right);
                 yield return new WaitForSeconds(timeAfterDrop*0.7f);
                 HookRight();
                 break;
 
             default:
-                Debug.LogError("Wrong curSMinoIndex Number. Check!");
+                Debug.LogError("Wrong cur_DirIndex Number. Check!");
                 break;
         }
 
@@ -636,7 +435,7 @@ public class StageManager : MonoBehaviour {
 
         if(curRound% 2 == 0)
         {
-            switch (curSMinoIndex)
+            switch (cur_DirIndex)
             {
                 case 0:
                     Add_Minos(Direction.Up, 1, 4, 4, 0, 0);
@@ -655,7 +454,7 @@ public class StageManager : MonoBehaviour {
                     break;
             }
 
-            if(Get_IsDropAble(curSMinoIndex))
+            if(Get_IsDropAble(cur_DirIndex))
             {
                 mm.Play_Score_Enter();
             }
@@ -993,9 +792,6 @@ public class StageManager : MonoBehaviour {
             {
                 indexList.Add(i);
 
-                poppedChain_CurBoard++;
-                poppedChain_Total++;
-
                 if (isPop_Turn == false)
                     isPop_Turn = true;
 
@@ -1005,7 +801,6 @@ public class StageManager : MonoBehaviour {
                 {
                     Clear_Mino(cMinos[i].Minos[k]);
                     pop_Block_Count++;
-                    poppedMino_Total++;
                 }
             }
         }
@@ -1291,19 +1086,44 @@ public class StageManager : MonoBehaviour {
             }
         }
     }
+    
+    void Set_QuadrantView(Direction dir)
+    {
+        switch(dir)
+        {
+            case Direction.Up:
+                QuadZone.Chage_View(true, true, false, false, transparency_blackLayer);
+                SwipeZone.Chage_View(true, false, false, false, transparency_blackLayer);
+                AxisZone.Chage_View(true, false, 0.8f);
+                break;
 
-    /// <summary>
-    /// hard to test this. how can i check?
-    /// </summary>
-    /// <param name="sIndex"></param>
-    /// <returns></returns>
+            case Direction.Down:
+                QuadZone.Chage_View(false, false, true, true, transparency_blackLayer);
+                SwipeZone.Chage_View(false, true, false, false, transparency_blackLayer);
+                AxisZone.Chage_View(true, false, 0.8f);
+                break;
+
+            case Direction.Left:
+                QuadZone.Chage_View(false, true, true, false, transparency_blackLayer);
+                SwipeZone.Chage_View(false, false, true, false, transparency_blackLayer);
+                AxisZone.Chage_View(false, true, 0.8f);
+                break;
+
+            case Direction.Right:
+                QuadZone.Chage_View(true, false, false, true, transparency_blackLayer);
+                SwipeZone.Chage_View(false, false, false, true, transparency_blackLayer);
+                AxisZone.Chage_View(false, true, 0.8f);
+                break;
+        }
+    }
+
     bool Get_IsDropAble(int sIndex)
     {
         bool able = false;
 
         if(sIndex == 0 || sIndex == 1)
         {
-            for (int x = swipe_LeftLimit; x <= swipe_RightLimit-1; x++)
+            for (int x = gapX; x <= mapX-1-gapX; x++)
             {
                 if(sIndex ==0)
                 {
@@ -1326,7 +1146,7 @@ public class StageManager : MonoBehaviour {
 
         if (sIndex == 2 || sIndex == 3)
         {
-            for (int y = swipe_UpLimit; y >= swipe_DownLimit + 1; y--)
+            for (int y = mapY -1 - gapY; y >= gapY; y--)
             {
                 if (sIndex == 2)
                 {
@@ -1356,7 +1176,7 @@ public class StageManager : MonoBehaviour {
         switch(sIndex)
         {
             case 0:
-                for(int x = swipe_LeftLimit; x <= swipe_RightLimit; x++)
+                for(int x = gapX; x <= mapX-1-gapX; x++)
                 {
                     if (board[x, mapY - 1].MinoType != MinoTypes.Empty)
                         empty = false;
@@ -1364,7 +1184,7 @@ public class StageManager : MonoBehaviour {
                 break;
 
             case 1:
-                for (int x = swipe_LeftLimit; x <= swipe_RightLimit; x++)
+                for (int x = gapX; x <= mapX - 1 - gapX; x++)
                 {
                     if (board[x, 0].MinoType != MinoTypes.Empty)
                         empty = false;
@@ -1372,7 +1192,7 @@ public class StageManager : MonoBehaviour {
                 break;
 
             case 2:
-                for (int y = swipe_UpLimit; y >= swipe_DownLimit; y--)
+                for (int y = mapY -1 - gapX; y >= gapY; y--)
                 {
                     if (board[0, y].MinoType != MinoTypes.Empty)
                         empty = false;
@@ -1380,7 +1200,7 @@ public class StageManager : MonoBehaviour {
                 break;
 
             case 3:
-                for (int y = swipe_UpLimit; y >= swipe_DownLimit; y--)
+                for (int y = mapY - 1 - gapX; y >= gapY; y--)
                 {
                     if (board[mapX -1, y].MinoType != MinoTypes.Empty)
                         empty = false;
@@ -1512,7 +1332,7 @@ public class StageManager : MonoBehaviour {
         }
     }
 
-    void Set_Preview()
+    public void Set_Preview()
     {
         for(int x = gapX; x<= mapX - 1 - gapX; x++)
         {
@@ -1525,7 +1345,7 @@ public class StageManager : MonoBehaviour {
         int tempX =0;
         int tempY =0;
 
-        switch (curSMinoIndex)
+        switch (cur_DirIndex)
         {
             case 0:
                 tempX = 0;
@@ -1552,13 +1372,13 @@ public class StageManager : MonoBehaviour {
                 break;
         }
 
-        for (int i = 0; i < sMinos[curSMinoIndex].minos.Count; i++)
+        for (int i = 0; i < sMinos[cur_DirIndex].minos.Count; i++)
         {
-            Mino m = Get_ContactPos_ToAxis(sMinos[curSMinoIndex].minos[i], tempX, tempY);
-            m.Set_ShadowType(sMinos[curSMinoIndex].minos[i].MinoType);
+            Mino m = Get_ContactPos_ToAxis(sMinos[cur_DirIndex].minos[i], tempX, tempY);
+            m.Set_ShadowType(sMinos[cur_DirIndex].minos[i].MinoType);
         }
     }
-    void Reset_Preview()
+    public void Reset_Preview()
     {
         for (int x = gapX; x <= mapX - 1 - gapX; x++)
         {

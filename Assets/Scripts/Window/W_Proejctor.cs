@@ -22,8 +22,7 @@ public class W_Proejctor : Window {
         image = GetComponent<Image>();
         imageIndex = 0;
         scaler = 0;
-
-        image.color = new Color(1f, 1f, 1f, 0f);
+        
         image.sprite = sprites[imageIndex];
     }
 
