@@ -66,11 +66,7 @@ public class StageManager : MonoBehaviour {
         QuadZone.Chage_View(true, true, false, false, transparency_blackLayer);
         SwipeZone.Chage_View(true, false, false, false, transparency_blackLayer);
         AxisZone.Chage_View(true, false, 0.8f);
-
-        w_score.Input(3, curRound);
-        w_score.Input(4, pop_Turn_Count);
-        w_score.Input(5, 1 + 0.1f * pop_Turn_Count);
-
+        
         // ------------------------------------------MapGenarating-----------------------------------
 
         Initialize_Board(mapX, mapY);
@@ -84,7 +80,275 @@ public class StageManager : MonoBehaviour {
         // --------------------------------------------Visual Additional Set ---------------------------
         Set_Preview();
     }
+    #endregion
 
+    #region Main Algorithm Cycle
+    public IEnumerator Run_AlgoCycle_Corutine(int DirIndex)
+    {
+        //Action Handle
+        onCycle = true;
+
+        //Initialize Variable
+        int turnScore = 0;
+        pop_Chain_Count = 0;
+
+        //Push Setting
+        Set_PushDirectioin(DirIndex);
+
+        //Push Slamino
+        Push_SMino_Separately(sMinos[DirIndex]);
+        mm.Play_Drop();
+        yield return new WaitForSeconds(timeAfterDrop);
+
+        //Check & Pop Connected Minos
+        Search_ChainMinos(cur_DirIndex);
+        Pop_ChainMinos(MoveTypes.Push);
+        if (pop_Block_Count != 0)
+        {
+            mm.Play_Pop_Continuous();
+
+            turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
+            w_score.Input(1, turnScore);
+
+            pop_Block_Count = 0;
+        }
+        yield return new WaitForSeconds(timeAfterPop);
+        Reset_Minos_Movement();
+
+        //Hook minos
+        isHookHor = true;
+        isHookVer = true;
+        int chainLimit = 0;
+        switch (DirIndex)
+        {
+            case 0:
+            case 1:
+                while (isHookHor == true && chainLimit <= 5)
+                {
+                    HookHorizontal();
+                    yield return new WaitForSeconds(timeAfterDrop);
+
+                    Search_ChainMinos(cur_DirIndex);
+                    if (isHookHor)
+                    {
+                        Pop_ChainMinos(MoveTypes.Push);
+                        if (pop_Block_Count != 0)
+                        {
+                            mm.Play_Pop_Continuous();
+
+                            turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
+                            w_score.Input(1, turnScore);
+
+                            pop_Block_Count = 0;
+                            yield return new WaitForSeconds(timeAfterPop);
+                        }
+                    }
+                    Reset_Minos_Movement();
+                    chainLimit++;
+                }
+                break;
+
+            case 2:
+            case 3:
+                while (isHookVer == true && chainLimit <= 5)
+                {
+                    HookVertical();
+                    yield return new WaitForSeconds(timeAfterDrop);
+
+                    Search_ChainMinos(cur_DirIndex);
+                    if (isHookVer)
+                    {
+                        Pop_ChainMinos(MoveTypes.Push);
+                        if (pop_Block_Count != 0)
+                        {
+                            mm.Play_Pop_Continuous();
+
+                            turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
+                            w_score.Input(1, turnScore);
+
+                            pop_Block_Count = 0;
+                            yield return new WaitForSeconds(timeAfterPop);
+                        }
+                    }
+                    Reset_Minos_Movement();
+                    chainLimit++;
+                }
+                break;
+
+            default:
+                Debug.LogError("Wrong Index Number");
+                break;
+        }
+
+        //Total Score Update
+        totalScore += turnScore;
+        List<string> totalScore_String = Get_Score_InDigit(totalScore);
+
+        if (totalScore != 0 && turnScore != 0)
+        {
+            for (int i = 1; i <= totalScore_String.Count; i++) // 반복횟수
+            {
+                string input = "";
+
+                for (int index = totalScore_String.Count - i; index <= totalScore_String.Count - 1; index++)
+                {
+                    input += totalScore_String[index];
+                }
+
+                mm.Play_Score_Tap();
+                w_score.Input(2, input);
+
+                yield return new WaitForSeconds(0.06f);
+            }
+        }
+        // Check Is Game Over
+        if (!Get_IsDropAble(cur_DirIndex))
+        {
+            ;// um.Open_GameOver();
+        }
+
+        //Reset_Sount Value
+        mm.Reset_Pop_Continuous();
+
+        //Reset_Variables
+        Reset_Minos_Movement();
+
+        //Respawn Slamino && Adjust to normal Position
+        if (Get_IsSwipeLineEmpty(cur_DirIndex))
+        {
+            Reset_SMino_Position();
+            sMinos[DirIndex].Spawn_SMino(true);
+        }
+        else
+            ;// um.Open_GameOver();
+
+
+        //Turn Turn the Table
+        switch (cur_DirIndex)
+        {
+            case 0:
+                cur_DirIndex = 3;
+                break;
+
+            case 1:
+                cur_DirIndex = 2;
+                break;
+
+            case 2:
+                cur_DirIndex = 0;
+                break;
+
+            case 3:
+                cur_DirIndex = 1;
+                break;
+
+            default:
+                Debug.LogError("you input wrong Index!!");
+                break;
+
+        }
+
+        switch (cur_DirIndex)
+        {
+            case 0:
+                Set_QuadrantView(Direction.Up);
+                yield return new WaitForSeconds(timeAfterDrop * 0.7f);
+                HookUp();
+                break;
+
+            case 1:
+                Set_QuadrantView(Direction.Down);
+                yield return new WaitForSeconds(timeAfterDrop * 0.7f);
+                HookDown();
+                break;
+
+            case 2:
+                Set_QuadrantView(Direction.Left);
+                yield return new WaitForSeconds(timeAfterDrop * 0.7f);
+                HookLeft();
+                break;
+
+            case 3:
+                Set_QuadrantView(Direction.Right);
+                yield return new WaitForSeconds(timeAfterDrop * 0.7f);
+                HookRight();
+                break;
+
+            default:
+                Debug.LogError("Wrong cur_DirIndex Number. Check!");
+                break;
+        }
+
+        //Scoring Initialize
+        if (isPop_Turn)
+        {
+            pop_Turn_Count++;
+            isPop_Turn = false;
+        }
+        else
+            pop_Turn_Count = 0;
+        pop_Chain_Count = 0;
+
+        // TotalScore Line Update
+        if (turnScore != 0)
+            w_score.Override_BottomToTop();
+
+        yield return new WaitForSeconds(timeAfterDrop);
+
+        curTurn++;
+        if ((curTurn % 4) - 1 == 0)
+            curRound++;
+
+        // color change
+        switch (curRound)
+        {
+            case 4:
+                minoVariety = 5;
+                break;
+
+            case 8:
+                minoVariety = 6;
+                break;
+        }
+
+        if (curRound % 2 == 0)
+        {
+            switch (cur_DirIndex)
+            {
+                case 0:
+                    Add_Minos(Direction.Up, 1, 4, 4, 0, 0);
+                    break;
+
+                case 1:
+                    Add_Minos(Direction.Down, 1, 4, 4, 0, 0);
+                    break;
+
+                case 2:
+                    Add_Minos(Direction.Left, 1, 0, 0, 3, 3);
+                    break;
+
+                case 3:
+                    Add_Minos(Direction.Right, 1, 0, 0, 3, 3);
+                    break;
+            }
+
+            if (Get_IsDropAble(cur_DirIndex))
+            {
+                mm.Play_Score_Enter();
+            }
+            else
+            {
+                print("Unable");
+            }
+        }
+        yield return new WaitForSeconds(timeAfterDrop);
+
+        // Visual Change as turn
+        Set_Preview();
+
+        //End cycle
+        onCycle = false;
+    }
     #endregion
 
     #region Variables & Property
@@ -200,278 +464,7 @@ public class StageManager : MonoBehaviour {
 
     #endregion
 
-    #region Main Algorithm Cycle
-    public IEnumerator Run_AlgoCycle_Corutine(int SMinoIndex)
-    {
-        //Action Handle
-        onCycle = true;
 
-        //Initialize Variable
-        int turnScore = 0;
-        pop_Chain_Count = 0;
-
-        //Push Setting
-        Set_PushDirectioin(SMinoIndex);
-        
-        //Push Slamino
-        Push_SMino_Separately(sMinos[SMinoIndex]);
-        mm.Play_Drop();
-        yield return new WaitForSeconds(timeAfterDrop);
-        
-        //Check & Pop Connected Minos
-        Search_ChainMinos(cur_DirIndex);
-        Pop_ChainMinos(MoveTypes.Push);
-        if(pop_Block_Count != 0)
-        {
-            mm.Play_Pop_Continuous();
-
-            turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
-            w_score.Input(1, turnScore);
-
-            pop_Block_Count = 0;
-        }
-        yield return new WaitForSeconds(timeAfterPop);
-        Reset_Minos_Movement();
-
-        //Hook minos
-        isHookHor = true;
-        isHookVer = true;
-        int chainLimit = 0;
-        switch (SMinoIndex)
-        {
-            case 0:
-            case 1:
-                while (isHookHor == true&& chainLimit <= 5)
-                {
-                    HookHorizontal();
-                    yield return new WaitForSeconds(timeAfterDrop);
-
-                    Search_ChainMinos(cur_DirIndex);
-                    if (isHookHor)
-                    {
-                        Pop_ChainMinos(MoveTypes.Push);
-                        if (pop_Block_Count!= 0)
-                        {
-                            mm.Play_Pop_Continuous();
-
-                            turnScore +=Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
-                            w_score.Input(1, turnScore);
-
-                            pop_Block_Count = 0;
-                            yield return new WaitForSeconds(timeAfterPop);
-                        }
-                    }
-                    Reset_Minos_Movement();
-                    chainLimit++;
-                }
-                break;
-
-            case 2:
-            case 3:
-                while (isHookVer == true && chainLimit <= 5)
-                {
-                    HookVertical();
-                    yield return new WaitForSeconds(timeAfterDrop);
-
-                    Search_ChainMinos(cur_DirIndex);
-                    if (isHookVer)
-                    {
-                        Pop_ChainMinos(MoveTypes.Push);
-                        if (pop_Block_Count != 0)
-                        {
-                            mm.Play_Pop_Continuous();
-
-                            turnScore +=Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
-                            w_score.Input(1, turnScore);
-
-                            pop_Block_Count = 0;
-                            yield return new WaitForSeconds(timeAfterPop);
-                        }
-                    }
-                    Reset_Minos_Movement();
-                    chainLimit++;
-                }
-                break;
-
-            default:
-                Debug.LogError("Wrong Index Number");
-                break;
-        }
-
-        //Total Score Update
-        totalScore += turnScore;
-        List<string> totalScore_String = Get_Score_InDigit(totalScore);
-
-        if(totalScore != 0 && turnScore!= 0)
-        {
-            for(int i = 1; i <= totalScore_String.Count; i++) // 반복횟수
-            {
-                string input = "";
-
-                for(int index = totalScore_String.Count - i; index <= totalScore_String.Count - 1; index++)
-                {
-                    input += totalScore_String[index];
-                }
-
-                mm.Play_Score_Tap();
-                w_score.Input(2, input);
-
-                yield return new WaitForSeconds(0.06f);
-            }
-        }
-        // Check Is Game Over
-        if(!Get_IsDropAble(cur_DirIndex))
-        {
-            ;// um.Open_GameOver();
-        }
-
-        //Reset_Sount Value
-        mm.Reset_Pop_Continuous();
-
-        //Reset_Variables
-        Reset_Minos_Movement();
-
-        //Respawn Slamino && Adjust to normal Position
-        if (Get_IsSwipeLineEmpty(cur_DirIndex))
-        {
-            Reset_SMino_Position();
-            sMinos[SMinoIndex].Spawn_SMino(true);
-        }
-        else
-            ;// um.Open_GameOver();
-
-
-        //Turn Turn the Table
-        switch (cur_DirIndex)
-        {
-            case 0:
-                cur_DirIndex = 3;
-                break;
-
-            case 1:
-                cur_DirIndex = 2;
-                break;
-
-            case 2:
-                cur_DirIndex = 0;
-                break;
-
-            case 3:
-                cur_DirIndex = 1;
-                break;
-
-            default:
-                Debug.LogError("you input wrong Index!!");
-                break;
-
-        }
-        
-        switch (cur_DirIndex)
-        {
-            case 0:
-                Set_QuadrantView(Direction.Up);
-                yield return new WaitForSeconds(timeAfterDrop * 0.7f);
-                HookUp();
-                break;
-
-            case 1:
-                Set_QuadrantView(Direction.Down);
-                yield return new WaitForSeconds(timeAfterDrop * 0.7f);
-                HookDown();
-                break;
-
-            case 2:
-                Set_QuadrantView(Direction.Left);
-                yield return new WaitForSeconds(timeAfterDrop * 0.7f);
-                HookLeft();
-                break;
-
-            case 3:
-                Set_QuadrantView(Direction.Right);
-                yield return new WaitForSeconds(timeAfterDrop*0.7f);
-                HookRight();
-                break;
-
-            default:
-                Debug.LogError("Wrong cur_DirIndex Number. Check!");
-                break;
-        }
-
-        //Scoring Initialize
-        if (isPop_Turn)
-        {
-            pop_Turn_Count++;
-            isPop_Turn = false;
-        }
-        else
-            pop_Turn_Count = 0;
-        pop_Chain_Count = 0;
-
-        w_score.Input(3, curRound);
-        w_score.Input(4, pop_Turn_Count);
-        w_score.Input(5, 1 + 0.1f * pop_Turn_Count);
-
-        // TotalScore Line Update
-        if(turnScore != 0)
-            w_score.Override_BottomToTop();
-           
-        yield return new WaitForSeconds(timeAfterDrop);
-        
-        curTurn++;
-        if ((curTurn % 4) - 1 == 0)
-            curRound++;
-
-        // color change
-        switch(curRound)
-        {
-            case 4:
-                minoVariety = 5;
-                break;
-
-            case 8:
-                minoVariety = 6;
-                break;
-        }
-
-        if(curRound% 2 == 0)
-        {
-            switch (cur_DirIndex)
-            {
-                case 0:
-                    Add_Minos(Direction.Up, 1, 4, 4, 0, 0);
-                    break;
-
-                case 1:
-                    Add_Minos(Direction.Down, 1, 4, 4, 0, 0);
-                    break;
-
-                case 2:
-                    Add_Minos(Direction.Left, 1, 0, 0, 3, 3);
-                    break;
-
-                case 3:
-                    Add_Minos(Direction.Right, 1, 0, 0, 3, 3);
-                    break;
-            }
-
-            if(Get_IsDropAble(cur_DirIndex))
-            {
-                mm.Play_Score_Enter();
-            }
-            else
-            {
-                print("Unable");
-            }
-        }
-        yield return new WaitForSeconds(timeAfterDrop);
-
-        // Visual Change as turn
-        Set_Preview();
-
-        //End cycle
-        onCycle = false;
-    }
-    #endregion
     
     #region Utility Functions
     public Mino Get_Board(int xPos, int yPos)
@@ -811,12 +804,12 @@ public class StageManager : MonoBehaviour {
         }
     }
     
-    void Set_PushDirectioin(int SMinoIndex)
+    void Set_PushDirectioin(int DirIndex)
     {
         xPush = 0;
         yPush = 0;
 
-        switch (SMinoIndex)
+        switch (DirIndex)
         {
             case 0:
                 yPush = -1;
