@@ -16,9 +16,9 @@ public class StageManager : MonoBehaviour {
         mm = MusicManager.Instance;
         mm.SetUp();
 
-        um = UIManager.Instance;
+        //um = UIManager.Instance;
 
-        w_score = FindObjectOfType<W_Score>();
+        w_score = WindowManager.Instance.Get_window("Score") as W_Score;
         w_score.SetUp();
 
         // ------------------------------Settings from game Manager------------------------------
@@ -46,8 +46,7 @@ public class StageManager : MonoBehaviour {
         onCycle = false;
         isHookHor = false;
         isHookVer = false;
-
-        poppedMino_CurBoard = 0;
+        
         poppedChain_CurBoard = 0;
 
         poppedMino_Total = 0;
@@ -310,9 +309,12 @@ public class StageManager : MonoBehaviour {
         }
     }
 
+    // Manager & Controllers
     MusicManager mm;
-    UIManager um;
+    W_Panel w_panel;
+    W_Proejctor w_projector;
     W_Score w_score;
+    W_GameOver w_gameOver;
     
     // prefabs for mapGenerating
     public GameObject minoPrefab;
@@ -351,8 +353,7 @@ public class StageManager : MonoBehaviour {
 
     int curTurn;
     int curRound;
-
-    int poppedMino_CurBoard;
+    
     int poppedMino_Total;
     int poppedChain_CurBoard;
     int poppedChain_Total;
@@ -510,7 +511,7 @@ public class StageManager : MonoBehaviour {
         // Check Is Game Over
         if(!Get_IsDropAble(curSMinoIndex))
         {
-            um.Open_GameOver();
+            ;// um.Open_GameOver();
         }
 
         //Reset_Sount Value
@@ -526,7 +527,7 @@ public class StageManager : MonoBehaviour {
             sMinos[SMinoIndex].Spawn_SMino(true);
         }
         else
-            um.Open_GameOver();
+            ;// um.Open_GameOver();
 
 
         //Turn Turn the Table
@@ -1004,7 +1005,6 @@ public class StageManager : MonoBehaviour {
                 {
                     Clear_Mino(cMinos[i].Minos[k]);
                     pop_Block_Count++;
-                    poppedMino_CurBoard++;
                     poppedMino_Total++;
                 }
             }
@@ -1430,7 +1430,7 @@ public class StageManager : MonoBehaviour {
                             Mino m = board[x, y];
                             if (y == mapY - 1 - gapY && m.MinoType != MinoTypes.Empty && board[x, y + 1].MinoType != MinoTypes.Empty)
                             {
-                                um.Open_GameOver();
+                                ;// um.Open_GameOver();
                             }
                             else
                                 Move_Mino(m, m.Xpos, m.Ypos + 1, m.MoveType);
@@ -1451,7 +1451,7 @@ public class StageManager : MonoBehaviour {
                             Mino m = board[x, y];
                             if (y == gapY && m.MinoType != MinoTypes.Empty && board[x, y - 1].MinoType != MinoTypes.Empty)
                             {
-                                um.Open_GameOver();
+                                ;// um.Open_GameOver();
                             }
                             else
                                 Move_Mino(m, m.Xpos, m.Ypos - 1, m.MoveType);
@@ -1472,7 +1472,7 @@ public class StageManager : MonoBehaviour {
                             Mino m = board[x, y];
                             if (x == gapX && m.MinoType != MinoTypes.Empty && board[x-1, y].MinoType != MinoTypes.Empty)
                             {
-                                um.Open_GameOver();
+                                ;// um.Open_GameOver();
                             }
                             else
                                 Move_Mino(m, m.Xpos - 1, m.Ypos, m.MoveType);
@@ -1493,7 +1493,7 @@ public class StageManager : MonoBehaviour {
                             Mino m = board[x, y];
                             if (x == mapX -1 - gapX && m.MinoType != MinoTypes.Empty && board[x + 1, y].MinoType != MinoTypes.Empty)
                             {
-                                um.Open_GameOver();
+                                ;// um.Open_GameOver();
                             }
                             else
                                 Move_Mino(m, m.Xpos + 1, m.Ypos, m.MoveType);
