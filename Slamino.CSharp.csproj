@@ -88,6 +88,7 @@
     <Compile Include="Assets\Scripts\Managers\InputController.cs" />
     <Compile Include="Assets\Scripts\Managers\MusicManager.cs" />
     <Compile Include="Assets\Scripts\Managers\StageManager.cs" />
+    <Compile Include="Assets\Scripts\Managers\StateManager.cs" />
     <Compile Include="Assets\Scripts\MapCreating\MapInfo.cs" />
     <Compile Include="Assets\Scripts\MapVisual\AxisZone.cs" />
     <Compile Include="Assets\Scripts\MapVisual\QuadZone.cs" />
