@@ -16,8 +16,6 @@ public class StageManager : MonoBehaviour {
         mm = MusicManager.Instance;
         mm.SetUp();
 
-        //um = UIManager.Instance;
-
         w_score = WindowManager.Instance.Get_window("Score") as W_Score;
         w_score.SetUp();
 
@@ -55,6 +53,7 @@ public class StageManager : MonoBehaviour {
 
         totalScore = 0;
         pop_Chain_Count = 0;
+        pop_Combo_Count = 0;
         pop_Turn_Count = 0;
         isPop_Turn = false;
 
@@ -80,6 +79,18 @@ public class StageManager : MonoBehaviour {
         // --------------------------------------------Visual Additional Set ---------------------------
         Set_Preview();
     }
+
+    float playTime = 0;
+    void Update()
+    {
+        playTime += Time.deltaTime;
+        int sec = (int)playTime % 60;
+        int min = (int)playTime / 60;
+
+        string time = min.ToString() + ":" + sec.ToString();
+
+        w_score.Input(4, time);
+    }
     #endregion
 
     #region Main Algorithm Cycle
@@ -91,6 +102,10 @@ public class StageManager : MonoBehaviour {
         //Initialize Variable
         int turnScore = 0;
         pop_Chain_Count = 0;
+        pop_Combo_Count = 0;
+
+        //Curround
+        w_score.Input(3, curRound);
 
         //Push Setting
         Set_PushDirectioin(DirIndex);
@@ -106,6 +121,7 @@ public class StageManager : MonoBehaviour {
         if (pop_Block_Count != 0)
         {
             mm.Play_Pop_Continuous();
+            pop_Combo_Count++;
 
             turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
             w_score.Input(1, turnScore);
@@ -135,6 +151,7 @@ public class StageManager : MonoBehaviour {
                         if (pop_Block_Count != 0)
                         {
                             mm.Play_Pop_Continuous();
+                            pop_Combo_Count++;
 
                             turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
                             w_score.Input(1, turnScore);
@@ -162,6 +179,7 @@ public class StageManager : MonoBehaviour {
                         if (pop_Block_Count != 0)
                         {
                             mm.Play_Pop_Continuous();
+                            pop_Combo_Count++;
 
                             turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
                             w_score.Input(1, turnScore);
@@ -179,6 +197,30 @@ public class StageManager : MonoBehaviour {
                 Debug.LogError("Wrong Index Number");
                 break;
         }
+
+        // MakeSound for Chain 
+        switch(pop_Combo_Count)
+        {
+            case 3:
+                mm.Play_Cheer(0);
+                break;
+
+            case 4:
+                mm.Play_Cheer(1);
+                break;
+
+            case 5:
+                mm.Play_Cheer(2);
+                break;
+
+            case 6:
+                mm.Play_Cheer(3);
+                break;
+
+            default:
+                break;
+        }
+
 
         //Total Score Update
         totalScore += turnScore;
@@ -206,7 +248,7 @@ public class StageManager : MonoBehaviour {
         {
             ;// um.Open_GameOver();
         }
-
+        
         //Reset_Sount Value
         mm.Reset_Pop_Continuous();
 
@@ -302,11 +344,11 @@ public class StageManager : MonoBehaviour {
         // color change
         switch (curRound)
         {
-            case 4:
+            case 7:
                 minoVariety = 5;
                 break;
 
-            case 8:
+            case 18:
                 minoVariety = 6;
                 break;
         }
@@ -374,9 +416,9 @@ public class StageManager : MonoBehaviour {
 
     // Manager & Controllers
     MusicManager mm;
-    W_Panel w_panel;
-    W_Proejctor w_projector;
     W_Score w_score;
+    W_Proejctor w_projector;
+    W_Panel w_panel;
     W_GameOver w_gameOver;
     
     // prefabs for mapGenerating
@@ -435,6 +477,7 @@ public class StageManager : MonoBehaviour {
     int pop_Turn_Count;
     int pop_Chain_Count;
     int pop_Block_Count;
+    int pop_Combo_Count;
     bool isPop_Turn;
 
     int cur_DirIndex;

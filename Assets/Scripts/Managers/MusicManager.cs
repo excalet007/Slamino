@@ -34,6 +34,11 @@ public class MusicManager : MonoBehaviour {
     AudioSource sfx_Pop;
     AudioSource sfx_Score_Tap;
     AudioSource sfx_Score_Enter;
+    AudioSource sfx_Projector;
+    AudioSource sfx_SpotLight;
+    AudioSource sfx_Cheer;
+    AudioSource sfx_Scratch;
+    AudioSource sfx_Swipe;
 
     public AudioSource Bgm
     {
@@ -55,6 +60,17 @@ public class MusicManager : MonoBehaviour {
     {
         get { return sfx_Score_Enter; }
     }
+    public AudioSource Sfx_Projector
+    { get { return sfx_Projector; } }
+    public AudioSource Sfx_SpotLight
+    { get { return sfx_SpotLight; } }
+    public AudioSource Sfx_Cheer
+    { get { return sfx_Cheer; } }
+    public AudioSource Sfx_Scratch
+    { get { return sfx_Scratch; } }
+    public AudioSource Sfx_Swipe
+    { get { return sfx_Swipe; } }
+
 
     // Music Clip lists
     public List<AudioClip> bgmList;
@@ -62,7 +78,13 @@ public class MusicManager : MonoBehaviour {
     public List<AudioClip> sfx_PopList;
     public List<AudioClip> sfx_Score_TapList;
     public List<AudioClip> sfx_Score_EnterList;
-    
+    public List<AudioClip> sfx_ProjectorList;
+    public List<AudioClip> sfx_SpotLightList;
+    public List<AudioClip> sfx_CheerList;
+    public List<AudioClip> sfx_ScratchList;
+    public List<AudioClip> sfx_SwipeList;
+
+
     public void SetUp()
     {
         bgm = this.gameObject.AddComponent<AudioSource>();
@@ -70,12 +92,22 @@ public class MusicManager : MonoBehaviour {
         sfx_Pop = this.gameObject.AddComponent<AudioSource>();
         sfx_Score_Tap = this.gameObject.AddComponent<AudioSource>();
         sfx_Score_Enter = this.gameObject.AddComponent<AudioSource>();
+        sfx_Projector = this.gameObject.AddComponent<AudioSource>();
+        sfx_SpotLight = this.gameObject.AddComponent<AudioSource>();
+        sfx_Cheer = this.gameObject.AddComponent<AudioSource>();
+        sfx_Scratch = this.gameObject.AddComponent<AudioSource>();
+        sfx_Swipe = this.gameObject.AddComponent<AudioSource>(); 
 
         bgm.playOnAwake = false;
         sfx_Drop.playOnAwake = false;
         sfx_Pop.playOnAwake = false;
         sfx_Score_Tap.playOnAwake = false;
         sfx_Score_Enter.playOnAwake = false;
+        sfx_Projector.playOnAwake = false;
+        sfx_SpotLight.playOnAwake = false; 
+        sfx_Cheer.playOnAwake = false;
+        sfx_Scratch.playOnAwake = false;
+        sfx_Swipe.playOnAwake = false;
 
         bgm.loop = true;
        
@@ -133,6 +165,47 @@ public class MusicManager : MonoBehaviour {
     public void Play_Score_Enter()
     {
         sfx_Score_Enter.Play();
+    }
+
+    /// <summary>
+    /// 0 = on, 1 = loop
+    /// </summary>
+    /// <param name="num"></param>
+    public void Play_Projector(int index)
+    {
+        sfx_Projector.clip = sfx_ProjectorList[index];
+        sfx_Projector.Play();
+    }
+
+    /// <summary>
+    /// 0 = on, 1 = off
+    /// </summary>
+    /// <param name="index"></param>
+    public void Play_SpotLight(int index)
+    {
+        sfx_SpotLight.clip = sfx_SpotLightList[index];
+        sfx_SpotLight.Play();
+    }
+
+    public void Play_Cheer(int index)
+    {
+        if (sfx_Cheer.isPlaying)
+            sfx_Cheer.Stop();
+
+        sfx_Cheer.clip = sfx_CheerList[index];
+        sfx_Cheer.Play();
+    }
+
+    public void Play_Scratch(int index)
+    {
+        sfx_Scratch.clip = sfx_ScratchList[index];
+        sfx_Scratch.Play();
+    }
+
+    public void Play_Swipe(int index)
+    {
+        sfx_Swipe.clip = sfx_SwipeList[index];
+        sfx_Swipe.Play();
     }
 
     public void Change_Volume(AudioSource target, float size)

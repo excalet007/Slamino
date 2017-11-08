@@ -96,7 +96,9 @@
     <Compile Include="Assets\Scripts\Mino\ChainMino.cs" />
     <Compile Include="Assets\Scripts\Mino\Mino.cs" />
     <Compile Include="Assets\Scripts\Mino\Slamino.cs" />
+    <Compile Include="Assets\Scripts\State.cs" />
     <Compile Include="Assets\Scripts\Window\W_GameOver.cs" />
+    <Compile Include="Assets\Scripts\Window\W_GameStart.cs" />
     <Compile Include="Assets\Scripts\Window\W_Panel.cs" />
     <Compile Include="Assets\Scripts\Window\W_Proejctor.cs" />
     <Compile Include="Assets\Scripts\Window\W_Score.cs" />
