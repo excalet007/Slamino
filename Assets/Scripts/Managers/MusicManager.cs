@@ -127,6 +127,11 @@ public class MusicManager : MonoBehaviour {
     {
         sfx_Drop.Play();
     }
+    
+    public void Play_Pop()
+    {
+        sfx_Pop.Play();
+    }
 
     public void Play_Pop(int combo)
     {

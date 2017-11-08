@@ -115,12 +115,19 @@ public class StageManager : MonoBehaviour {
         mm.Play_Drop();
         yield return new WaitForSeconds(timeAfterDrop);
 
+        //For dododo sound
+        int pop_Chain_inOneAction = 0;
+        int pop_Prev_Chain_Count = 0;
+
         //Check & Pop Connected Minos
         Search_ChainMinos(cur_DirIndex);
         Pop_ChainMinos(MoveTypes.Push);
         if (pop_Block_Count != 0)
         {
-            mm.Play_Pop_Continuous();
+            pop_Chain_inOneAction = pop_Chain_Count;
+            pop_Prev_Chain_Count = pop_Chain_Count;
+
+            //mm.Play_Pop_Continuous();
             pop_Combo_Count++;
 
             turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
@@ -128,7 +135,23 @@ public class StageManager : MonoBehaviour {
 
             pop_Block_Count = 0;
         }
-        yield return new WaitForSeconds(timeAfterPop);
+        
+        if(pop_Chain_inOneAction >0)
+        {
+            mm.Play_Pop_Continuous();
+            yield return new WaitForSeconds(0.1f);
+            
+            for (int i =0; i<pop_Chain_inOneAction-1; i++)
+            {
+                mm.Play_Pop();
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            pop_Chain_inOneAction = 0;
+        }
+        else
+            yield return new WaitForSeconds(timeAfterPop);
+
         Reset_Minos_Movement();
 
         //Hook minos
@@ -150,15 +173,33 @@ public class StageManager : MonoBehaviour {
                         Pop_ChainMinos(MoveTypes.Push);
                         if (pop_Block_Count != 0)
                         {
-                            mm.Play_Pop_Continuous();
+                            pop_Chain_inOneAction = pop_Chain_Count - pop_Prev_Chain_Count;
+                            pop_Prev_Chain_Count = pop_Chain_Count;
+                            
+                            //mm.Play_Pop_Continuous();
                             pop_Combo_Count++;
 
                             turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
                             w_score.Input(1, turnScore);
 
                             pop_Block_Count = 0;
-                            yield return new WaitForSeconds(timeAfterPop);
                         }
+
+                        if (pop_Chain_inOneAction > 0)
+                        {
+                            mm.Play_Pop_Continuous();
+                            yield return new WaitForSeconds(0.1f);
+
+                            for (int i = 0; i < pop_Chain_inOneAction - 1; i++)
+                            {
+                                mm.Play_Pop();
+                                yield return new WaitForSeconds(0.1f);
+                            }
+
+                            pop_Chain_inOneAction = 0;
+                        }
+                        else
+                            yield return new WaitForSeconds(timeAfterPop);
                     }
                     Reset_Minos_Movement();
                     chainLimit++;
@@ -178,15 +219,33 @@ public class StageManager : MonoBehaviour {
                         Pop_ChainMinos(MoveTypes.Push);
                         if (pop_Block_Count != 0)
                         {
-                            mm.Play_Pop_Continuous();
+                            pop_Chain_inOneAction = pop_Chain_Count - pop_Prev_Chain_Count;
+                            pop_Prev_Chain_Count = pop_Chain_Count;
+                            //mm.Play_Pop_Continuous();
                             pop_Combo_Count++;
 
                             turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
                             w_score.Input(1, turnScore);
 
                             pop_Block_Count = 0;
-                            yield return new WaitForSeconds(timeAfterPop);
+                            //yield return new WaitForSeconds(timeAfterPop);
                         }
+
+                        if (pop_Chain_inOneAction > 0)
+                        {
+                            mm.Play_Pop_Continuous();
+                            yield return new WaitForSeconds(0.1f);
+
+                            for (int i = 0; i < pop_Chain_inOneAction - 1; i++)
+                            {
+                                mm.Play_Pop();
+                                yield return new WaitForSeconds(0.1f);
+                            }
+
+                            pop_Chain_inOneAction = 0;
+                        }
+                        else
+                            yield return new WaitForSeconds(timeAfterPop);
                     }
                     Reset_Minos_Movement();
                     chainLimit++;
