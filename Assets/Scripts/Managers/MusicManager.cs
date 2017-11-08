@@ -173,6 +173,9 @@ public class MusicManager : MonoBehaviour {
     /// <param name="num"></param>
     public void Play_Projector(int index)
     {
+        if (sfx_Projector.isPlaying)
+            sfx_Projector.Stop();
+
         sfx_Projector.clip = sfx_ProjectorList[index];
         sfx_Projector.Play();
     }

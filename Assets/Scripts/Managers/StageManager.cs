@@ -12,12 +12,15 @@ public class StageManager : MonoBehaviour {
     #region MonoBehaviours
     void Awake()
     {
+        // Code for ya-me coding
+        GameState = GameState.GameStart;
+
         // ------------------------------Set up Components & Link Singleton--------------------
         mm = MusicManager.Instance;
         mm.SetUp();
 
         w_score = WindowManager.Instance.Get_window("Score") as W_Score;
-        w_score.SetUp();
+        w_gameOver = WindowManager.Instance.Get_window("GameOver") as W_GameOver;
 
         // ------------------------------Settings from game Manager------------------------------
         // This values will be loaded from gameManager (not yet)
@@ -72,9 +75,6 @@ public class StageManager : MonoBehaviour {
         Initialize_Axis(true, 0, 0);
         Initialize_CenterMinos(horLine, verLine, 3,2, true);
         Initialize_Slaminos(true);
-
-        // ------------------------------------------ Starts Sound --------------------------------------
-        mm.Play_BGM();
 
         // --------------------------------------------Visual Additional Set ---------------------------
         Set_Preview();
@@ -335,6 +335,9 @@ public class StageManager : MonoBehaviour {
         if (turnScore != 0)
             w_score.Override_BottomToTop();
 
+        //Yame
+        w_gameOver.Input(0, turnScore);
+
         yield return new WaitForSeconds(timeAfterDrop);
 
         curTurn++;
@@ -423,7 +426,10 @@ public class StageManager : MonoBehaviour {
     
     // prefabs for mapGenerating
     public GameObject minoPrefab;
-    
+
+    // gameState for ya-me coding
+    public GameState GameState;
+
     // variables changed by GameOptions
     Mino[,] board;
     int mapX, mapY;
@@ -983,7 +989,7 @@ public class StageManager : MonoBehaviour {
     {
         int credit = 0;
 
-        credit = score / 10000;
+        credit = score / 100;
 
         return credit;
     }

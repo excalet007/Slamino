@@ -26,7 +26,10 @@ public enum Direction
 
 public enum GameState
 {
-    Play, // Play Should be changed -> Swipe, animation, etc ( more detail )
+    GameStart,
+    LoadingPlay,
+    Play,
     Pause,
+    LoadingGameOver,
     GameOver
 }
