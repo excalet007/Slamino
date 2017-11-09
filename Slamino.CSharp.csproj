@@ -84,6 +84,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Layer\L_Axis.cs" />
+    <Compile Include="Assets\Scripts\Layer\L_LimitLine.cs" />
+    <Compile Include="Assets\Scripts\Layer\L_Shadow.cs" />
+    <Compile Include="Assets\Scripts\Layer\Layer.cs" />
+    <Compile Include="Assets\Scripts\Layer\LayerManager.cs" />
     <Compile Include="Assets\Scripts\Managers\GameManager.cs" />
     <Compile Include="Assets\Scripts\Managers\InputController.cs" />
     <Compile Include="Assets\Scripts\Managers\MusicManager.cs" />

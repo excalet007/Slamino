@@ -13,6 +13,7 @@ public class InputController : MonoBehaviour {
         mm = MusicManager.Instance;
 
         time = 0;
+        timeChecker = false;
     }
 
     void Update()
@@ -31,9 +32,6 @@ public class InputController : MonoBehaviour {
 
                     mm.Change_Volume(mm.Sfx_Projector, 0.50f);
                     mm.Play_Projector(0);
-
-                    //W_GameStart w_gameStart = WindowManager.Instance.Get_window("GameStart") as W_GameStart;
-                    //w_gameStart.Off();
 
                     WindowManager.Instance.Get_window("Projector").Off();
                     WindowManager.Instance.Get_window("GameStart").Off();
@@ -77,25 +75,7 @@ public class InputController : MonoBehaviour {
                         time = 0;
                     }
                 }
-
-                // gameover
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    mm.Sfx_Projector.Stop();
-                    mm.Bgm.Stop();
-                    mm.Play_Scratch(0);
-                    mm.Play_SpotLight(1);
-
-                    WindowManager.Instance.Get_window("Score").Off();
-                    WindowManager.Instance.Get_window("Panel").On();
-                    WindowManager.Instance.Get_window("Projector").Off(); ;
-
-                    sm.GameState = GameState.LoadingGameOver;
-                    
-                    time = 0;
-                }
-
-
+                
                 #region smino movement by keyboard
                 // SMino Movement
                 if (Input.GetKeyDown(KeyCode.UpArrow) && sm.OnCycle == false)
@@ -280,6 +260,12 @@ public class InputController : MonoBehaviour {
                 break;
 
             case GameState.LoadingGameOver:
+                if(!timeChecker)
+                {
+                    time = 0;
+                    timeChecker = true;
+                }
+
                 time += Time.deltaTime;
                 if(time > 3f)
                 {
@@ -348,6 +334,7 @@ public class InputController : MonoBehaviour {
     private StageManager sm;
     private MusicManager mm;
     private float time;
+    private bool timeChecker;
 
     // Toucing Information
     Vector2 startPos; 

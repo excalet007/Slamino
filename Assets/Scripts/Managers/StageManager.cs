@@ -34,7 +34,7 @@ public class StageManager : MonoBehaviour {
 
         // mino variaty (green, red, yellow, blue)
         minoVariety = 4;
-        mm.Change_Volume(mm.Bgm, 0.3f);
+        mm.Change_Volume(mm.Bgm, 0.6f);
         mm.Change_Volume(mm.Sfx_Drop, 0.4f);
         mm.Change_Volume(mm.Sfx_Pop, 0.5f);
         mm.Change_Volume(mm.Sfx_Score_Tap, 0.5f);
@@ -115,43 +115,22 @@ public class StageManager : MonoBehaviour {
         mm.Play_Drop();
         yield return new WaitForSeconds(timeAfterDrop);
 
-        //For dododo sound
-        int pop_Chain_inOneAction = 0;
-        int pop_Prev_Chain_Count = 0;
-
         //Check & Pop Connected Minos
         Search_ChainMinos(cur_DirIndex);
         Pop_ChainMinos(MoveTypes.Push);
         if (pop_Block_Count != 0)
         {
-            pop_Chain_inOneAction = pop_Chain_Count;
-            pop_Prev_Chain_Count = pop_Chain_Count;
-
-            //mm.Play_Pop_Continuous();
+            mm.Play_Pop_Continuous();
             pop_Combo_Count++;
 
             turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
             w_score.Input(1, turnScore);
 
             pop_Block_Count = 0;
+
+            yield return new WaitForSeconds(timeAfterPop);
         }
         
-        if(pop_Chain_inOneAction >0)
-        {
-            mm.Play_Pop_Continuous();
-            yield return new WaitForSeconds(0.1f);
-            
-            for (int i =0; i<pop_Chain_inOneAction-1; i++)
-            {
-                mm.Play_Pop();
-                yield return new WaitForSeconds(0.1f);
-            }
-
-            pop_Chain_inOneAction = 0;
-        }
-        else
-            yield return new WaitForSeconds(timeAfterPop);
-
         Reset_Minos_Movement();
 
         //Hook minos
@@ -164,7 +143,7 @@ public class StageManager : MonoBehaviour {
             case 1:
                 while (isHookHor == true && chainLimit <= 5)
                 {
-                    HookHorizontal();
+                    HookHorizontal(DirIndex);
                     yield return new WaitForSeconds(timeAfterDrop);
 
                     Search_ChainMinos(cur_DirIndex);
@@ -172,34 +151,17 @@ public class StageManager : MonoBehaviour {
                     {
                         Pop_ChainMinos(MoveTypes.Push);
                         if (pop_Block_Count != 0)
-                        {
-                            pop_Chain_inOneAction = pop_Chain_Count - pop_Prev_Chain_Count;
-                            pop_Prev_Chain_Count = pop_Chain_Count;
-                            
-                            //mm.Play_Pop_Continuous();
+                        {                            
+                            mm.Play_Pop_Continuous();
                             pop_Combo_Count++;
 
                             turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
                             w_score.Input(1, turnScore);
 
                             pop_Block_Count = 0;
-                        }
-
-                        if (pop_Chain_inOneAction > 0)
-                        {
-                            mm.Play_Pop_Continuous();
-                            yield return new WaitForSeconds(0.1f);
-
-                            for (int i = 0; i < pop_Chain_inOneAction - 1; i++)
-                            {
-                                mm.Play_Pop();
-                                yield return new WaitForSeconds(0.1f);
-                            }
-
-                            pop_Chain_inOneAction = 0;
-                        }
-                        else
+                            
                             yield return new WaitForSeconds(timeAfterPop);
+                        }
                     }
                     Reset_Minos_Movement();
                     chainLimit++;
@@ -210,7 +172,7 @@ public class StageManager : MonoBehaviour {
             case 3:
                 while (isHookVer == true && chainLimit <= 5)
                 {
-                    HookVertical();
+                    HookVertical(DirIndex);
                     yield return new WaitForSeconds(timeAfterDrop);
 
                     Search_ChainMinos(cur_DirIndex);
@@ -219,33 +181,16 @@ public class StageManager : MonoBehaviour {
                         Pop_ChainMinos(MoveTypes.Push);
                         if (pop_Block_Count != 0)
                         {
-                            pop_Chain_inOneAction = pop_Chain_Count - pop_Prev_Chain_Count;
-                            pop_Prev_Chain_Count = pop_Chain_Count;
-                            //mm.Play_Pop_Continuous();
+                            mm.Play_Pop_Continuous();
                             pop_Combo_Count++;
 
                             turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
                             w_score.Input(1, turnScore);
 
                             pop_Block_Count = 0;
-                            //yield return new WaitForSeconds(timeAfterPop);
-                        }
-
-                        if (pop_Chain_inOneAction > 0)
-                        {
-                            mm.Play_Pop_Continuous();
-                            yield return new WaitForSeconds(0.1f);
-
-                            for (int i = 0; i < pop_Chain_inOneAction - 1; i++)
-                            {
-                                mm.Play_Pop();
-                                yield return new WaitForSeconds(0.1f);
-                            }
-
-                            pop_Chain_inOneAction = 0;
-                        }
-                        else
+                            
                             yield return new WaitForSeconds(timeAfterPop);
+                        }
                     }
                     Reset_Minos_Movement();
                     chainLimit++;
@@ -302,10 +247,20 @@ public class StageManager : MonoBehaviour {
                 yield return new WaitForSeconds(0.06f);
             }
         }
-        // Check Is Game Over
+
+        // Check Is Game Over -> but it's very unique case
         if (!Get_IsDropAble(cur_DirIndex))
         {
-            ;// um.Open_GameOver();
+            mm.Sfx_Projector.Stop();
+            mm.Bgm.Stop();
+            mm.Play_Scratch(0);
+            mm.Play_SpotLight(1);
+
+            WindowManager.Instance.Get_window("Score").Off();
+            WindowManager.Instance.Get_window("Panel").On();
+            WindowManager.Instance.Get_window("Projector").Off(); ;
+
+            GameState = GameState.LoadingGameOver;
         }
         
         //Reset_Sount Value
@@ -321,7 +276,21 @@ public class StageManager : MonoBehaviour {
             sMinos[DirIndex].Spawn_SMino(true);
         }
         else
-            ;// um.Open_GameOver();
+        {
+            mm.Sfx_Projector.Stop();
+            mm.Bgm.Stop();
+            mm.Play_Scratch(0);
+
+            yield return new WaitForSeconds(0.5f);
+
+            mm.Play_SpotLight(1);
+
+            WindowManager.Instance.Get_window("Score").Off();
+            WindowManager.Instance.Get_window("Panel").On();
+            WindowManager.Instance.Get_window("Projector").Off(); ;
+
+            GameState = GameState.LoadingGameOver;
+        }
 
 
         //Turn Turn the Table
@@ -395,9 +364,9 @@ public class StageManager : MonoBehaviour {
             w_score.Override_BottomToTop();
 
         //Yame
-        w_gameOver.Input(0, turnScore);
+        w_gameOver.Input(0, totalScore);
 
-        yield return new WaitForSeconds(timeAfterDrop);
+        yield return new WaitForSeconds(timeAfterDrop/2);
 
         curTurn++;
         if ((curTurn % 4) - 1 == 0)
@@ -417,35 +386,53 @@ public class StageManager : MonoBehaviour {
 
         if (curRound % 2 == 0)
         {
+            bool deadByAddMinos = false;
+
             switch (cur_DirIndex)
             {
                 case 0:
-                    Add_Minos(Direction.Up, 1, 4, 4, 0, 0);
+                    if (Add_Minos(Direction.Up, 1, 4, 4, 0, 0))
+                        deadByAddMinos = true;
                     break;
 
                 case 1:
-                    Add_Minos(Direction.Down, 1, 4, 4, 0, 0);
+                    if (Add_Minos(Direction.Down, 1, 4, 4, 0, 0))
+                        deadByAddMinos = true;
                     break;
 
                 case 2:
-                    Add_Minos(Direction.Left, 1, 0, 0, 3, 3);
+                    if (Add_Minos(Direction.Left, 1, 0, 0, 3, 3))
+                        deadByAddMinos = true;
                     break;
 
                 case 3:
-                    Add_Minos(Direction.Right, 1, 0, 0, 3, 3);
+                    if (Add_Minos(Direction.Right, 1, 0, 0, 3, 3))
+                        deadByAddMinos = true;
                     break;
             }
 
-            if (Get_IsDropAble(cur_DirIndex))
+            if (Get_IsDropAble(cur_DirIndex) && !deadByAddMinos)
             {
                 mm.Play_Score_Enter();
             }
             else
             {
-                print("Unable");
+                mm.Sfx_Projector.Stop();
+                mm.Bgm.Stop();
+                mm.Play_Scratch(0);
+
+                yield return new WaitForSeconds(0.5f);
+
+                mm.Play_SpotLight(1);
+
+                WindowManager.Instance.Get_window("Score").Off();
+                WindowManager.Instance.Get_window("Panel").On();
+                WindowManager.Instance.Get_window("Projector").Off(); ;
+
+                GameState = GameState.LoadingGameOver;
             }
         }
-        yield return new WaitForSeconds(timeAfterDrop);
+        yield return new WaitForSeconds(timeAfterDrop/2);
 
         // Visual Change as turn
         Set_Preview();
@@ -735,9 +722,36 @@ public class StageManager : MonoBehaviour {
         //Reset
         cMinos.Clear();
 
-        for (int x = gapX; x <= mapX - 1 - gapX; x++)
+        int xMin = gapX;
+        int xMax = mapX - 1 - gapX;
+        int yMin = gapY;
+        int yMax = mapY - 1 - gapY;
+
+        switch(index)
         {
-            for (int y = gapY; y <= mapY - 1 - gapY; y++)
+            case 0:
+                yMax = mapY - 1;
+                break;
+
+            case 1:
+                yMin = 0;
+                break;
+
+            case 2:
+                xMin = 0;
+                break;
+
+            case 3:
+                xMax = mapX - 1;
+                break;
+
+            default:
+                break;
+        }
+
+        for (int x = xMin; x <= xMax; x++)
+        {
+            for (int y = yMin; y <= yMax; y++)
             {
                 Mino m = board[x, y];
 
@@ -762,8 +776,8 @@ public class StageManager : MonoBehaviour {
                 }
             }
         }
-
-        if(index == 0)
+        
+        if (index == 0)
         {
             List<int> removeIndex = new List<int>();
 
@@ -1065,13 +1079,30 @@ public class StageManager : MonoBehaviour {
         return stringList;
     }
 
-    void HookHorizontal()
+    void HookHorizontal(int index)
     {
         isHookHor = false;
 
+        int yMin = gapY;
+        int yMax = mapY -1 - gapY;
+        switch(index)
+        {
+            case 0:
+                yMax = mapY - 1;
+                break;
+
+            case 1:
+                yMin = 0;
+                break;
+
+            default:
+                Debug.Log("you input wrong direction");
+                break;
+        }
+
         for (int x = gapX; x < mapX -1 -gapX; x++)
         {
-            for (int y = upHor; y <= mapY -1 -gapY; y++)
+            for (int y = upHor; y <= yMax; y++)
             {
                 Mino m = Get_ContactPos_ToAxis(board[x, y], 0, -1);
                 if (m.Ypos != board[x, y].Ypos)
@@ -1081,7 +1112,7 @@ public class StageManager : MonoBehaviour {
                 }
             }
 
-            for (int y = downHor; y >= gapY; y--)
+            for (int y = downHor; y >= yMin; y--)
             {
                 Mino m = Get_ContactPos_ToAxis(board[x, y], 0, 1);
                 if (m.Ypos != board[x, y].Ypos)
@@ -1092,11 +1123,27 @@ public class StageManager : MonoBehaviour {
             }
         }
     }
-    void HookVertical()
+    void HookVertical(int index)
     {
         isHookVer = false;
 
-        for(int y = gapY; y <= mapY -1 - gapY; y++)
+        int xMin = gapX;
+        int xMax = mapX - 1 - gapX;
+        switch (index)
+        {
+            case 2:
+                xMin = 0;
+                break;
+
+            case 3:
+                xMax = mapX - 1;
+                break;
+
+            default:
+                Debug.Log("you input wrong direction");
+                break;
+        }
+        for (int y = gapY; y <= mapY -1 - gapY; y++)
         {
             for(int x = leftVer; x>=gapX; x--)
             {
@@ -1327,7 +1374,8 @@ public class StageManager : MonoBehaviour {
 
         if (m.Xpos == xPos && m.Ypos == yPos)
         {
-            return;
+            board[xPos, yPos].Set_MinoType(m.MinoType);
+            board[xPos, yPos].Set_MoveType(moveType);
         }
         else
             Clear_Mino(m);
@@ -1337,8 +1385,10 @@ public class StageManager : MonoBehaviour {
         m.Set_MinoType(MinoTypes.Empty);
         m.Set_MoveType(MoveTypes.None);
     }
-    void Add_Minos(Direction dir, int Refeat, int xLeft, int xRight, int yUp, int yDown)
+    bool Add_Minos(Direction dir, int Refeat, int xLeft, int xRight, int yUp, int yDown)
     {
+        bool isDead = false;
+
         for(int i =0; i < Refeat; i ++)
         {
             switch (dir)
@@ -1351,7 +1401,9 @@ public class StageManager : MonoBehaviour {
                             Mino m = board[x, y];
                             if (y == mapY - 1 - gapY && m.MinoType != MinoTypes.Empty && board[x, y + 1].MinoType != MinoTypes.Empty)
                             {
-                                ;// um.Open_GameOver();
+                                board[x, y + 1].Set_MinoType(m.MinoType);
+                                Clear_Mino(m);
+                                isDead = true;
                             }
                             else
                                 Move_Mino(m, m.Xpos, m.Ypos + 1, m.MoveType);
@@ -1372,7 +1424,9 @@ public class StageManager : MonoBehaviour {
                             Mino m = board[x, y];
                             if (y == gapY && m.MinoType != MinoTypes.Empty && board[x, y - 1].MinoType != MinoTypes.Empty)
                             {
-                                ;// um.Open_GameOver();
+                                board[x, y - 1].Set_MinoType(m.MinoType);
+                                Clear_Mino(m);
+                                isDead = true;
                             }
                             else
                                 Move_Mino(m, m.Xpos, m.Ypos - 1, m.MoveType);
@@ -1393,7 +1447,9 @@ public class StageManager : MonoBehaviour {
                             Mino m = board[x, y];
                             if (x == gapX && m.MinoType != MinoTypes.Empty && board[x-1, y].MinoType != MinoTypes.Empty)
                             {
-                                ;// um.Open_GameOver();
+                                board[x - 1, y ].Set_MinoType(m.MinoType);
+                                Clear_Mino(m);
+                                isDead = true;
                             }
                             else
                                 Move_Mino(m, m.Xpos - 1, m.Ypos, m.MoveType);
@@ -1414,7 +1470,9 @@ public class StageManager : MonoBehaviour {
                             Mino m = board[x, y];
                             if (x == mapX -1 - gapX && m.MinoType != MinoTypes.Empty && board[x + 1, y].MinoType != MinoTypes.Empty)
                             {
-                                ;// um.Open_GameOver();
+                                board[x + 1, y].Set_MinoType(m.MinoType);
+                                Clear_Mino(m);
+                                isDead = true;
                             }
                             else
                                 Move_Mino(m, m.Xpos + 1, m.Ypos, m.MoveType);
@@ -1431,6 +1489,7 @@ public class StageManager : MonoBehaviour {
                     break;
             }
         }
+        return isDead;
     }
 
     public void Set_Preview()

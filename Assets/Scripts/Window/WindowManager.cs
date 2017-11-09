@@ -12,6 +12,12 @@ public class WindowManager : MonoBehaviour {
     {
         foreach (Window w in windows)
             w.SetUp();
+
+        Get_window("Score").Off();
+        Get_window("Panel").On();
+        Get_window("Projector").On();
+        Get_window("GameOver").Off();
+        Get_window("GameStart").On();
     }
 
     #endregion
