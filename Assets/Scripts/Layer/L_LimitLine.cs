@@ -11,6 +11,8 @@ public class L_LimitLine : Layer {
     {
         Id = "LimitLine";
 
+        spriteRenderers = new List<SpriteRenderer>();
+
         foreach (GameObject gameObject in objects)
             spriteRenderers.Add(gameObject.GetComponent<SpriteRenderer>());
 

@@ -11,6 +11,8 @@ public class L_Axis : Layer {
     {
         Id = "Axis";
 
+        spriteRenderers = new List<SpriteRenderer>();
+
         foreach (GameObject gameObject in objects)
             spriteRenderers.Add(gameObject.GetComponent<SpriteRenderer>());
 

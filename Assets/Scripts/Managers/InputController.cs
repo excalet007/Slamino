@@ -67,7 +67,6 @@ public class InputController : MonoBehaviour {
             case GameState.Play:
                 if(!mm.Bgm.isPlaying)
                 {
-                    print("bgf over");
                     time += Time.deltaTime;
                     if (time >= 4)
                     {

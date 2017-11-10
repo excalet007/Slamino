@@ -11,6 +11,9 @@ public class L_Shadow : Layer {
     {
         Id = "Shadow";
 
+        spriteRenderers_corners = new List<SpriteRenderer>();
+        spriteRenderers_swipes = new List<SpriteRenderer>();
+
         foreach (GameObject gameObject in swipes)
             spriteRenderers_swipes.Add(gameObject.GetComponent<SpriteRenderer>());
         
@@ -25,15 +28,51 @@ public class L_Shadow : Layer {
         switch(Direction)
         {
             case 0:
+                spriteRenderers_swipes[0].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_swipes[1].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_swipes[2].color = new Color(1f, 1f, 1f, trans_Off);
+                spriteRenderers_swipes[3].color = new Color(1f, 1f, 1f, trans_Off);
+
+                spriteRenderers_corners[0].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_corners[1].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_corners[2].color = new Color(1f, 1f, 1f, trans_Off);
+                spriteRenderers_corners[3].color = new Color(1f, 1f, 1f, trans_Off);
                 break;
 
             case 1:
+                spriteRenderers_swipes[0].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_swipes[1].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_swipes[2].color = new Color(1f, 1f, 1f, trans_Off);
+                spriteRenderers_swipes[3].color = new Color(1f, 1f, 1f, trans_Off);
+
+                spriteRenderers_corners[0].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_corners[1].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_corners[2].color = new Color(1f, 1f, 1f, trans_Off);
+                spriteRenderers_corners[3].color = new Color(1f, 1f, 1f, trans_Off);
                 break;
 
             case 2:
+                spriteRenderers_swipes[0].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_swipes[1].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_swipes[2].color = new Color(1f, 1f, 1f, trans_Off);
+                spriteRenderers_swipes[3].color = new Color(1f, 1f, 1f, trans_Off);
+
+                spriteRenderers_corners[0].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_corners[1].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_corners[2].color = new Color(1f, 1f, 1f, trans_Off);
+                spriteRenderers_corners[3].color = new Color(1f, 1f, 1f, trans_Off);
                 break;
 
             case 3:
+                spriteRenderers_swipes[0].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_swipes[1].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_swipes[2].color = new Color(1f, 1f, 1f, trans_Off);
+                spriteRenderers_swipes[3].color = new Color(1f, 1f, 1f, trans_Off);
+
+                spriteRenderers_corners[0].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_corners[1].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers_corners[2].color = new Color(1f, 1f, 1f, trans_Off);
+                spriteRenderers_corners[3].color = new Color(1f, 1f, 1f, trans_Off);
                 break;
 
             default:
@@ -55,7 +94,7 @@ public class L_Shadow : Layer {
 
     #region Field
     float trans_On = 0.8f;
-    float trans_Off = 0.1f;
+    float trans_Off = 0f;
 
     /// <summary>
     /// Up,Down,Left,Right
