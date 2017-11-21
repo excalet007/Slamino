@@ -95,9 +95,6 @@
     <Compile Include="Assets\Scripts\Managers\StageManager.cs" />
     <Compile Include="Assets\Scripts\Managers\StateManager.cs" />
     <Compile Include="Assets\Scripts\MapCreating\MapInfo.cs" />
-    <Compile Include="Assets\Scripts\MapVisual\AxisZone.cs" />
-    <Compile Include="Assets\Scripts\MapVisual\QuadZone.cs" />
-    <Compile Include="Assets\Scripts\MapVisual\SwipeZone.cs" />
     <Compile Include="Assets\Scripts\Mino\ChainMino.cs" />
     <Compile Include="Assets\Scripts\Mino\Mino.cs" />
     <Compile Include="Assets\Scripts\Mino\Slamino.cs" />

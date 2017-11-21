@@ -22,6 +22,10 @@ public class StageManager : MonoBehaviour {
         w_score = WindowManager.Instance.Get_window("Score") as W_Score;
         w_gameOver = WindowManager.Instance.Get_window("GameOver") as W_GameOver;
 
+        l_Axis = LayerManager.Instance.Get_Layer("Axis") as L_Axis;
+        l_LimitLine = LayerManager.Instance.Get_Layer("LimitLine") as L_LimitLine;
+        l_Shadow = LayerManager.Instance.Get_Layer("Shadow") as L_Shadow;
+
         // ------------------------------Settings from game Manager------------------------------
         // This values will be loaded from gameManager (not yet)
         // map Size factor
@@ -65,10 +69,9 @@ public class StageManager : MonoBehaviour {
 
         transparency_blackLayer = 0.85f;
 
-        QuadZone.Chage_View(true, true, false, false, transparency_blackLayer);
-        SwipeZone.Chage_View(true, false, false, false, transparency_blackLayer);
-        AxisZone.Chage_View(true, false, 0.8f);
-        
+        l_Shadow.On(cur_DirIndex);
+        l_Axis.On(cur_DirIndex);
+        l_LimitLine.On(cur_DirIndex);
         // ------------------------------------------MapGenarating-----------------------------------
 
         Initialize_Board(mapX, mapY);
@@ -318,29 +321,25 @@ public class StageManager : MonoBehaviour {
 
         }
 
+
+        Set_QuadrantView(cur_DirIndex);
+        yield return new WaitForSeconds(timeAfterDrop * 0.7f);
+
         switch (cur_DirIndex)
         {
             case 0:
-                Set_QuadrantView(Direction.Up);
-                yield return new WaitForSeconds(timeAfterDrop * 0.7f);
                 HookUp();
                 break;
 
             case 1:
-                Set_QuadrantView(Direction.Down);
-                yield return new WaitForSeconds(timeAfterDrop * 0.7f);
                 HookDown();
                 break;
 
             case 2:
-                Set_QuadrantView(Direction.Left);
-                yield return new WaitForSeconds(timeAfterDrop * 0.7f);
                 HookLeft();
                 break;
 
             case 3:
-                Set_QuadrantView(Direction.Right);
-                yield return new WaitForSeconds(timeAfterDrop * 0.7f);
                 HookRight();
                 break;
 
@@ -401,15 +400,17 @@ public class StageManager : MonoBehaviour {
                     break;
 
                 case 2:
-                    if (Add_Minos(Direction.Left, 1, 0, 0, 3, 3))
+                    if (Add_Minos(Direction.Left, 2, 0, 0, 3, 3))
                         deadByAddMinos = true;
                     break;
 
                 case 3:
-                    if (Add_Minos(Direction.Right, 1, 0, 0, 3, 3))
+                    if (Add_Minos(Direction.Right, 2, 0, 0, 3, 3))
                         deadByAddMinos = true;
                     break;
             }
+
+            l_LimitLine.On_Warning(cur_DirIndex,Get_IsDanger(cur_DirIndex));
 
             if (Get_IsDropAble(cur_DirIndex) && !deadByAddMinos)
             {
@@ -465,11 +466,16 @@ public class StageManager : MonoBehaviour {
 
     // Manager & Controllers
     MusicManager mm;
+
     W_Score w_score;
     W_Proejctor w_projector;
     W_Panel w_panel;
     W_GameOver w_gameOver;
-    
+
+    L_Axis l_Axis;
+    L_LimitLine l_LimitLine;
+    L_Shadow l_Shadow;
+
     // prefabs for mapGenerating
     public GameObject minoPrefab;
 
@@ -1066,6 +1072,59 @@ public class StageManager : MonoBehaviour {
 
         return credit;
     }
+    int Get_IsDanger(int direction)
+    {
+        int num = 0;
+
+        switch(direction)
+        {
+            case 0:
+                for(int x = gapX; x < mapX - gapX - 1; x++)
+                {
+                    if (board[x, mapY - gapY - 1].MinoType != MinoTypes.Empty)
+                        return 2;
+                    else if (board[x, mapY - gapY - 1 - 1].MinoType != MinoTypes.Empty)
+                        return 1;
+                }
+                break;
+
+
+            case 1:
+                for (int x = gapX; x < mapX - gapX - 1; x++)
+                {
+                    if (board[x, gapY].MinoType != MinoTypes.Empty)
+                        return 2;
+                    else if (board[x, gapY +1].MinoType != MinoTypes.Empty)
+                        return 1;
+                }
+                break;
+
+
+            case 2:
+                for (int y = gapY; y < mapY - gapY -1 ; y++)
+                {
+                    if (board[gapX, y].MinoType != MinoTypes.Empty)
+                        return 2;
+                    else if (board[gapX +1, y].MinoType != MinoTypes.Empty)
+                        return 1;
+                }
+                break;
+
+
+            case 3:
+                for (int y = gapY; y < mapY - gapY - 1; y++)
+                {
+                    if (board[MapX - gapX -1, y].MinoType != MinoTypes.Empty)
+                        return 2;
+                    else if (board[mapX - gapX -1 - 1, y].MinoType != MinoTypes.Empty)
+                        return 1;
+                }
+                break;
+
+        }
+
+        return num;
+    }
 
     List<string> Get_Score_InDigit(int value)
     {
@@ -1235,34 +1294,11 @@ public class StageManager : MonoBehaviour {
         }
     }
     
-    void Set_QuadrantView(Direction dir)
+    void Set_QuadrantView(int direction)
     {
-        switch(dir)
-        {
-            case Direction.Up:
-                QuadZone.Chage_View(true, true, false, false, transparency_blackLayer);
-                SwipeZone.Chage_View(true, false, false, false, transparency_blackLayer);
-                AxisZone.Chage_View(true, false, 0.8f);
-                break;
-
-            case Direction.Down:
-                QuadZone.Chage_View(false, false, true, true, transparency_blackLayer);
-                SwipeZone.Chage_View(false, true, false, false, transparency_blackLayer);
-                AxisZone.Chage_View(true, false, 0.8f);
-                break;
-
-            case Direction.Left:
-                QuadZone.Chage_View(false, true, true, false, transparency_blackLayer);
-                SwipeZone.Chage_View(false, false, true, false, transparency_blackLayer);
-                AxisZone.Chage_View(false, true, 0.8f);
-                break;
-
-            case Direction.Right:
-                QuadZone.Chage_View(true, false, false, true, transparency_blackLayer);
-                SwipeZone.Chage_View(false, false, false, true, transparency_blackLayer);
-                AxisZone.Chage_View(false, true, 0.8f);
-                break;
-        }
+        l_Shadow.On(direction);
+        l_Axis.On(direction);
+        l_LimitLine.On(direction);
     }
 
     bool Get_IsDropAble(int sIndex)

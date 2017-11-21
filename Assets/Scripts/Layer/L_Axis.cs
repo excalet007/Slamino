@@ -21,12 +21,23 @@ public class L_Axis : Layer {
 
     public override void On(int Direction)
     {
-        for(int i =0; i<spriteRenderers.Count; i++)
+        switch(Direction)
         {
-            if (i == Direction)
-                spriteRenderers[i].color = new Color(1f, 1f, 1f, trans_On);
-            else
-                spriteRenderers[i].color = new Color(1f, 1f, 1f, trans_Off);
+            case 0:
+            case 1:
+                spriteRenderers[0].color = new Color(1f, 1f, 1f, trans_On);
+                spriteRenderers[1].color = new Color(1f, 1f, 1f, trans_Off);
+                break;
+                
+            case 2:
+            case 3:
+                spriteRenderers[0].color = new Color(1f, 1f, 1f, trans_Off);
+                spriteRenderers[1].color = new Color(1f, 1f, 1f, trans_On);
+                break;
+
+            default:
+                Debug.LogError("you input wrong direction");
+                break;
         }
     }
 
@@ -39,7 +50,7 @@ public class L_Axis : Layer {
     #endregion
 
     #region Field
-    float trans_On = 0.8f;
+    float trans_On = 0.6f;
     float trans_Off = 0.1f;
 
     /// <summary>
