@@ -409,9 +409,7 @@ public class StageManager : MonoBehaviour {
                         deadByAddMinos = true;
                     break;
             }
-
-            l_LimitLine.On_Warning(cur_DirIndex,Get_IsDanger(cur_DirIndex));
-
+            
             if (Get_IsDropAble(cur_DirIndex) && !deadByAddMinos)
             {
                 mm.Play_Score_Enter();
@@ -433,6 +431,8 @@ public class StageManager : MonoBehaviour {
                 GameState = GameState.LoadingGameOver;
             }
         }
+        
+        l_LimitLine.On_Warning(cur_DirIndex, Get_IsDanger(cur_DirIndex));
         yield return new WaitForSeconds(timeAfterDrop/2);
 
         // Visual Change as turn

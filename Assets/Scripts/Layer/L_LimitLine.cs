@@ -73,8 +73,8 @@ public class L_LimitLine : Layer {
     #endregion
 
     #region Field
-    float trans_On = 0.25f;
-    float trans_Off = 0.1f;
+    float trans_On = 0f;
+    float trans_Off = 0f;
 
     /// <summary>
     /// Up,Down,Left,Right Lines
