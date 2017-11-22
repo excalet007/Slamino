@@ -6,7 +6,9 @@
     Blue = 3,
     Red = 4,
     Orange = 5,
-    Pink = 6
+    Pink = 6,
+    Gray = 7,
+    Black = 8
 }
 
 public enum MoveTypes

@@ -258,6 +258,9 @@ public class StageManager : MonoBehaviour {
             mm.Bgm.Stop();
             mm.Play_Scratch(0);
             mm.Play_SpotLight(1);
+            
+            StartCoroutine(Run_MinoOver_Coroutine(cur_DirIndex));
+            yield return new WaitForSeconds(3f);
 
             WindowManager.Instance.Get_window("Score").Off();
             WindowManager.Instance.Get_window("Panel").On();
@@ -283,8 +286,9 @@ public class StageManager : MonoBehaviour {
             mm.Sfx_Projector.Stop();
             mm.Bgm.Stop();
             mm.Play_Scratch(0);
-
-            yield return new WaitForSeconds(0.5f);
+            
+            StartCoroutine(Run_MinoOver_Coroutine(cur_DirIndex));
+            yield return new WaitForSeconds(3f);
 
             mm.Play_SpotLight(1);
 
@@ -419,8 +423,9 @@ public class StageManager : MonoBehaviour {
                 mm.Sfx_Projector.Stop();
                 mm.Bgm.Stop();
                 mm.Play_Scratch(0);
-
-                yield return new WaitForSeconds(0.5f);
+                
+                StartCoroutine(Run_MinoOver_Coroutine(cur_DirIndex));
+                yield return new WaitForSeconds(3f);
 
                 mm.Play_SpotLight(1);
 
@@ -565,9 +570,7 @@ public class StageManager : MonoBehaviour {
 
     #endregion
 
-
-    
-    #region Utility Functions
+    #region Method
     public Mino Get_Board(int xPos, int yPos)
     {
         return board[xPos, yPos];
@@ -1394,6 +1397,73 @@ public class StageManager : MonoBehaviour {
         }
 
         return empty;
+    }
+    IEnumerator  Run_MinoOver_Coroutine(int direction)
+    {
+        switch(direction)
+        {
+            case 0:
+                for(int x = gapX; x <= MapY-gapX-1; x++)
+                {
+                    for(int y = upHor; y <= MapY - gapY -1; y++)
+                    {
+                        if(board[x,y].MinoType != MinoTypes.Empty)
+                        {
+                            board[x, y].Set_MinoType(MinoTypes.Black);
+                            yield return new WaitForSeconds(0.02f);
+                        }
+                    }
+                }
+                break;
+
+            case 1:
+                for (int x = gapX; x <= MapY - gapX - 1; x++)
+                {
+                    for (int y = downHor; y >= gapY; y--)
+                    {
+                        if (board[x, y].MinoType != MinoTypes.Empty)
+                        {
+                            board[x, y].Set_MinoType(MinoTypes.Black);
+                            yield return new WaitForSeconds(0.02f);
+                        }
+                    }
+                }
+                break;
+
+            case 2:
+                for (int y = MapY-gapY-1; y >= gapY; y--)
+                {
+                    for (int x = leftVer; x >= gapX; x--)
+                    {
+                        if (board[x, y].MinoType != MinoTypes.Empty)
+                        {
+                            board[x, y].Set_MinoType(MinoTypes.Black);
+                            yield return new WaitForSeconds(0.02f);
+                        }
+                    }
+                }
+                break;
+
+            case 3:
+                for (int y = MapY - gapY - 1; y >= gapY; y--)
+                {
+                    for (int x = rightVer; x <= MapX - gapX -1; x++)
+                    {
+                        if (board[x, y].MinoType != MinoTypes.Empty)
+                        {
+                            board[x, y].Set_MinoType(MinoTypes.Black);
+                            yield return new WaitForSeconds(0.02f);
+                        }
+                    }
+                }
+                break;
+
+            default:
+                Debug.LogError("U input wrong Number");
+                break;
+        }
+
+        yield return new WaitForSeconds(0f);
     }
 
     void Move_Mino(Mino m, int xPos, int yPos, MoveTypes moveType)
