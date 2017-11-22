@@ -1082,44 +1082,56 @@ public class StageManager : MonoBehaviour {
         switch(direction)
         {
             case 0:
-                for(int x = gapX; x < mapX - gapX - 1; x++)
+                for(int x = gapX; x <= mapX - gapX - 1; x++)
                 {
                     if (board[x, mapY - gapY - 1].MinoType != MinoTypes.Empty)
                         return 2;
-                    else if (board[x, mapY - gapY - 1 - 1].MinoType != MinoTypes.Empty)
+                }
+                for (int x = gapX; x <= mapX - gapX - 1; x++)
+                {
+                    if (board[x, mapY - gapY - 2].MinoType != MinoTypes.Empty)
                         return 1;
                 }
                 break;
 
 
             case 1:
-                for (int x = gapX; x < mapX - gapX - 1; x++)
+                for (int x = gapX; x <= mapX - gapX - 1; x++)
                 {
                     if (board[x, gapY].MinoType != MinoTypes.Empty)
                         return 2;
-                    else if (board[x, gapY +1].MinoType != MinoTypes.Empty)
+                }
+                for (int x = gapX; x <= mapX - gapX - 1; x++)
+                {
+                    if (board[x, gapY + 1].MinoType != MinoTypes.Empty)
                         return 1;
                 }
                 break;
 
 
             case 2:
-                for (int y = gapY; y < mapY - gapY -1 ; y++)
+                for (int y = gapY; y <= mapY - gapY -1 ; y++)
                 {
                     if (board[gapX, y].MinoType != MinoTypes.Empty)
                         return 2;
-                    else if (board[gapX +1, y].MinoType != MinoTypes.Empty)
+                }
+                for (int y = gapY; y <= mapY - gapY - 1; y++)
+                {
+                    if (board[gapX +1 , y].MinoType != MinoTypes.Empty)
                         return 1;
                 }
                 break;
 
 
             case 3:
-                for (int y = gapY; y < mapY - gapY - 1; y++)
+                for (int y = gapY; y <= mapY - gapY - 1; y++)
                 {
                     if (board[MapX - gapX -1, y].MinoType != MinoTypes.Empty)
                         return 2;
-                    else if (board[mapX - gapX -1 - 1, y].MinoType != MinoTypes.Empty)
+                }
+                for (int y = gapY; y <= mapY - gapY - 1; y++)
+                {
+                    if (board[MapX - gapX - 2, y].MinoType != MinoTypes.Empty)
                         return 1;
                 }
                 break;

@@ -104,6 +104,7 @@
     <Compile Include="Assets\Scripts\Window\W_Panel.cs" />
     <Compile Include="Assets\Scripts\Window\W_Proejctor.cs" />
     <Compile Include="Assets\Scripts\Window\W_Score.cs" />
+    <Compile Include="Assets\Scripts\Window\W_Tutorial.cs" />
     <Compile Include="Assets\Scripts\Window\Window.cs" />
     <Compile Include="Assets\Scripts\Window\WindowManager.cs" />
     <Compile Include="Assets\Scripts\enums.cs" />
