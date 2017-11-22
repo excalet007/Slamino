@@ -260,7 +260,7 @@ public class StageManager : MonoBehaviour {
             mm.Play_SpotLight(1);
             
             StartCoroutine(Run_MinoOver_Coroutine(cur_DirIndex));
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSeconds(2.5f);
 
             WindowManager.Instance.Get_window("Score").Off();
             WindowManager.Instance.Get_window("Panel").On();
@@ -288,7 +288,7 @@ public class StageManager : MonoBehaviour {
             mm.Play_Scratch(0);
             
             StartCoroutine(Run_MinoOver_Coroutine(cur_DirIndex));
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSeconds(2.5f);
 
             mm.Play_SpotLight(1);
 
@@ -425,7 +425,7 @@ public class StageManager : MonoBehaviour {
                 mm.Play_Scratch(0);
                 
                 StartCoroutine(Run_MinoOver_Coroutine(cur_DirIndex));
-                yield return new WaitForSeconds(3f);
+                yield return new WaitForSeconds(2.5f);
 
                 mm.Play_SpotLight(1);
 
@@ -1403,28 +1403,28 @@ public class StageManager : MonoBehaviour {
         switch(direction)
         {
             case 0:
-                for(int x = gapX; x <= MapY-gapX-1; x++)
+                for(int x = gapX; x <= MapX-gapX-1; x++)
                 {
-                    for(int y = upHor; y <= MapY - gapY -1; y++)
+                    for(int y = upHor; y <= MapY -1; y++)
                     {
                         if(board[x,y].MinoType != MinoTypes.Empty)
                         {
                             board[x, y].Set_MinoType(MinoTypes.Black);
-                            yield return new WaitForSeconds(0.02f);
+                            yield return new WaitForSeconds(0.015f);
                         }
                     }
                 }
                 break;
 
             case 1:
-                for (int x = gapX; x <= MapY - gapX - 1; x++)
+                for (int x = gapX; x <= MapX - gapX - 1; x++)
                 {
-                    for (int y = downHor; y >= gapY; y--)
+                    for (int y = downHor; y >= 0; y--)
                     {
                         if (board[x, y].MinoType != MinoTypes.Empty)
                         {
                             board[x, y].Set_MinoType(MinoTypes.Black);
-                            yield return new WaitForSeconds(0.02f);
+                            yield return new WaitForSeconds(0.015f);
                         }
                     }
                 }
@@ -1433,12 +1433,12 @@ public class StageManager : MonoBehaviour {
             case 2:
                 for (int y = MapY-gapY-1; y >= gapY; y--)
                 {
-                    for (int x = leftVer; x >= gapX; x--)
+                    for (int x = leftVer; x >= 0; x--)
                     {
                         if (board[x, y].MinoType != MinoTypes.Empty)
                         {
                             board[x, y].Set_MinoType(MinoTypes.Black);
-                            yield return new WaitForSeconds(0.02f);
+                            yield return new WaitForSeconds(0.015f);
                         }
                     }
                 }
@@ -1447,12 +1447,12 @@ public class StageManager : MonoBehaviour {
             case 3:
                 for (int y = MapY - gapY - 1; y >= gapY; y--)
                 {
-                    for (int x = rightVer; x <= MapX - gapX -1; x++)
+                    for (int x = rightVer; x <= MapX -1; x++)
                     {
                         if (board[x, y].MinoType != MinoTypes.Empty)
                         {
                             board[x, y].Set_MinoType(MinoTypes.Black);
-                            yield return new WaitForSeconds(0.02f);
+                            yield return new WaitForSeconds(0.015f);
                         }
                     }
                 }
@@ -1463,7 +1463,7 @@ public class StageManager : MonoBehaviour {
                 break;
         }
 
-        yield return new WaitForSeconds(0f);
+        yield return new WaitForSeconds(0.1f);
     }
 
     void Move_Mino(Mino m, int xPos, int yPos, MoveTypes moveType)
