@@ -391,17 +391,21 @@ public class StageManager : MonoBehaviour {
         {
             case 0:
                 HookUp();
+                HookDown();
                 break;
 
             case 1:
+                HookUp();
                 HookDown();
                 break;
 
             case 2:
                 HookLeft();
+                HookRight();
                 break;
 
             case 3:
+                HookLeft();
                 HookRight();
                 break;
 
@@ -409,6 +413,7 @@ public class StageManager : MonoBehaviour {
                 Debug.LogError("Wrong cur_DirIndex Number. Check!");
                 break;
         }
+        Reset_Minos_Movement();
 
         //Scoring Initialize
         if (isPop_Turn)
