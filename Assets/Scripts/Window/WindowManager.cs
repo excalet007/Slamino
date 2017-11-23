@@ -14,6 +14,7 @@ public class WindowManager : MonoBehaviour {
             w.SetUp();
 
         Get_window("Score").Off();
+        Get_window("Tutorial").Off();
         Get_window("Panel").On();
         Get_window("Projector").On();
         Get_window("GameOver").Off();

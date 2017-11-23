@@ -28,14 +28,16 @@ public class W_GameOver : Window {
     #endregion
 
     #region Field
-    /// <summary>
-    /// Total Score, Credit
-    /// </summary>
     public Text[] texts;
     #endregion
 
     #region Method
 
+    /// <summary>
+    /// 0 = total Score, 1 = top Score
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="value"></param>
     public void Input(int index, float value)
     {
         texts[index].text = value.ToString();

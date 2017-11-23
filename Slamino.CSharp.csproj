@@ -82,8 +82,12 @@
     <Reference Include="UnityEditor.iOS.Extensions.Common">
       <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Common.dll</HintPath>
     </Reference>
+    <Reference Include="JsonFx.Json">
+      <HintPath>Assets\Plugins\JsonFx.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Data\Json.cs" />
     <Compile Include="Assets\Scripts\Layer\L_Axis.cs" />
     <Compile Include="Assets\Scripts\Layer\L_LimitLine.cs" />
     <Compile Include="Assets\Scripts\Layer\L_Shadow.cs" />

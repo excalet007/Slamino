@@ -20,6 +20,7 @@ public class StageManager : MonoBehaviour {
         mm.SetUp();
 
         w_score = WindowManager.Instance.Get_window("Score") as W_Score;
+        w_tutorial = WindowManager.Instance.Get_window("Tutorial") as W_Tutorial;
         w_gameOver = WindowManager.Instance.Get_window("GameOver") as W_GameOver;
 
         l_Axis = LayerManager.Instance.Get_Layer("Axis") as L_Axis;
@@ -44,7 +45,22 @@ public class StageManager : MonoBehaviour {
         mm.Change_Volume(mm.Sfx_Score_Tap, 0.5f);
         mm.Change_Volume(mm.Sfx_Score_Enter, 0.6f);
         mm.Change_PopStartPoint(1);
-        
+        // -----------------------------------Loading Values ------------------------------------------//
+        print(Application.persistentDataPath);
+
+        if (Json.Check_Exsits("PlayData"))
+        {
+            string strJson = Json.Load("PlayData");
+            Dictionary<string, object> json = Json.Read(strJson);
+
+            data_PlayedGame = (int)json["PlayedGame"];
+            data_TopScore = (int)json["TopScore"];
+        }
+        else
+        {
+            data_PlayedGame = 0;
+            data_TopScore = 0;
+        }
         // -----------------------------------Initialize Variables----------------------------------------
 
         cMinos = new List<ChainMino>();
@@ -80,6 +96,12 @@ public class StageManager : MonoBehaviour {
         Initialize_Slaminos(true);
 
         // --------------------------------------------Visual Additional Set ---------------------------
+        if(data_PlayedGame == 0)
+        {
+            w_tutorial.On();
+            w_tutorial.On(cur_DirIndex);
+        }
+
         Set_Preview();
     }
 
@@ -109,7 +131,7 @@ public class StageManager : MonoBehaviour {
 
         //Curround
         w_score.Input(3, curRound);
-
+        
         //Push Setting
         Set_PushDirectioin(DirIndex);
 
@@ -254,6 +276,24 @@ public class StageManager : MonoBehaviour {
         // Check Is Game Over -> but it's very unique case
         if (!Get_IsDropAble(cur_DirIndex))
         {
+            //--------Game Over & Save Data------------------------------------
+            w_gameOver.Input(0, totalScore);
+
+            data_PlayedGame++;
+            if (totalScore > data_TopScore)
+                data_TopScore = totalScore;
+
+            w_gameOver.Input(1, data_TopScore);
+
+            Dictionary<string, object> json = new Dictionary<string, object>();
+            json.Add("PlayedGame", data_PlayedGame);
+            json.Add("TopScore", data_TopScore);
+
+            string strJson = Json.Write(json);
+
+            Json.Save("PlayData", strJson);
+            //-----------------------------------------------------------------------------
+
             mm.Sfx_Projector.Stop();
             mm.Bgm.Stop();
             mm.Play_Scratch(0);
@@ -283,6 +323,24 @@ public class StageManager : MonoBehaviour {
         }
         else
         {
+            //--------Game Over & Save Data------------------------------------
+            w_gameOver.Input(0, totalScore);
+
+            data_PlayedGame++;
+            if (totalScore > data_TopScore)
+                data_TopScore = totalScore;
+
+            w_gameOver.Input(1, data_TopScore);
+
+            Dictionary<string, object> json = new Dictionary<string, object>();
+            json.Add("PlayedGame", data_PlayedGame);
+            json.Add("TopScore", data_TopScore);
+
+            string strJson = Json.Write(json);
+
+            Json.Save("PlayData", strJson);
+            //-----------------------------------------------------------------------------
+
             mm.Sfx_Projector.Stop();
             mm.Bgm.Stop();
             mm.Play_Scratch(0);
@@ -326,7 +384,7 @@ public class StageManager : MonoBehaviour {
         }
 
 
-        Set_QuadrantView(cur_DirIndex);
+        Set_QuadrantView(cur_DirIndex);        
         yield return new WaitForSeconds(timeAfterDrop * 0.7f);
 
         switch (cur_DirIndex)
@@ -365,15 +423,17 @@ public class StageManager : MonoBehaviour {
         // TotalScore Line Update
         if (turnScore != 0)
             w_score.Override_BottomToTop();
-
-        //Yame
-        w_gameOver.Input(0, totalScore);
-
         yield return new WaitForSeconds(timeAfterDrop/2);
 
         curTurn++;
         if ((curTurn % 4) - 1 == 0)
             curRound++;
+
+        // Tutorials
+        if (data_PlayedGame == 0 && curRound == 1)
+            w_tutorial.On(cur_DirIndex);
+        else
+            w_tutorial.Off();
 
         // color change
         switch (curRound)
@@ -420,6 +480,24 @@ public class StageManager : MonoBehaviour {
             }
             else
             {
+                //--------Game Over & Save Data------------------------------------
+                w_gameOver.Input(0, totalScore);
+
+                data_PlayedGame++;
+                if (totalScore > data_TopScore)
+                    data_TopScore = totalScore;
+
+                w_gameOver.Input(1, data_TopScore);
+
+                Dictionary<string, object> json = new Dictionary<string, object>();
+                json.Add("PlayedGame", data_PlayedGame);
+                json.Add("TopScore", data_TopScore);
+
+                string strJson = Json.Write(json);
+
+                Json.Save("PlayData", strJson);
+                //-----------------------------------------------------------------------------
+
                 mm.Sfx_Projector.Stop();
                 mm.Bgm.Stop();
                 mm.Play_Scratch(0);
@@ -473,6 +551,7 @@ public class StageManager : MonoBehaviour {
     MusicManager mm;
 
     W_Score w_score;
+    W_Tutorial w_tutorial;
     W_Proejctor w_projector;
     W_Panel w_panel;
     W_GameOver w_gameOver;
@@ -536,6 +615,8 @@ public class StageManager : MonoBehaviour {
     int curRound;
 
     int totalScore;
+    int data_TopScore;
+    int data_PlayedGame;
 
     int pop_Turn_Count;
     int pop_Chain_Count;
