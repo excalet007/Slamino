@@ -1,4 +1,4 @@
-	[Note]
+
 	Hello! Thx for playing! :) 
 	
 	[GamePlay _ keycode]
@@ -7,7 +7,7 @@
 	drop block : space button
 	click button : mouce click
 
-	2. Android
+	2. Android // Not yet. Sry lol
 	move & drop : swipe and untouch
 	click button : touch
 
@@ -17,7 +17,7 @@
 	GitHub : https://github.com/excalet007/Slamino
 	
 	[License]
-	1.Graphic
+	1.Art
 	1) Block Art
 	* http://johnmarinedesigns.weebly.com
 	* http://www.facebook.com/TheJohnMarine

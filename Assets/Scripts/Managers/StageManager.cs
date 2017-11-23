@@ -438,11 +438,11 @@ public class StageManager : MonoBehaviour {
         // color change
         switch (curRound)
         {
-            case 7:
+            case 5:
                 minoVariety = 5;
                 break;
 
-            case 18:
+            case 10:
                 minoVariety = 6;
                 break;
         }
