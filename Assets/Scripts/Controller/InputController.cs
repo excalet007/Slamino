@@ -94,6 +94,16 @@ public class InputController : MonoBehaviour {
                         isDraging = true;
                         tap = true;
                         startTouch = Input.touches[0].position;
+
+                        temp_x0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos;
+                        temp_y0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos;
+
+                        temp_x1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Xpos;
+                        temp_y1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Ypos;
+
+                        temp_0 = sm.sMinos[sm.Cur_DirIndex].minos[0].MinoType;
+                        temp_1 = sm.sMinos[sm.Cur_DirIndex].minos[1].MinoType;
+
                     }
                     else if(Input.touches[0].phase == TouchPhase.Ended || Input.touches[0].phase == TouchPhase.Canceled)
                     {
@@ -122,122 +132,186 @@ public class InputController : MonoBehaviour {
                     {
                         if (Input.touches.Length > 0)
                             swipeDelta = Input.touches[0].position - startTouch;
-                    }
-
-                    // Deadzone Check
-                    if(swipeDelta.magnitude > 200 * (1+damper))
-                    {
-                        damper++;
-
-                        //which direction?
-                        float x = swipeDelta.x;
-                        float y = swipeDelta.y;
 
                         switch (sm.Cur_DirIndex)
                         {
                             case 0:
                             case 1:
-                                if(x>0)
+                                int movement = (int)(swipeDelta.x / sensitivity);
+
+                                if (temp_x0 + movement != sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos)
                                 {
-                                    if (sm.sMinos[sm.Cur_DirIndex].minos[1].Xpos < sm.MapX - 2)
+                                    if ((temp_x0 + movement > 0) && (temp_x0 + movement < sm.MapX - 2))
                                     {
-                                        int x0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos;
-                                        int y0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos;
+                                        MoveTypes move0 = sm.sMinos[sm.Cur_DirIndex].minos[0].MoveType;
+                                        MoveTypes move1 = sm.sMinos[sm.Cur_DirIndex].minos[1].MoveType;
 
-                                        int x1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Xpos;
-                                        int y1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Ypos;
+                                        Mino m0 = sm.Board[temp_x0 + movement, temp_y0];
+                                        Mino m1 = sm.Board[temp_x1 + movement, temp_y1];
 
-                                        Mino m0 = sm.Board[x0 + 1, y0];
-                                        Mino m1 = sm.Board[x1 + 1, y1];
-                                        Mino m2 = sm.Board[x0, y0];
-
-                                        m1.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[1].MinoType);
-                                        m0.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[0].MinoType);
-                                        m2.Set_MinoType(MinoTypes.Empty);
+                                        sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(MinoTypes.Empty);
+                                        sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(MinoTypes.Empty);
 
                                         sm.sMinos[sm.Cur_DirIndex].minos[0] = m0;
                                         sm.sMinos[sm.Cur_DirIndex].minos[1] = m1;
+
+                                        sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(temp_0);
+                                        sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(temp_1);
                                     }
+                                    sm.Set_Preview();
                                 }
-                                else if(x<0)
-                                {
-                                    if (sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos > 1)
-                                    {
-                                        int x0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos;
-                                        int y0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos;
 
-                                        int x1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Xpos;
-                                        int y1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Ypos;
-
-                                        Mino m0 = sm.Board[x0 - 1, y0];
-                                        Mino m1 = sm.Board[x1 - 1, y1];
-                                        Mino m2 = sm.Board[x1, y1];
-
-                                        m0.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[0].MinoType);
-                                        m1.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[1].MinoType);
-                                        m2.Set_MinoType(MinoTypes.Empty);
-
-                                        sm.sMinos[sm.Cur_DirIndex].minos[0] = m0;
-                                        sm.sMinos[sm.Cur_DirIndex].minos[1] = m1;
-                                    }
-                                }
-                                sm.Set_Preview();
                                 break;
 
                             case 2:
                             case 3:
-                                if(y>0)
+                                int movement2 = (int)(swipeDelta.y / sensitivity);
+
+                                if (temp_y0 + movement2 != sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos)
                                 {
-                                    if (sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos < sm.MapY - 2)
+                                    if ((temp_y0 + movement2 > 1) && (temp_y0 + movement2 < sm.MapY - 1))
                                     {
-                                        int x0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos;
-                                        int y0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos;
+                                        MoveTypes move0 = sm.sMinos[sm.Cur_DirIndex].minos[0].MoveType;
+                                        MoveTypes move1 = sm.sMinos[sm.Cur_DirIndex].minos[1].MoveType;
 
-                                        int x1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Xpos;
-                                        int y1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Ypos;
+                                        Mino m0 = sm.Board[temp_x0, temp_y0 + movement2];
+                                        Mino m1 = sm.Board[temp_x1, temp_y1 + movement2];
 
-                                        Mino m0 = sm.Board[x0, y0 + 1];
-                                        Mino m1 = sm.Board[x1, y1 + 1];
-                                        Mino m2 = sm.Board[x1, y1];
-
-                                        m0.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[0].MinoType);
-                                        m1.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[1].MinoType);
-                                        m2.Set_MinoType(MinoTypes.Empty);
+                                        sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(MinoTypes.Empty);
+                                        sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(MinoTypes.Empty);
 
                                         sm.sMinos[sm.Cur_DirIndex].minos[0] = m0;
                                         sm.sMinos[sm.Cur_DirIndex].minos[1] = m1;
+
+                                        sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(temp_0);
+                                        sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(temp_1);
                                     }
+                                    sm.Set_Preview();
                                 }
-                                if(y<0)
-                                {
-                                    if (sm.sMinos[sm.Cur_DirIndex].minos[1].Ypos > 1)
-                                    {
-                                        int x0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos;
-                                        int y0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos;
 
-                                        int x1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Xpos;
-                                        int y1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Ypos;
-
-                                        Mino m0 = sm.Board[x0, y0 - 1];
-                                        Mino m1 = sm.Board[x1, y1 - 1];
-                                        Mino m2 = sm.Board[x0, y0];
-
-                                        m1.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[1].MinoType);
-                                        m0.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[0].MinoType);
-                                        m2.Set_MinoType(MinoTypes.Empty);
-
-                                        sm.sMinos[sm.Cur_DirIndex].minos[0] = m0;
-                                        sm.sMinos[sm.Cur_DirIndex].minos[1] = m1;
-                                    }
-                                }
-                                sm.Set_Preview();
-                                break;
-
-                            default:
-                                Debug.LogError("Youur touch input is wrong");
                                 break;
                         }
                     }
+
+
+                    
+
+                    // New Logic
+
+                    // Deadzone Check
+                    //if(swipeDelta.magnitude > 175 * (1+damper))
+                    //{
+                    //    damper++;
+
+                    //    //which direction?
+                    //    float x = swipeDelta.x;
+                    //    float y = swipeDelta.y;
+
+                    //    switch (sm.Cur_DirIndex)
+                    //    {
+                    //        case 0:
+                    //        case 1:
+                    //            if(x>0)
+                    //            {
+                    //                if (sm.sMinos[sm.Cur_DirIndex].minos[1].Xpos < sm.MapX - 2)
+                    //                {
+                    //                    int x0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos;
+                    //                    int y0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos;
+
+                    //                    int x1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Xpos;
+                    //                    int y1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Ypos;
+
+                    //                    Mino m0 = sm.Board[x0 + 1, y0];
+                    //                    Mino m1 = sm.Board[x1 + 1, y1];
+                    //                    Mino m2 = sm.Board[x0, y0];
+
+                    //                    m1.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[1].MinoType);
+                    //                    m0.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[0].MinoType);
+                    //                    m2.Set_MinoType(MinoTypes.Empty);
+
+                    //                    sm.sMinos[sm.Cur_DirIndex].minos[0] = m0;
+                    //                    sm.sMinos[sm.Cur_DirIndex].minos[1] = m1;
+                    //                }
+                    //            }
+                    //            else if(x<0)
+                    //            {
+                    //                if (sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos > 1)
+                    //                {
+                    //                    int x0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos;
+                    //                    int y0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos;
+
+                    //                    int x1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Xpos;
+                    //                    int y1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Ypos;
+
+                    //                    Mino m0 = sm.Board[x0 - 1, y0];
+                    //                    Mino m1 = sm.Board[x1 - 1, y1];
+                    //                    Mino m2 = sm.Board[x1, y1];
+
+                    //                    m0.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[0].MinoType);
+                    //                    m1.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[1].MinoType);
+                    //                    m2.Set_MinoType(MinoTypes.Empty);
+
+                    //                    sm.sMinos[sm.Cur_DirIndex].minos[0] = m0;
+                    //                    sm.sMinos[sm.Cur_DirIndex].minos[1] = m1;
+                    //                }
+                    //            }
+                    //            sm.Set_Preview();
+                    //            break;
+
+                    //        case 2:
+                    //        case 3:
+                    //            if(y>0)
+                    //            {
+                    //                if (sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos < sm.MapY - 2)
+                    //                {
+                    //                    int x0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos;
+                    //                    int y0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos;
+
+                    //                    int x1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Xpos;
+                    //                    int y1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Ypos;
+
+                    //                    Mino m0 = sm.Board[x0, y0 + 1];
+                    //                    Mino m1 = sm.Board[x1, y1 + 1];
+                    //                    Mino m2 = sm.Board[x1, y1];
+
+                    //                    m0.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[0].MinoType);
+                    //                    m1.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[1].MinoType);
+                    //                    m2.Set_MinoType(MinoTypes.Empty);
+
+                    //                    sm.sMinos[sm.Cur_DirIndex].minos[0] = m0;
+                    //                    sm.sMinos[sm.Cur_DirIndex].minos[1] = m1;
+                    //                }
+                    //            }
+                    //            if(y<0)
+                    //            {
+                    //                if (sm.sMinos[sm.Cur_DirIndex].minos[1].Ypos > 1)
+                    //                {
+                    //                    int x0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos;
+                    //                    int y0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos;
+
+                    //                    int x1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Xpos;
+                    //                    int y1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Ypos;
+
+                    //                    Mino m0 = sm.Board[x0, y0 - 1];
+                    //                    Mino m1 = sm.Board[x1, y1 - 1];
+                    //                    Mino m2 = sm.Board[x0, y0];
+
+                    //                    m1.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[1].MinoType);
+                    //                    m0.Set_MinoType(sm.sMinos[sm.Cur_DirIndex].minos[0].MinoType);
+                    //                    m2.Set_MinoType(MinoTypes.Empty);
+
+                    //                    sm.sMinos[sm.Cur_DirIndex].minos[0] = m0;
+                    //                    sm.sMinos[sm.Cur_DirIndex].minos[1] = m1;
+                    //                }
+                    //            }
+                    //            sm.Set_Preview();
+                    //            break;
+
+                    //        default:
+                    //            Debug.LogError("Youur touch input is wrong");
+                    //            break;
+                    //    }
+                    //}
 
                     
                 }
@@ -476,7 +550,12 @@ public class InputController : MonoBehaviour {
 
     private Vector2 startTouch, swipeDelta;
     private int damper;
-    
+
+    // Starting Information
+    int temp_x0, temp_x1, temp_y0, temp_y1;
+    MinoTypes temp_0, temp_1;
+    float sensitivity = 120f;
+
     private void Reset()
     {
         startTouch = swipeDelta = Vector2.zero;
