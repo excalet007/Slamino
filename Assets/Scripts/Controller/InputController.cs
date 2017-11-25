@@ -90,6 +90,7 @@ public class InputController : MonoBehaviour {
                 {
                     if(Input.touches[0].phase == TouchPhase.Began)
                     {
+                        damper = 0;
                         isDraging = true;
                         tap = true;
                         startTouch = Input.touches[0].position;
@@ -124,8 +125,10 @@ public class InputController : MonoBehaviour {
                     }
 
                     // Deadzone Check
-                    if(swipeDelta.magnitude > 500)
+                    if(swipeDelta.magnitude > 200 * (1+damper))
                     {
+                        damper++;
+
                         //which direction?
                         float x = swipeDelta.x;
                         float y = swipeDelta.y;
@@ -472,6 +475,7 @@ public class InputController : MonoBehaviour {
     private bool isDraging = false;
 
     private Vector2 startTouch, swipeDelta;
+    private int damper;
     
     private void Reset()
     {
