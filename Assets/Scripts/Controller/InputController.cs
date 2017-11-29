@@ -36,8 +36,7 @@ public class InputController : MonoBehaviour {
                 if(Input.GetKeyDown(KeyCode.Space) || Input.touchCount > 0)
                 {
                     mm.Play_SpotLight(1);
-
-                    mm.Change_Volume(mm.Sfx_Projector, 0.50f);
+                    
                     mm.Play_Projector(0);
 
                     WindowManager.Instance.Get_window("Projector").Off();

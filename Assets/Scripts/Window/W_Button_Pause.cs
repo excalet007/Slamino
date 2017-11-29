@@ -36,6 +36,7 @@ public class W_Button_Pause : Window {
         if(sm.GameState == GameState.Play && sm.OnCycle == false)
         {
             SetAcitve_GameBoard(false);
+            sm.isPaused = true;
 
             Off();
             wm.Get_window("Pause").On();

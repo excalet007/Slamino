@@ -39,11 +39,8 @@ public class StageManager : MonoBehaviour {
 
         // mino variaty (green, red, yellow, blue)
         minoVariety = 4;
-        mm.Change_Volume(mm.Bgm, 0.6f);
-        mm.Change_Volume(mm.Sfx_Drop, 0.4f);
-        mm.Change_Volume(mm.Sfx_Pop, 0.5f);
-        mm.Change_Volume(mm.Sfx_Score_Tap, 0.5f);
-        mm.Change_Volume(mm.Sfx_Score_Enter, 0.6f);
+
+        // Sound StartSetting
         mm.Change_PopStartPoint(1);
         // -----------------------------------Loading Values ------------------------------------------//
         print(Application.persistentDataPath);
@@ -105,16 +102,22 @@ public class StageManager : MonoBehaviour {
         Set_Preview();
     }
 
+
+    // handle Time Check
+    public bool isPaused = false;
     float playTime = 0;
+
     void Update()
     {
-        playTime += Time.deltaTime;
-        int sec = (int)playTime % 60;
-        int min = (int)playTime / 60;
+        if (GameState == GameState.Play && isPaused == false)
+        {
+            playTime += Time.deltaTime;
+            int sec = (int)playTime % 60;
+            int min = (int)playTime / 60;
 
-        string time = min.ToString() + ":" + sec.ToString();
-
-        w_score.Input(4, time);
+            string time = min.ToString() + ":" + sec.ToString();
+            w_score.Input(4, time);
+        }
     }
     #endregion
 
@@ -621,7 +624,7 @@ public class StageManager : MonoBehaviour {
 
     int totalScore;
     int data_TopScore;
-    int data_PlayedGame;
+    public int data_PlayedGame;
 
     int pop_Turn_Count;
     int pop_Chain_Count;

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MusicManager : MonoBehaviour {
     
@@ -28,6 +29,10 @@ public class MusicManager : MonoBehaviour {
     int pop_StartPoint;
     int pop_CurPoint;
 
+    // Volume Slider
+    public Slider slider_BGM;
+    public Slider slider_SFX;
+    
     // Speakers
     AudioSource bgm;
     AudioSource sfx_Drop;
@@ -70,8 +75,7 @@ public class MusicManager : MonoBehaviour {
     { get { return sfx_Scratch; } }
     public AudioSource Sfx_Swipe
     { get { return sfx_Swipe; } }
-
-
+    
     // Music Clip lists
     public List<AudioClip> bgmList;
     public List<AudioClip> sfx_DropList;
@@ -83,8 +87,7 @@ public class MusicManager : MonoBehaviour {
     public List<AudioClip> sfx_CheerList;
     public List<AudioClip> sfx_ScratchList;
     public List<AudioClip> sfx_SwipeList;
-
-
+    
     public void SetUp()
     {
         bgm = this.gameObject.AddComponent<AudioSource>();
@@ -96,7 +99,7 @@ public class MusicManager : MonoBehaviour {
         sfx_SpotLight = this.gameObject.AddComponent<AudioSource>();
         sfx_Cheer = this.gameObject.AddComponent<AudioSource>();
         sfx_Scratch = this.gameObject.AddComponent<AudioSource>();
-        sfx_Swipe = this.gameObject.AddComponent<AudioSource>(); 
+        sfx_Swipe = this.gameObject.AddComponent<AudioSource>();
 
         bgm.playOnAwake = false;
         sfx_Drop.playOnAwake = false;
@@ -116,6 +119,14 @@ public class MusicManager : MonoBehaviour {
         sfx_Pop.clip = sfx_PopList[0];
         sfx_Score_Tap.clip = sfx_Score_TapList[0];
         sfx_Score_Enter.clip = sfx_Score_EnterList[1];
+
+        if (Json.Check_Exsits("PlayData") == false && PlayerPrefs.GetFloat("Volume_BGM") == 0 && PlayerPrefs.GetFloat("Volume_SFX") == 0)
+        {
+            PlayerPrefs.SetFloat("Volume_BGM", 1f);
+            PlayerPrefs.SetFloat("Volume_SFX", 1f);
+        }
+        slider_BGM.value = PlayerPrefs.GetFloat("Volume_BGM");
+        slider_SFX.value = PlayerPrefs.GetFloat("Volume_SFX");
     }
 
     public void Play_BGM()
@@ -171,7 +182,7 @@ public class MusicManager : MonoBehaviour {
     {
         sfx_Score_Enter.Play();
     }
-
+    
     /// <summary>
     /// 0 = on, 1 = loop
     /// </summary>
@@ -215,10 +226,29 @@ public class MusicManager : MonoBehaviour {
         sfx_Swipe.clip = sfx_SwipeList[index];
         sfx_Swipe.Play();
     }
-
-    public void Change_Volume(AudioSource target, float size)
+    
+    public void Change_Volume_BGM()
     {
-        target.volume = size;
+        float value = slider_BGM.value;
+        PlayerPrefs.SetFloat("Volume_BGM", value);
+
+        bgm.volume = 1 * value;
+    }
+
+    public void Change_Volume_SFX()
+    {
+        float value = slider_SFX.value;
+        PlayerPrefs.SetFloat("Volume_SFX", value);
+
+        sfx_Drop.volume = 1 * value;
+        sfx_Pop. volume = 1 * value;
+        sfx_Score_Tap. volume = 1 * value;
+        sfx_Score_Enter. volume = 1 * value;
+        sfx_Projector. volume = 1 * value;
+        sfx_SpotLight. volume = 1* value;
+        sfx_Cheer. volume = 1* value;
+        sfx_Scratch. volume = 1* value;
+        sfx_Swipe. volume = 1* value;
     }
 
     public void Change_PopStartPoint(int index)
