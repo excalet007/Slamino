@@ -42,6 +42,9 @@ public class W_Pause : Window {
     {
         Off();
 
+        if (!Json.Check_Exsits("PlayData"))
+            wm.Get_window("Tutorial").On();
+
         W_Button_Pause w_button_pause = wm.Get_window("Button_Pause") as W_Button_Pause;
         w_button_pause.SetAcitve_GameBoard(true);
         wm.Get_window("Button_Pause").On();

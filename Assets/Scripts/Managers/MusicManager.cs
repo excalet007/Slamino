@@ -233,6 +233,7 @@ public class MusicManager : MonoBehaviour {
         PlayerPrefs.SetFloat("Volume_BGM", value);
 
         bgm.volume = 1 * value;
+        sfx_Projector.volume = 1 * value;
     }
 
     public void Change_Volume_SFX()
@@ -244,7 +245,6 @@ public class MusicManager : MonoBehaviour {
         sfx_Pop. volume = 1 * value;
         sfx_Score_Tap. volume = 1 * value;
         sfx_Score_Enter. volume = 1 * value;
-        sfx_Projector. volume = 1 * value;
         sfx_SpotLight. volume = 1* value;
         sfx_Cheer. volume = 1* value;
         sfx_Scratch. volume = 1* value;
