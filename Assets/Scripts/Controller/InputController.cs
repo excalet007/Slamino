@@ -64,6 +64,7 @@ public class InputController : MonoBehaviour {
                     WindowManager.Instance.Get_window("Score").On();
                     WindowManager.Instance.Get_window("Panel").Off();
                     WindowManager.Instance.Get_window("Projector").On();
+                    WindowManager.Instance.Get_window("Button_Pause").On();
 
                     sm.GameState = GameState.Play;
                     mm.Play_BGM();
@@ -539,6 +540,25 @@ public class InputController : MonoBehaviour {
     #endregion
 
     #region Field & Method
+    private static InputController instance;
+    public static InputController Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindObjectOfType<InputController>();
+                if (instance == null)
+                {
+                    GameObject container = new GameObject();
+                    container.name = "InputController";
+                    instance = container.AddComponent<InputController>();
+                }
+            }
+            return instance;
+        }
+    }
+
     private StageManager sm;
     private MusicManager mm;
     private float time;

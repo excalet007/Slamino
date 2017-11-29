@@ -48,7 +48,7 @@ public class W_GameOver : Window {
         texts[index].text = s;
     }
 
-    public void Touch_Retry()
+    public void Click_Retry()
     {
         SceneManager.LoadScene("Stage");
     }

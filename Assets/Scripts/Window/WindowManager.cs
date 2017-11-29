@@ -17,6 +17,10 @@ public class WindowManager : MonoBehaviour {
         Get_window("Tutorial").Off();
         Get_window("Panel").On();
         Get_window("Projector").On();
+        Get_window("Button_Pause").Off();
+        Get_window("Pause").Off();
+        Get_window("Restart").Off();
+        Get_window("Credit").Off();
         Get_window("GameOver").Off();
         Get_window("GameStart").On();
     }
