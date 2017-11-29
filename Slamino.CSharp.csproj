@@ -103,6 +103,7 @@
     <Compile Include="Assets\Scripts\Mino\ChainMino.cs" />
     <Compile Include="Assets\Scripts\Mino\Mino.cs" />
     <Compile Include="Assets\Scripts\Mino\Slamino.cs" />
+    <Compile Include="Assets\Scripts\PositionChecker.cs" />
     <Compile Include="Assets\Scripts\State.cs" />
     <Compile Include="Assets\Scripts\Window\Buttons_Window.cs" />
     <Compile Include="Assets\Scripts\Window\W_Button_Pause.cs" />

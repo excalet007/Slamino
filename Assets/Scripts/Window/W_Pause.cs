@@ -10,6 +10,8 @@ public class W_Pause : Window {
     {
         Id = "Pause";
         wm = WindowManager.Instance;
+        ic = InputController.Instance;
+        sm = StageManager.Instance;
     }
 
     public override void On()
@@ -25,7 +27,9 @@ public class W_Pause : Window {
     
     #region Field & Method
     WindowManager wm;
-    
+    InputController ic;
+    StageManager sm;
+
     public void Click_Credit()
     {
         Off();
@@ -42,14 +46,15 @@ public class W_Pause : Window {
     {
         Off();
 
-        if (!Json.Check_Exsits("PlayData"))
+        if (!Json.Check_Exsits("PlayData") && StageManager.Instance.Cur_Round <= 4)
             wm.Get_window("Tutorial").On();
 
         W_Button_Pause w_button_pause = wm.Get_window("Button_Pause") as W_Button_Pause;
         w_button_pause.SetAcitve_GameBoard(true);
         wm.Get_window("Button_Pause").On();
 
-        StageManager.Instance.isPaused = false;
+        sm.isPaused = false;
+        ic.isPuased = false;
     }
 
     #endregion

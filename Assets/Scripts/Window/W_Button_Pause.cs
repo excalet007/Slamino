@@ -11,6 +11,7 @@ public class W_Button_Pause : Window {
         Id = "Button_Pause";
         sm = StageManager.Instance;
         wm = WindowManager.Instance;
+        ic = InputController.Instance;
     }
 
     public override void On()
@@ -28,6 +29,7 @@ public class W_Button_Pause : Window {
     #region Field & Method
     StageManager sm;
     WindowManager wm;
+    InputController ic;
 
     public List<GameObject> hideList;
 
@@ -37,11 +39,11 @@ public class W_Button_Pause : Window {
         {
             SetAcitve_GameBoard(false);
             sm.isPaused = true;
-
-            if(!Json.Check_Exsits("PlayData"))
-                wm.Get_window("Tutorial").Off();
+            ic.isPuased = true;
 
             Off();
+            if(!Json.Check_Exsits("PlayData"))
+                wm.Get_window("Tutorial").Off();
             wm.Get_window("Pause").On();
         }
 

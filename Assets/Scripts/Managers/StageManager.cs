@@ -621,6 +621,8 @@ public class StageManager : MonoBehaviour {
 
     int curTurn;
     int curRound;
+    public int Cur_Round
+    { get { return curRound; } }
 
     int totalScore;
     int data_TopScore;
