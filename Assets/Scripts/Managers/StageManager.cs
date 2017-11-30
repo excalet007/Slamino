@@ -151,7 +151,7 @@ public class StageManager : MonoBehaviour {
             mm.Play_Pop_Continuous();
             pop_Combo_Count++;
 
-            turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
+            turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count);
             w_score.Input(1, turnScore);
 
             pop_Block_Count = 0;
@@ -183,7 +183,7 @@ public class StageManager : MonoBehaviour {
                             mm.Play_Pop_Continuous();
                             pop_Combo_Count++;
 
-                            turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
+                            turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count);
                             w_score.Input(1, turnScore);
 
                             pop_Block_Count = 0;
@@ -212,7 +212,7 @@ public class StageManager : MonoBehaviour {
                             mm.Play_Pop_Continuous();
                             pop_Combo_Count++;
 
-                            turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count, pop_Turn_Count);
+                            turnScore += Get_TurnScore(pop_Block_Count, pop_Chain_Count);
                             w_score.Input(1, turnScore);
 
                             pop_Block_Count = 0;
@@ -1145,16 +1145,15 @@ public class StageManager : MonoBehaviour {
         }
     }
 
-    int Get_TurnScore(int block_Count, int Chain_Count, int Turn_Count)
+    int Get_TurnScore(int block_Count, int Chain_Count)
     {
         int score = 0;
         int block_Value = 100;
         
         float mult_Chain = Mathf.Pow(2, Chain_Count - 1);
-        float mult_Turn = 1 + 0.1f * Turn_Count;
         float mult_Round = 1 +  (int)(curRound / 10);
 
-        score = (int)(block_Value * block_Count *  mult_Chain * mult_Turn * mult_Round);
+        score = (int)(block_Value * block_Count *  mult_Chain * mult_Round);
 
         return score;
     }

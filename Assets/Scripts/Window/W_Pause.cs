@@ -54,7 +54,7 @@ public class W_Pause : Window {
         wm.Get_window("Button_Pause").On();
 
         sm.isPaused = false;
-        ic.isPuased = false;
+        ic.isPaused = false;
     }
 
     #endregion

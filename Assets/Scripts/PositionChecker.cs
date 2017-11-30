@@ -23,6 +23,6 @@ public class PositionChecker : MonoBehaviour {
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.A))
-            Show_Text(Input.mousePosition);
+            Show_Text(Camera.main.ScreenToWorldPoint(Input.mousePosition));
     }
 }

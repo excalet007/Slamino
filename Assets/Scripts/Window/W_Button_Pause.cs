@@ -39,7 +39,7 @@ public class W_Button_Pause : Window {
         {
             SetAcitve_GameBoard(false);
             sm.isPaused = true;
-            ic.isPuased = true;
+            ic.isPaused = true;
 
             Off();
             if(!Json.Check_Exsits("PlayData"))

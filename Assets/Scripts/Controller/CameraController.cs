@@ -27,6 +27,7 @@ public class CameraController : MonoBehaviour {
     void SetUp()
     {
         camera = GetComponent<Camera>();
+        Screen.orientation = ScreenOrientation.LandscapeLeft;
     }
      
     void Awake()
