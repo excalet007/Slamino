@@ -17,6 +17,7 @@ public class InputController : MonoBehaviour {
         mm = MusicManager.Instance;
 
         time = 0;
+        Delay_Pause = 0f;
         timeChecker = false;
         isPaused = false;
     }
@@ -84,13 +85,21 @@ public class InputController : MonoBehaviour {
                     }
                 }
 
+                //Resume Damper
+                if(Delay_Pause > 0 && isPaused == false)
+                {
+                    Delay_Pause -= Time.deltaTime;
+                    return;
+                }
+                
+
                 #region smino movement by Touches
                 if(Input.touchCount > 0 && sm.OnCycle == false && isPaused == false)
                 {
                     // check in zone
                     Vector2 touchPos = Camera.main.ScreenToWorldPoint(Input.touches[0].position);
                     bool isInBoundary = false;
-
+                    
                     // Check mino pos
                     float damp = 0.5f;
                     int mino_x0 = 0;
@@ -109,7 +118,7 @@ public class InputController : MonoBehaviour {
                                     isInBoundary = true;
 
                                     mino_x0 = (int)Mathf.Round(touchPos.x - 0.5f);
-                                    mino_x1 = (int)Mathf.Round(touchPos.x + 0.5f);
+                                    mino_x1 = mino_x0 + 1;
                                 }
                             }                                    
                             break;
@@ -123,7 +132,7 @@ public class InputController : MonoBehaviour {
                                     isInBoundary = true;
 
                                     mino_y0 = (int)Mathf.Round(touchPos.y + 0.5f);
-                                    mino_y1 = (int)Mathf.Round(touchPos.y - 0.5f);
+                                    mino_y1 = mino_y0 - 1;
                                 }
                             }
                              break;
@@ -529,7 +538,7 @@ public class InputController : MonoBehaviour {
     private bool timeChecker;
 
     public bool isPaused;
-
+    public float Delay_Pause;
 
     // Toucing Information
     private bool tap;
@@ -537,6 +546,7 @@ public class InputController : MonoBehaviour {
 
     private Vector2 startTouch, swipeDelta;
     private int damper;
+
 
     // Starting Information
     int temp_x0, temp_x1, temp_y0, temp_y1;

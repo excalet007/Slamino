@@ -55,6 +55,7 @@ public class W_Pause : Window {
 
         sm.isPaused = false;
         ic.isPaused = false;
+        ic.Delay_Pause = 0.3f;
     }
 
     #endregion
