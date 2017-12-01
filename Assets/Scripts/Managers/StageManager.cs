@@ -230,29 +230,11 @@ public class StageManager : MonoBehaviour {
                 break;
         }
 
-        // MakeSound for Chain 
-        switch(pop_Combo_Count)
-        {
-            case 3:
-                mm.Play_Cheer(0);
-                break;
-
-            case 4:
-                mm.Play_Cheer(1);
-                break;
-
-            case 5:
-                mm.Play_Cheer(2);
-                break;
-
-            case 6:
-                mm.Play_Cheer(3);
-                break;
-
-            default:
-                break;
-        }
-
+        // MakeSound for Chain
+        if (pop_Combo_Count > 5)
+            mm.Play_Cheer(3);
+        else if (pop_Combo_Count > 2)
+            mm.Play_Cheer(pop_Combo_Count -3);
 
         //Total Score Update
         totalScore += turnScore;
@@ -274,42 +256,6 @@ public class StageManager : MonoBehaviour {
 
                 yield return new WaitForSeconds(0.06f);
             }
-        }
-
-        // Check Is Game Over -> but it's very unique case
-        if (!Get_IsDropAble(cur_DirIndex))
-        {
-            //--------Game Over & Save Data------------------------------------
-            w_gameOver.Input(0, totalScore);
-
-            data_PlayedGame++;
-            if (totalScore > data_TopScore)
-                data_TopScore = totalScore;
-
-            w_gameOver.Input(1, data_TopScore);
-
-            Dictionary<string, object> json = new Dictionary<string, object>();
-            json.Add("PlayedGame", data_PlayedGame);
-            json.Add("TopScore", data_TopScore);
-
-            string strJson = Json.Write(json);
-
-            Json.Save("PlayData", strJson);
-            //-----------------------------------------------------------------------------
-
-            mm.Sfx_Projector.Stop();
-            mm.Bgm.Stop();
-            mm.Play_Scratch(0);
-            mm.Play_SpotLight(1);
-            
-            StartCoroutine(Run_MinoOver_Coroutine(cur_DirIndex));
-            yield return new WaitForSeconds(2.5f);
-
-            WindowManager.Instance.Get_window("Score").Off();
-            WindowManager.Instance.Get_window("Panel").On();
-            WindowManager.Instance.Get_window("Projector").Off(); ;
-
-            GameState = GameState.LoadingGameOver;
         }
         
         //Reset_Sount Value
