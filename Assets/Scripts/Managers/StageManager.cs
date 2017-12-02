@@ -1255,7 +1255,7 @@ public class StageManager : MonoBehaviour {
         }
         for (int y = gapY; y <= mapY -1 - gapY; y++)
         {
-            for(int x = leftVer; x>=gapX; x--)
+            for(int x = leftVer; x>=xMin; x--)
             {
                 Mino m = Get_ContactPos_ToAxis(board[x,y], 1, 0);
                 if (m.Xpos != board[x,y].Xpos)
@@ -1265,7 +1265,7 @@ public class StageManager : MonoBehaviour {
                 }
             }
 
-            for(int x = rightVer; x<=mapX -1 -gapX; x++)
+            for(int x = rightVer; x<=xMax; x++)
             {
                 Mino m = Get_ContactPos_ToAxis(board[x, y], -1, 0);
                 if (m.Xpos != board[x, y].Xpos)

@@ -28,6 +28,15 @@ public class InputController : MonoBehaviour {
         // Scene Reset
         if (Input.GetKeyDown(KeyCode.R))
             SceneManager.LoadScene("Stage");
+        
+        // Android Out button
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            if (Input.GetKey(KeyCode.Escape))
+            {
+                Application.Quit();
+            }
+        }
 
         // Check every Update
         tap = false;
