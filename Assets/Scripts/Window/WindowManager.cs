@@ -21,6 +21,7 @@ public class WindowManager : MonoBehaviour {
         Get_window("Pause").Off();
         Get_window("Restart").Off();
         Get_window("Credit").Off();
+        Get_window("TouchSetting").Off();
         Get_window("GameOver").Off();
         Get_window("GameStart").On();
     }

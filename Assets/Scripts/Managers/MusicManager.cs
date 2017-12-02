@@ -120,13 +120,16 @@ public class MusicManager : MonoBehaviour {
         sfx_Score_Tap.clip = sfx_Score_TapList[0];
         sfx_Score_Enter.clip = sfx_Score_EnterList[1];
 
-        if (Json.Check_Exsits("PlayData") == false && PlayerPrefs.GetFloat("Volume_BGM") == 0 && PlayerPrefs.GetFloat("Volume_SFX") == 0)
+        if (Json.Check_Exsits("PlayData") == false)
         {
             PlayerPrefs.SetFloat("Volume_BGM", 1f);
             PlayerPrefs.SetFloat("Volume_SFX", 1f);
         }
         slider_BGM.value = PlayerPrefs.GetFloat("Volume_BGM");
         slider_SFX.value = PlayerPrefs.GetFloat("Volume_SFX");
+
+        Change_Volume_BGM();
+        Change_Volume_SFX();
     }
 
     public void Play_BGM()

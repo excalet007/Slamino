@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
@@ -20,11 +21,22 @@ public class InputController : MonoBehaviour {
         Delay_Pause = 0f;
         timeChecker = false;
         isPaused = false;
+
+        if (PlayerPrefs.GetFloat("SwipeSensitivity") == 0)
+            PlayerPrefs.SetFloat("SwipeSensitivity", 100f);
+
+        sensitivity = PlayerPrefs.GetFloat("SwipeSensitivity");
+        Slider_Sensitivity.value = sensitivity;
+
+        if (PlayerPrefs.GetString("TouchSetting") == "SwipeAndDrop")
+            TouchSetting = TouchSetting.SwipeAndDrop;
+        else
+            TouchSetting = TouchSetting.PointAndDrop;
     }
 
     void Update()
     {
-        #region KeyBoard Works
+        #region Input Works
         // Scene Reset
         if (Input.GetKeyDown(KeyCode.R))
             SceneManager.LoadScene("Stage");
@@ -101,10 +113,12 @@ public class InputController : MonoBehaviour {
                     return;
                 }
                 
-
-                #region smino movement by Touches
+                #region Android Movment
                 if(Input.touchCount > 0 && sm.OnCycle == false && isPaused == false)
                 {
+                    #region Point & Drop
+                    if (TouchSetting == TouchSetting.PointAndDrop)
+                    { 
                     // check in zone
                     Vector2 touchPos = Camera.main.ScreenToWorldPoint(Input.touches[0].position);
                     bool isInBoundary = false;
@@ -229,9 +243,7 @@ public class InputController : MonoBehaviour {
                         isDraging = false;
                         Reset();
                     }
-
-                    // calc distance
-                    // swipeDelta = Vector2.zero;
+                    
                     if(isDraging && isInBoundary)
                     {
                         bool isBiggerThanOne = false;
@@ -298,6 +310,129 @@ public class InputController : MonoBehaviour {
                             sm.Set_Preview();
                         }
                     }
+                     
+                    }
+                    #endregion
+                    
+                    #region Swipe & Drop
+                    if (TouchSetting == TouchSetting.SwipeAndDrop)
+                    {
+                        if (Input.touches[0].phase == TouchPhase.Began)
+                        {
+                            isDraging = true;
+                            tap = true;
+                        }
+                        else if(Input.touches[0].phase == TouchPhase.Ended || Input.touches[0].phase == TouchPhase.Canceled)
+                        {
+                            switch (sm.Cur_DirIndex)
+                            {
+                                case 0:
+                                case 1:
+                                case 2:
+                                case 3:
+                                    sm.Reset_Preview();
+                                    StartCoroutine(sm.Run_AlgoCycle_Corutine(sm.Cur_DirIndex));
+                                    break;
+
+                                default:
+                                    Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
+                                    break;
+                            }
+
+                            isDraging = false;
+                            Reset();
+                        }
+
+                        if(isDraging)
+                        {
+                            Vector2 touchDelta = Input.touches[0].deltaPosition;
+
+                            bool isBiggerThanSensitivity = false;
+                            int movement = 0;
+                            switch(sm.Cur_DirIndex)
+                            {
+                                case 0:
+                                case 1:
+                                    if(Mathf.Abs(touchDelta.x)>sensitivity)
+                                    {
+                                        movement = (int)(touchDelta.x / sensitivity);
+
+                                        if(movement != 0)
+                                            isBiggerThanSensitivity = true;
+                                    }
+                                    break;
+
+                                case 2:
+                                case 3:
+                                    if (Mathf.Abs(touchDelta.y) > sensitivity)
+                                    {
+                                        movement = (int)(touchDelta.y / sensitivity);
+
+                                        if (movement != 0)
+                                            isBiggerThanSensitivity = true;
+                                    }
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
+
+                            if (isBiggerThanSensitivity)
+                            {
+                                int x0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos;
+                                int x1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Xpos;
+                                int y0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos;
+                                int y1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Ypos;
+
+                                switch (sm.Cur_DirIndex)
+                                {
+                                    case 0:
+                                    case 1:
+                                        if(x0+ movement >= 1 && x0 + movement <= sm.MapX-3)
+                                        {
+                                            sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(MinoTypes.Empty);
+                                            sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(MinoTypes.Empty);
+
+                                            Mino m0_hor = sm.Board[x0 + movement, y0];
+                                            Mino m1_hor = sm.Board[x1 + movement, y1];
+
+                                            sm.sMinos[sm.Cur_DirIndex].minos[0] = m0_hor;
+                                            sm.sMinos[sm.Cur_DirIndex].minos[1] = m1_hor;
+
+                                            sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(temp_0);
+                                            sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(temp_1);
+                                            sm.Set_Preview();
+                                        }
+                                        break;
+
+                                    case 2:
+                                    case 3:
+                                        if (y0 + movement >= 2 && y0 + movement <= sm.MapY-2)
+                                        {
+                                            sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(MinoTypes.Empty);
+                                            sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(MinoTypes.Empty);
+
+                                            Mino m0_hor = sm.Board[x0, y0 + movement];
+                                            Mino m1_hor = sm.Board[x1, y1 + movement];
+
+                                            sm.sMinos[sm.Cur_DirIndex].minos[0] = m0_hor;
+                                            sm.sMinos[sm.Cur_DirIndex].minos[1] = m1_hor;
+
+                                            sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(temp_0);
+                                            sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(temp_1);
+                                            sm.Set_Preview();
+                                        }
+                                        break;
+
+                                    default:
+                                        Debug.LogError("Youur touch input is wrong");
+                                        break;
+                                }
+                            }
+                        }                                 
+                    }
+                    #endregion
                 }
                 #endregion
 
@@ -549,10 +684,15 @@ public class InputController : MonoBehaviour {
     public bool isPaused;
     public float Delay_Pause;
 
+    public Slider Slider_Sensitivity;
+
+
     // Toucing Information
     private bool tap;
     private bool isDraging = false;
-
+    public TouchSetting TouchSetting;
+    public float sensitivity;
+    
     private Vector2 startTouch, swipeDelta;
     private int damper;
 
@@ -560,8 +700,7 @@ public class InputController : MonoBehaviour {
     // Starting Information
     int temp_x0, temp_x1, temp_y0, temp_y1;
     MinoTypes temp_0, temp_1;
-    float sensitivity = 120f;
-
+    
     private void Reset()
     {
         startTouch = swipeDelta = Vector2.zero;

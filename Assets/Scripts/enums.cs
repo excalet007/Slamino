@@ -35,3 +35,8 @@ public enum GameState
     LoadingGameOver,
     GameOver
 }
+
+public enum TouchSetting
+{
+    PointAndDrop, SwipeAndDrop
+}

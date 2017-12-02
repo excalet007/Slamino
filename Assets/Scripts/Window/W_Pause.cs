@@ -42,6 +42,14 @@ public class W_Pause : Window {
 
         wm.Get_window("Restart").On();
     }
+
+    public void Click_TouchSetting()
+    {
+        Off();
+
+        wm.Get_window("TouchSetting").On();
+    }
+
     public void Click_Resume()
     {
         Off();

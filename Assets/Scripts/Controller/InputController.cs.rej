@@ -1,0 +1,14 @@
+diff a/Assets/Scripts/Controller/InputController.cs b/Assets/Scripts/Controller/InputController.cs	(rejected hunks)
+@@ -444,8 +444,11 @@
+     private float time;
+     private bool timeChecker;
+ 
++    public bool isPuased;
++
++
+     // Toucing Information
+-    private bool tap, swipeLeft, swipeRight, swipeUp, swipeDown;
++    private bool tap;
+     private bool isDraging = false;
+ 
+     private Vector2 startTouch, swipeDelta;

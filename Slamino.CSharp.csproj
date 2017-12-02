@@ -115,6 +115,7 @@
     <Compile Include="Assets\Scripts\Window\W_Proejctor.cs" />
     <Compile Include="Assets\Scripts\Window\W_Restart.cs" />
     <Compile Include="Assets\Scripts\Window\W_Score.cs" />
+    <Compile Include="Assets\Scripts\Window\W_TouchSetting.cs" />
     <Compile Include="Assets\Scripts\Window\W_Tutorial.cs" />
     <Compile Include="Assets\Scripts\Window\Window.cs" />
     <Compile Include="Assets\Scripts\Window\WindowManager.cs" />
