@@ -13,12 +13,18 @@ public class W_TouchSetting : Window {
         wm = WindowManager.Instance;
         im = InputController.Instance;
 
-        if (PlayerPrefs.GetString("TouchSetting") == "SwipeAndDrop")
+        switch((int)im.TouchSetting)
         {
-            Click_SwipeAndDrop();
+            case (int)TouchSetting.SwipeAndDrop:
+                Click_SwipeAndDrop();
+                break;
+
+            case (int)TouchSetting.PointAndDrop:
+            default:
+                Click_PointAndDrop();
+                break;
         }
-        else
-            Click_PointAndDrop();
+
     }
 
     public override void On()

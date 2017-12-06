@@ -22,11 +22,11 @@ public class InputController : MonoBehaviour {
         timeChecker = false;
         isPaused = false;
 
-        if (PlayerPrefs.GetFloat("SwipeSensitivity") == 0)
-            PlayerPrefs.SetFloat("SwipeSensitivity", 100f);
+        if (PlayerPrefs.HasKey("SwipeSensitivity") == false)
+            PlayerPrefs.SetFloat("SwipeSensitivity", 80f);
 
-        sensitivity = PlayerPrefs.GetFloat("SwipeSensitivity");
-        Slider_Sensitivity.value = sensitivity;
+        Slider_Sensitivity.value = PlayerPrefs.GetFloat("SwipeSensitivity");
+        sensitivity = Slider_Sensitivity.value;
 
         if (PlayerPrefs.GetString("TouchSetting") == "SwipeAndDrop")
             TouchSetting = TouchSetting.SwipeAndDrop;
@@ -321,6 +321,7 @@ public class InputController : MonoBehaviour {
                         {
                             isDraging = true;
                             tap = true;
+                            startTouch = Input.touches[0].position;
                         }
                         else if(Input.touches[0].phase == TouchPhase.Ended || Input.touches[0].phase == TouchPhase.Canceled)
                         {
@@ -345,7 +346,8 @@ public class InputController : MonoBehaviour {
 
                         if(isDraging)
                         {
-                            Vector2 touchDelta = Input.touches[0].deltaPosition;
+                            //Vector2 touchDelta = Input.touches[0].deltaPosition;
+                            swipeDelta = Camera.main.ScreenToWorldPoint(Input.touches[0].position - startTouch);
 
                             bool isBiggerThanSensitivity = false;
                             int movement = 0;
