@@ -31,6 +31,8 @@ public class InputController : MonoBehaviour {
             TouchSetting = TouchSetting.SwipeAndDrop;
         else
             TouchSetting = TouchSetting.PointAndDrop;
+
+        print(Camera.main.ScreenToWorldPoint(Vector2.zero));
     }
 
     void Update()
@@ -117,10 +119,12 @@ public class InputController : MonoBehaviour {
                 {
                     #region Point & Drop
                     if (TouchSetting == TouchSetting.PointAndDrop)
-                    { 
-                    // check in zone
-                    Vector2 touchPos = Camera.main.ScreenToWorldPoint(Input.touches[0].position);
-                    bool isInBoundary = false;
+                    {
+                        // check in zone
+                        Vector2 touchPos = Camera.main.ScreenToWorldPoint(Input.touches[0].position);
+                        Text_Debugger.Instance.Change_Text_Bot(touchPos.ToString());
+
+                        bool isInBoundary = false;
                     
                     // Check mino pos
                     float damp = 0.5f;
@@ -313,103 +317,86 @@ public class InputController : MonoBehaviour {
                     
                     #region Swipe & Drop
                     if (TouchSetting == TouchSetting.SwipeAndDrop)
-                    {                        
-                        if (Input.touches[0].phase == TouchPhase.Began)
+                    {                                                
+                        if(Input.touches[0].phase == TouchPhase.Ended || Input.touches[0].phase == TouchPhase.Canceled)
                         {
-                            isDraging = true;
-                            tap = true;
-                            startTouch = Input.touches[0].position;
-                        }
-                        else if(Input.touches[0].phase == TouchPhase.Ended || Input.touches[0].phase == TouchPhase.Canceled)
-                        {
-                            switch (sm.Cur_DirIndex)
-                            {
-                                case 0:
-                                case 1:
-                                case 2:
-                                case 3:
-                                    sm.Reset_Preview();
-                                    StartCoroutine(sm.Run_AlgoCycle_Corutine(sm.Cur_DirIndex));
-                                    break;
+                            sm.Reset_Preview();
+                            startTouch = Vector2.zero;
+                            swipeDelta = Vector2.zero;
+                            Text_Debugger.Instance.Change_Text_Top(startTouch.ToString());
+                            Text_Debugger.Instance.Change_Text_Bot(swipeDelta.ToString());
 
-                                default:
-                                    Debug.LogError("You didn't select CurIndex. use w,a,s,d key!");
-                                    break;
-                            }
-
-                            isDraging = false;
-                            Reset();
+                            StartCoroutine(sm.Run_AlgoCycle_Corutine(sm.Cur_DirIndex));
                             return;
                         }
 
-                        if(isDraging)
+                        if (startTouch == Vector2.zero)
                         {
-                            if (startTouch == Vector2.zero)
-                                startTouch = Input.touches[0].position;
+                            startTouch = Input.touches[0].position;
+                            Text_Debugger.Instance.Change_Text_Top(startTouch.ToString());
+                        }
+                        
+                        swipeDelta = Camera.main.ScreenToWorldPoint(Input.touches[0].position - startTouch) - Camera.main.ScreenToWorldPoint(Vector2.zero);
+                        Text_Debugger.Instance.Change_Text_Bot(swipeDelta.ToString());
 
-                            swipeDelta = Camera.main.ScreenToWorldPoint(Input.touches[0].position - startTouch);
+                        int movement = 0;
 
-                            int movement = 0;
+                        int cur_x0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos;
+                        int cur_y0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos;
 
-                            int cur_x0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Xpos;
-                            int cur_x1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Xpos;
-                            int cur_y0 = sm.sMinos[sm.Cur_DirIndex].minos[0].Ypos;
-                            int cur_y1 = sm.sMinos[sm.Cur_DirIndex].minos[1].Ypos;
-
-                            switch (sm.Cur_DirIndex)
-                            {
-                                case 0:
-                                case 1:
-                                    movement = (int)(swipeDelta.x / sensitivity);
-                                    if (temp_x0 + movement != cur_x0)
+                        switch (sm.Cur_DirIndex)
+                        {
+                            case 0:
+                            case 1:
+                                movement = (int)(swipeDelta.x / sensitivity);
+                                if (temp_x0 + movement != cur_x0)
+                                {
+                                    if (temp_x0 + movement >= 1 && temp_x0 + movement <= sm.MapX - 3)
                                     {
-                                        if (temp_x0 + movement >= 1 && temp_x0 + movement <= sm.MapX - 3)
-                                        {
-                                            sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(MinoTypes.Empty);
-                                            sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(MinoTypes.Empty);
+                                        sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(MinoTypes.Empty);
+                                        sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(MinoTypes.Empty);
 
-                                            Mino m0_hor = sm.Board[temp_x0 + movement, temp_y0];
-                                            Mino m1_hor = sm.Board[temp_x1 + movement, temp_y1];
+                                        Mino m0_hor = sm.Board[temp_x0 + movement, temp_y0];
+                                        Mino m1_hor = sm.Board[temp_x1 + movement, temp_y1];
 
-                                            sm.sMinos[sm.Cur_DirIndex].minos[0] = m0_hor;
-                                            sm.sMinos[sm.Cur_DirIndex].minos[1] = m1_hor;
+                                        sm.sMinos[sm.Cur_DirIndex].minos[0] = m0_hor;
+                                        sm.sMinos[sm.Cur_DirIndex].minos[1] = m1_hor;
 
-                                            sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(temp_0);
-                                            sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(temp_1);
-                                            sm.Set_Preview();
-                                        }
+                                        sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(temp_0);
+                                        sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(temp_1);
+                                        sm.Set_Preview();
                                     }
-                                    break;
+                                }
+                                break;
 
-                                case 2:
-                                case 3:
-                                    movement = (int)(swipeDelta.y / sensitivity);
-                                    if (temp_y0 + movement != cur_y0)
+                            case 2:
+                            case 3:
+                                movement = (int)(swipeDelta.y / sensitivity);
+                                if (temp_y0 + movement != cur_y0)
+                                {
+                                    if (temp_y0 + movement >= 2 && temp_y0 + movement <= sm.MapY - 2)
                                     {
-                                        if (temp_y0 + movement >= 2 && temp_y0 + movement <= sm.MapY - 2)
-                                        {
-                                            sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(MinoTypes.Empty);
-                                            sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(MinoTypes.Empty);
+                                        sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(MinoTypes.Empty);
+                                        sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(MinoTypes.Empty);
 
-                                            Mino m0_ver = sm.Board[temp_x0, temp_y0 + movement];
-                                            Mino m1_ver = sm.Board[temp_x1, temp_y1 + movement];
+                                        Mino m0_ver = sm.Board[temp_x0, temp_y0 + movement];
+                                        Mino m1_ver = sm.Board[temp_x1, temp_y1 + movement];
 
-                                            sm.sMinos[sm.Cur_DirIndex].minos[0] = m0_ver;
-                                            sm.sMinos[sm.Cur_DirIndex].minos[1] = m1_ver;
+                                        sm.sMinos[sm.Cur_DirIndex].minos[0] = m0_ver;
+                                        sm.sMinos[sm.Cur_DirIndex].minos[1] = m1_ver;
 
-                                            sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(temp_0);
-                                            sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(temp_1);
-                                            sm.Set_Preview();
-                                        }
+                                        sm.sMinos[sm.Cur_DirIndex].minos[0].Set_MinoType(temp_0);
+                                        sm.sMinos[sm.Cur_DirIndex].minos[1].Set_MinoType(temp_1);
+                                        sm.Set_Preview();
                                     }
-                                    break;
+                                }
+                                break;
 
-                                default:
-                                    Debug.LogError("input wrong cur_Dic");
-                                    break;
-                            }                            
-                        }                                 
-                    }
+                            default:
+                                Debug.LogError("input wrong cur_Dic");
+                                break;
+                        }
+                }
                     #endregion
                 }
                 #endregion
