@@ -13,18 +13,20 @@ public class W_TouchSetting : Window {
         wm = WindowManager.Instance;
         im = InputController.Instance;
 
-        switch((int)im.TouchSetting)
+
+        if (PlayerPrefs.HasKey("SwipeSensitivity") == false)
+            PlayerPrefs.SetFloat("SwipeSensitivity", 0.2f);
+
+        if (PlayerPrefs.GetString("TouchSetting") == "SwipeAndDrop")
         {
-            case (int)TouchSetting.SwipeAndDrop:
-                Click_SwipeAndDrop();
-                break;
-
-            case (int)TouchSetting.PointAndDrop:
-            default:
-                Click_PointAndDrop();
-                break;
+            Slider_Sensitivity.value = PlayerPrefs.GetFloat("SwipeSensitivity");
+            Click_SwipeAndDrop();
         }
-
+        else
+        {
+            Slider_Sensitivity.value = PlayerPrefs.GetFloat("SwipeSensitivity");
+            Click_PointAndDrop();
+        }
     }
 
     public override void On()
@@ -74,14 +76,10 @@ public class W_TouchSetting : Window {
 
     public void Change_SwipeSensitivity()
     {
-        Image_PointAndDrop.color = new Color(0.6f, 0.6f, 0.6f);
-        Image_SwipeAndDrop.color = new Color(1f, 1f, 1f);
+        im.sensitivity = 0.1f / Slider_Sensitivity.value;
+        PlayerPrefs.SetFloat("SwipeSensitivity", Slider_Sensitivity.value);
 
-        foreach (Image img in Image_Sliders)
-            img.color = new Color(1f, 1f, 1f);
-
-        im.sensitivity = Slider_Sensitivity.value;
-        PlayerPrefs.SetFloat("SwipeSensitivity", im.sensitivity);
+        Click_SwipeAndDrop();
     }
 
     public void Click_BackToPause()

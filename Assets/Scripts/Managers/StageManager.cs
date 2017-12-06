@@ -19,6 +19,8 @@ public class StageManager : MonoBehaviour {
         mm = MusicManager.Instance;
         mm.SetUp();
 
+        ic = InputController.Instance;
+
         w_score = WindowManager.Instance.Get_window("Score") as W_Score;
         w_tutorial = WindowManager.Instance.Get_window("Tutorial") as W_Tutorial;
         w_gameOver = WindowManager.Instance.Get_window("GameOver") as W_GameOver;
@@ -80,8 +82,6 @@ public class StageManager : MonoBehaviour {
         timeAfterDrop = 0.1f;
         timeAfterPop = 0.02f * 10;
 
-        transparency_blackLayer = 0.85f;
-
         l_Shadow.On(cur_DirIndex);
         l_Axis.On(cur_DirIndex);
         l_LimitLine.On(cur_DirIndex);
@@ -92,8 +92,12 @@ public class StageManager : MonoBehaviour {
         Initialize_CenterMinos(horLine, verLine, 3,2, true);
         Initialize_Slaminos(true);
 
+        // -------------------------------------------ic Setting ------------------------------------------
+
+        Set_IC_TempValue(cur_DirIndex);
+
         // --------------------------------------------Visual Additional Set ---------------------------
-        if(data_PlayedGame == 0)
+        if (data_PlayedGame == 0)
         {
             w_tutorial.On();
             w_tutorial.On(cur_DirIndex);
@@ -364,6 +368,9 @@ public class StageManager : MonoBehaviour {
         }
         Reset_Minos_Movement();
 
+        //ic. tempMino Change
+        Set_IC_TempValue(cur_DirIndex);
+
         //Scoring Initialize
         if (isPop_Turn)
         {
@@ -503,6 +510,7 @@ public class StageManager : MonoBehaviour {
 
     // Manager & Controllers
     MusicManager mm;
+    InputController ic;
 
     W_Score w_score;
     W_Tutorial w_tutorial;
@@ -548,19 +556,19 @@ public class StageManager : MonoBehaviour {
     [SerializeField]
     List<ChainMino> cMinos;
 
-    int upHor
+    public int upHor
     {
         get { return (int)(horLine + 0.5f); }
     }
-    int downHor
+    public int downHor
     {
         get { return (int)(horLine - 0.5f); }
     }
-    int leftVer
+    public int leftVer
     {
         get { return (int)(verLine - 0.5f); }
     }
-    int rightVer
+    public int rightVer
     {
         get { return (int)(verLine + 0.5f); }
     }
@@ -592,12 +600,6 @@ public class StageManager : MonoBehaviour {
     float timeAfterDrop;
     float timeAfterPop;
     
-
-    /// <summary>
-    /// 0 is perfect transparency, 1 is none transparency
-    /// </summary>
-    float transparency_blackLayer;
-
     // handle Action
     bool onCycle;
     public bool OnCycle
@@ -1350,6 +1352,59 @@ public class StageManager : MonoBehaviour {
         l_Shadow.On(direction);
         l_Axis.On(direction);
         l_LimitLine.On(direction);
+    }
+    void Set_IC_TempValue(int direction)
+    {
+        switch (direction)
+        {
+            case 0:
+                ic.temp_x0 = Board[leftVer, MapY - 1].Xpos;
+                ic.temp_y0 = Board[leftVer, MapY - 1].Ypos;
+
+                ic.temp_x1 = Board[rightVer, MapY - 1].Xpos;
+                ic.temp_y1 = Board[rightVer, MapY - 1].Ypos;
+
+                ic.temp_0 = Board[leftVer, MapY - 1].MinoType;
+                ic.temp_1 = Board[rightVer, MapY - 1].MinoType;
+                break;
+
+            case 1:
+                ic.temp_x0 = Board[leftVer, 0].Xpos;
+                ic.temp_y0 = Board[leftVer, 0].Ypos;
+
+                ic.temp_x1 = Board[rightVer, 0].Xpos;
+                ic.temp_y1 = Board[rightVer, 0].Ypos;
+
+                ic.temp_0 = Board[leftVer, 0].MinoType;
+                ic.temp_1 = Board[rightVer, 0].MinoType;
+                break;
+
+            case 2:
+                ic.temp_x0 = Board[0, upHor].Xpos;
+                ic.temp_y0 = Board[0, upHor].Ypos;
+
+                ic.temp_x1 = Board[0, downHor].Xpos;
+                ic.temp_y1 = Board[0, downHor].Ypos;
+
+                ic.temp_0 = Board[0, upHor].MinoType;
+                ic.temp_1 = Board[0, downHor].MinoType;
+                break;
+
+            case 3:
+                ic.temp_x0 = Board[MapX - 1, upHor].Xpos;
+                ic.temp_y0 = Board[MapX - 1, upHor].Ypos;
+
+                ic.temp_x1 = Board[MapX - 1, downHor].Xpos;
+                ic.temp_y1 = Board[MapX - 1, downHor].Ypos;
+
+                ic.temp_0 = Board[MapX - 1, upHor].MinoType;
+                ic.temp_1 = Board[MapX - 1, downHor].MinoType;
+                break;
+
+            default:
+                Debug.LogError("Wrong cur_Dir");
+                break;
+        }
     }
 
     bool Get_IsDropAble(int sIndex)

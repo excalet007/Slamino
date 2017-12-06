@@ -38,5 +38,5 @@ public enum GameState
 
 public enum TouchSetting
 {
-    PointAndDrop, SwipeAndDrop
+    None, PointAndDrop, SwipeAndDrop
 }

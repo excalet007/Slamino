@@ -22,11 +22,9 @@ public class CameraController : MonoBehaviour {
         }
     }
 
-    private Camera camera;
 
     void SetUp()
     {
-        camera = GetComponent<Camera>();
         Screen.orientation = ScreenOrientation.LandscapeLeft;
     }
      
